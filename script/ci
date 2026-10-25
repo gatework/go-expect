@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "$0")/.."
+if [ -n "$(gofmt -l .)" ]; then
+  printf '%s\n' 'Go files require formatting'
+  exit 1
+fi
+go mod verify
+go mod tidy -diff
+go vet ./...
+go test -race -shuffle=on -count=1 -timeout=90s ./...
+go test -run '^$' -fuzz '^FuzzMatchChunks$' -fuzztime=5s -parallel=2 .
+go test -run '^$' -fuzz '^FuzzRedactorChunks$' -fuzztime=5s -parallel=2 .
+go test -run '^$' -fuzz '^FuzzSessionContinuations$' -fuzztime=5s -parallel=2 .
+go test -run '^$' -bench . -benchmem -benchtime=3x .
+go run ./examples/dialogue
+bash script/consumer

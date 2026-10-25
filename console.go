@@ -1,3 +1,5 @@
+//go:build linux || darwin
+
 // Copyright 2018 Netflix, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,227 +17,137 @@
 package expect
 
 import (
-	"bufio"
-	"fmt"
+	"errors"
 	"io"
-	"io/ioutil"
-	"log"
 	"os"
+	"sync"
 	"time"
-	"unicode/utf8"
 
 	"github.com/creack/pty"
+	"golang.org/x/sys/unix"
+	"golang.org/x/term"
 )
 
-// Console is an interface to automate input and output for interactive
-// applications. Console can block until a specified output is received and send
-// input back on it's tty. Console can also multiplex other sources of input
-// and multiplex its output to other writers.
+// Console adapts an owned PTY to Session. It does not start, wait for, signal or
+// reap processes. Tty is intended for a caller-owned exec.Cmd or local device.
 type Console struct {
-	opts            ConsoleOpts
-	ptm             *os.File
-	pts             *os.File
-	passthroughPipe *PassthroughPipe
-	runeReader      *bufio.Reader
-	closers         []io.Closer
+	session *Session
+	tty     *os.File
+}
+type consoleOptions struct {
+	raw     bool
+	session []SessionOption
 }
 
-// ConsoleOpt allows setting Console options.
-type ConsoleOpt func(*ConsoleOpts) error
+// ConsoleOption configures the PTY adapter.
+type ConsoleOption func(*consoleOptions) error
 
-// ConsoleOpts provides additional options on creating a Console.
-type ConsoleOpts struct {
-	Logger          *log.Logger
-	Stdins          []io.Reader
-	Stdouts         []io.Writer
-	Closers         []io.Closer
-	ExpectObservers []ExpectObserver
-	SendObservers   []SendObserver
-	ReadTimeout     *time.Duration
+// WithSessionOptions configures the Console's underlying Session.
+func WithSessionOptions(opts ...SessionOption) ConsoleOption {
+	opts = append([]SessionOption(nil), opts...)
+	return func(o *consoleOptions) error { o.session = append(o.session, opts...); return nil }
 }
 
-// ExpectObserver provides an interface for a function callback that will
-// be called after each Expect operation.
-// matchers will be the list of active matchers when an error occurred,
-//   or a list of matchers that matched `buf` when err is nil.
-// buf is the captured output that was matched against.
-// err is error that might have occurred. May be nil.
-type ExpectObserver func(matchers []Matcher, buf string, err error)
+// WithRaw configures the slave in raw mode, including disabling echo.
+func WithRaw() ConsoleOption { return func(o *consoleOptions) error { o.raw = true; return nil } }
 
-// SendObserver provides an interface for a function callback that will
-// be called after each Send operation.
-// msg is the string that was sent.
-// num is the number of bytes actually sent.
-// err is the error that might have occured.  May be nil.
-type SendObserver func(msg string, num int, err error)
-
-// WithStdout adds writers that Console duplicates writes to, similar to the
-// Unix tee(1) command.
-//
-// Each write is written to each listed writer, one at a time. Console is the
-// last writer, writing to it's internal buffer for matching expects.
-// If a listed writer returns an error, that overall write operation stops and
-// returns the error; it does not continue down the list.
-func WithStdout(writers ...io.Writer) ConsoleOpt {
-	return func(opts *ConsoleOpts) error {
-		opts.Stdouts = append(opts.Stdouts, writers...)
-		return nil
-	}
-}
-
-// WithStdin adds readers that bytes read are written to Console's  tty. If a
-// listed reader returns an error, that reader will not be continued to read.
-func WithStdin(readers ...io.Reader) ConsoleOpt {
-	return func(opts *ConsoleOpts) error {
-		opts.Stdins = append(opts.Stdins, readers...)
-		return nil
-	}
-}
-
-// WithCloser adds closers that are closed in order when Console is closed.
-func WithCloser(closer ...io.Closer) ConsoleOpt {
-	return func(opts *ConsoleOpts) error {
-		opts.Closers = append(opts.Closers, closer...)
-		return nil
-	}
-}
-
-// WithLogger adds a logger for Console to log debugging information to. By
-// default Console will discard logs.
-func WithLogger(logger *log.Logger) ConsoleOpt {
-	return func(opts *ConsoleOpts) error {
-		opts.Logger = logger
-		return nil
-	}
-}
-
-// WithExpectObserver adds an ExpectObserver to allow monitoring Expect operations.
-func WithExpectObserver(observers ...ExpectObserver) ConsoleOpt {
-	return func(opts *ConsoleOpts) error {
-		opts.ExpectObservers = append(opts.ExpectObservers, observers...)
-		return nil
-	}
-}
-
-// WithSendObserver adds a SendObserver to allow monitoring Send operations.
-func WithSendObserver(observers ...SendObserver) ConsoleOpt {
-	return func(opts *ConsoleOpts) error {
-		opts.SendObservers = append(opts.SendObservers, observers...)
-		return nil
-	}
-}
-
-// WithDefaultTimeout sets a default read timeout during Expect statements.
-func WithDefaultTimeout(timeout time.Duration) ConsoleOpt {
-	return func(opts *ConsoleOpts) error {
-		opts.ReadTimeout = &timeout
-		return nil
-	}
-}
-
-// NewConsole returns a new Console with the given options.
-func NewConsole(opts ...ConsoleOpt) (*Console, error) {
-	options := ConsoleOpts{
-		Logger: log.New(ioutil.Discard, "", 0),
-	}
-
+// NewConsole creates a PTY and a Session. Failure closes every acquired handle.
+func NewConsole(opts ...ConsoleOption) (*Console, error) {
+	var o consoleOptions
 	for _, opt := range opts {
-		if err := opt(&options); err != nil {
+		if opt == nil {
+			return nil, errors.New("expect: nil console option")
+		}
+		if err := opt(&o); err != nil {
 			return nil, err
 		}
 	}
-
-	ptm, pts, err := pty.Open()
+	master, slave, err := pty.Open()
 	if err != nil {
 		return nil, err
 	}
-	closers := append(options.Closers, pts, ptm)
-
-	passthroughPipe, err := NewPassthroughPipe(ptm)
+	ok := false
+	defer func() {
+		if !ok {
+			master.Close()
+			slave.Close()
+		}
+	}()
+	// os.NewFile registers nonblocking descriptors with the runtime poller.
+	// Duplicate before wrapping: two os.File values must never own the same fd.
+	raw, err := master.SyscallConn()
 	if err != nil {
 		return nil, err
 	}
-	closers = append(closers, passthroughPipe)
-
-	c := &Console{
-		opts:            options,
-		ptm:             ptm,
-		pts:             pts,
-		passthroughPipe: passthroughPipe,
-		runeReader:      bufio.NewReaderSize(passthroughPipe, utf8.UTFMax),
-		closers:         closers,
+	fd := -1
+	var controlErr error
+	err = raw.Control(func(original uintptr) {
+		fd, controlErr = unix.FcntlInt(original, unix.F_DUPFD_CLOEXEC, 0)
+		if controlErr == nil {
+			controlErr = unix.SetNonblock(fd, true)
+		}
+	})
+	if err != nil || controlErr != nil {
+		if fd >= 0 {
+			unix.Close(fd)
+		}
+		return nil, errors.Join(err, controlErr)
 	}
-
-	for _, stdin := range options.Stdins {
-		go func(stdin io.Reader) {
-			_, err := io.Copy(c, stdin)
-			if err != nil {
-				c.Logf("failed to copy stdin: %s", err)
-			}
-		}(stdin)
+	pollable := os.NewFile(uintptr(fd), master.Name())
+	master.Close()
+	master = pollable
+	if err = master.SetReadDeadline(time.Time{}); err != nil {
+		return nil, err
 	}
-
-	return c, nil
-}
-
-// Tty returns Console's pts (slave part of a pty). A pseudoterminal, or pty is
-// a pair of psuedo-devices, one of which, the slave, emulates a real text
-// terminal device.
-func (c *Console) Tty() *os.File {
-	return c.pts
-}
-
-// Read reads bytes b from Console's tty.
-func (c *Console) Read(b []byte) (int, error) {
-	return c.ptm.Read(b)
-}
-
-// Write writes bytes b to Console's tty.
-func (c *Console) Write(b []byte) (int, error) {
-	c.Logf("console write: %q", b)
-	return c.ptm.Write(b)
-}
-
-// Fd returns Console's file descripting referencing the master part of its
-// pty.
-func (c *Console) Fd() uintptr {
-	return c.ptm.Fd()
-}
-
-// Close closes Console's tty. Calling Close will unblock Expect and ExpectEOF.
-func (c *Console) Close() error {
-	for _, fd := range c.closers {
-		err := fd.Close()
-		if err != nil {
-			c.Logf("failed to close: %s", err)
+	if o.raw {
+		if _, err = term.MakeRaw(int(slave.Fd())); err != nil {
+			return nil, err
 		}
 	}
-	return nil
+	transport := &ptyTransport{master: master, slave: slave}
+	session, err := NewSession(transport, o.session...)
+	if err != nil {
+		return nil, err
+	}
+	ok = true
+	return &Console{session: session, tty: slave}, nil
 }
 
-// Send writes string s to Console's tty.
-func (c *Console) Send(s string) (int, error) {
-	c.Logf("console send: %q", s)
-	n, err := c.ptm.WriteString(s)
-	for _, observer := range c.opts.SendObservers {
-		observer(s, n, err)
+// Session returns the single owner of Console's matching and sending operations.
+func (c *Console) Session() *Session { return c.session }
+
+// Tty returns the slave; the master is intentionally not exposed for competing reads.
+// Close the parent's slave after starting a process when waiting for process EOF.
+func (c *Console) Tty() *os.File { return c.tty }
+
+// Close closes the Session and both PTY handles, not any attached process.
+func (c *Console) Close() error { return c.session.Close() }
+
+type ptyTransport struct {
+	master, slave *os.File
+	once          sync.Once
+	err           error
+}
+
+func (p *ptyTransport) Read(b []byte) (int, error) {
+	n, err := p.master.Read(b)
+	if errors.Is(err, unix.EIO) {
+		err = io.EOF
 	}
 	return n, err
 }
-
-// SendLine writes string s to Console's tty with a trailing newline.
-func (c *Console) SendLine(s string) (int, error) {
-	return c.Send(fmt.Sprintf("%s\n", s))
-}
-
-// Log prints to Console's logger.
-// Arguments are handled in the manner of fmt.Print.
-func (c *Console) Log(v ...interface{}) {
-	c.opts.Logger.Print(v...)
-}
-
-// Logf prints to Console's logger.
-// Arguments are handled in the manner of fmt.Printf.
-func (c *Console) Logf(format string, v ...interface{}) {
-	c.opts.Logger.Printf(format, v...)
+func (p *ptyTransport) Write(b []byte) (int, error) { return p.master.Write(b) }
+func (p *ptyTransport) Close() error {
+	p.once.Do(func() {
+		a := p.slave.Close()
+		b := p.master.Close()
+		if errors.Is(a, os.ErrClosed) {
+			a = nil
+		}
+		if errors.Is(b, os.ErrClosed) {
+			b = nil
+		}
+		p.err = errors.Join(a, b)
+	})
+	return p.err
 }

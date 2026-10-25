@@ -12,8 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package expect provides an expect-like interface to automate control of
-// applications. It is unlike expect in that it does not spawn or manage
-// process lifecycle. This package only focuses on expecting output and sending
-// input through it's psuedoterminal.
+// Package expect automates interactive byte streams with bounded waits,
+// continuation callbacks and reusable response rules. Session owns a supplied
+// duplex transport; Console adapts a PTY on Linux and macOS. Callers own process
+// lifecycle, connection establishment, device policy and command success checks.
+//
+// Matching uses unmodified input. Diagnostics and output copies use explicit
+// streaming secret redaction. Result fields are raw, detached snapshots.
 package expect

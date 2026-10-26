@@ -29,3 +29,9 @@ being available. Its pure matcher fuzz smoke ended with the fuzz coordinator's
 context deadline (no failing input); local Go 1.26.10 race and the same fuzz smoke
 passed. setup-go now checks latest patches for every matrix/package/quality job.
 The same fuzz gates remain enabled; publication requires a fully green new SHA.
+
+The latest-patch remote retry hit the same deadline-only failure in a different
+fuzz target. This matches the coordinator deadline race reported upstream at
+https://github.com/golang/go/issues/75804. CI fuzz smokes now each require 100,000
+executions instead of racing a five-second cutoff. The targets, assertions and
+fatal exit handling are unchanged; no timeout or test failure is waived.

@@ -9,9 +9,11 @@ go mod verify
 go mod tidy -diff
 go vet ./...
 go test -race -shuffle=on -count=1 -timeout=90s ./...
-go test -run '^$' -fuzz '^FuzzMatchChunks$' -fuzztime=5s -parallel=2 .
-go test -run '^$' -fuzz '^FuzzRedactorChunks$' -fuzztime=5s -parallel=2 .
-go test -run '^$' -fuzz '^FuzzSessionContinuations$' -fuzztime=5s -parallel=2 .
+# Fixed execution budgets avoid the fuzz deadline race (golang/go#75804).
+# Every real fuzz failure remains fatal; no timeout result is ignored.
+go test -run '^$' -fuzz '^FuzzMatchChunks$' -fuzztime=100000x -parallel=2 .
+go test -run '^$' -fuzz '^FuzzRedactorChunks$' -fuzztime=100000x -parallel=2 .
+go test -run '^$' -fuzz '^FuzzSessionContinuations$' -fuzztime=100000x -parallel=2 .
 go test -run '^$' -bench . -benchmem -benchtime=3x .
 go run ./examples/dialogue
 bash script/consumer

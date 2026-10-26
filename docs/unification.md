@@ -40,3 +40,8 @@ Both macos-latest jobs remained queued with no assigned runner across the first
 three attempts. The matrix now pins the supported macos-15 image instead of the
 moving macOS 26 alias; Linux/macOS and both Go versions remain required gates.
 This is a runner-capacity fallback, not a skipped or locally substituted job.
+
+The macOS 15 Arm64 pool also left both jobs unassigned. The final capacity
+fallback uses the documented standard macos-15-intel pool, exercising the
+supported Darwin/amd64 target in addition to local Darwin/arm64 verification.
+Both remote macOS jobs remain mandatory; no publication gate is bypassed.

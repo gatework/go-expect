@@ -26,6 +26,7 @@ jobs:
       - uses: actions/setup-go@v7
         with:
           go-version: ${{ matrix.go }}
+          check-latest: true
           cache-dependency-path: go.sum
       - run: bash script/ci
   quality:
@@ -38,6 +39,7 @@ jobs:
       - uses: actions/setup-go@v7
         with:
           go-version: '1.27.x'
+          check-latest: true
       - uses: golangci/golangci-lint-action@v9
         with:
           version: v2.15.0
@@ -61,6 +63,7 @@ jobs:
       - uses: actions/setup-go@v7
         with:
           go-version: '1.26.x'
+          check-latest: true
       - name: Package the tested commit and verify the extracted consumer
         run: |
           python3 script/release.py package

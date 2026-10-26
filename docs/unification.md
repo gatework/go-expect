@@ -23,3 +23,9 @@ this milestone review; Continue reset semantics intentionally remain unchanged.
 The user subsequently authorized version publication. The v0.1.1 release follows
 the repository automatic patch policy; the changelog explicitly marks TTY as a
 pre-v1 breaking API change. Consumer migration is a separate in-progress step.
+
+The first remote candidate used cached Go 1.26.9 despite a newer supported patch
+being available. Its pure matcher fuzz smoke ended with the fuzz coordinator's
+context deadline (no failing input); local Go 1.26.10 race and the same fuzz smoke
+passed. setup-go now checks latest patches for every matrix/package/quality job.
+The same fuzz gates remain enabled; publication requires a fully green new SHA.

@@ -41,6 +41,17 @@ func Compile(expr string) (Pattern, error) {
 	return Pattern{kind: regexpPattern, re: r}, nil
 }
 
+// FromRegexp snapshots a compiled expression, including POSIX/Longest semantics.
+// Later changes to the caller's expression do not affect the Pattern.
+func FromRegexp(re *regexp.Regexp) (Pattern, error) {
+	if re == nil {
+		return Pattern{}, errors.New("expect: nil regular expression")
+	}
+	// Copy is appropriate here to isolate Longest settings, as documented by regexp.
+	//nolint:staticcheck // SA1019: preserving independent Longest configuration.
+	return Pattern{kind: regexpPattern, re: re.Copy()}, nil
+}
+
 // EOF matches a clean end of input, after buffered text has been matched.
 func EOF() Pattern { return Pattern{kind: eofPattern} }
 

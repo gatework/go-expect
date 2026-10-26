@@ -15,22 +15,15 @@ The original Apache-2.0 license and copyright notices are retained.
 
 ## Network-device connector
 
-The [`connector` package](docs/connector.md) adds owned OpenSSH/Telnet connections,
-login/MFA and enable, exact device prompts, command/script receipts, confirmations,
-paging, validated configuration collection and private atomic backups. Basic
-Cisco IOS, Huawei and H3C profiles are included, with custom profiles supported.
-
-```sh
-go run ./examples/device
-```
-
-This local simulation covers the complete device conversation without contacting
-network equipment. The generic APIs below remain available for custom workflows.
+Device authentication, vendor profiles, commands and backups are maintained in
+[go-net-connector](https://github.com/gatework/go-net-connector). This module owns
+only matching, streams, PTYs, cancellation and secret filtering. See
+[the device-layer migration](docs/connector.md) for the breaking import change.
 
 ## Password, confirmation and paging
 
 Start with an already connected `io.ReadWriteCloser` (for example `net.Conn`), or
-create a Console and attach its `Tty()` to a caller-owned `exec.Cmd`. A successful
+create a Console and attach its `TTY()` to a caller-owned `exec.Cmd`. A successful
 `NewSession` takes exclusive ownership of the stream, including closing it. The
 stream's `Close` must interrupt both `Read` and `Write`.
 
@@ -88,7 +81,7 @@ for _,command := range commands {
 Use a parent context deadline to bound the entire operation. A returned prompt
 means the prompt matched; inspect device-specific failure output separately.
 The generic Session does not establish connections or retry commands. Use
-`connector` for connection ownership and device operations. Neither layer accepts
+`go-net-connector/connector` for device operations. Neither library accepts
 unknown host keys or answers arbitrary confirmations automatically.
 
 A complete runnable example, including dynamic regexp replies:
@@ -130,12 +123,12 @@ if err != nil {
 }
 defer c.Close()
 cmd := exec.CommandContext(ctx, "your-program", "literal-argument")
-cmd.Stdin, cmd.Stdout, cmd.Stderr = c.Tty(), c.Tty(), c.Tty()
+cmd.Stdin, cmd.Stdout, cmd.Stderr = c.TTY(), c.TTY(), c.TTY()
 if err := cmd.Start(); err != nil {
     return err
 }
 // The child has inherited the slave. Release the parent's copy for EOF.
-c.Tty().Close()
+c.TTY().Close()
 // Use c.Session().Expect / Send; always arrange cmd.Wait and failure cleanup.
 ```
 

@@ -229,7 +229,7 @@ func BenchmarkLiteral16K(b *testing.B) {
 		if err != nil {
 			b.Fatal(err)
 		}
-		go c.Tty().Write([]byte(text))
+		go c.TTY().Write([]byte(text))
 		_, err = c.Session().Expect(context.Background(), []Case{{Pattern: Literal("done!")}})
 		c.Close()
 		if err != nil {

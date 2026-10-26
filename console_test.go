@@ -50,13 +50,13 @@ func TestConsoleDeviceDialogue(t *testing.T) {
    printf 'applied:%s\ndevice>' "$command"
  done
  `)
-	cmd.Stdin = c.Tty()
-	cmd.Stdout = c.Tty()
-	cmd.Stderr = c.Tty()
+	cmd.Stdin = c.TTY()
+	cmd.Stdout = c.TTY()
+	cmd.Stderr = c.TTY()
 	if err = cmd.Start(); err != nil {
 		t.Fatal(err)
 	}
-	c.Tty().Close()
+	c.TTY().Close()
 	defer func() {
 		if cmd.ProcessState == nil {
 			cmd.Process.Kill()
@@ -114,7 +114,7 @@ func TestConsoleLineEnding(t *testing.T) {
 	}
 	defer c.Close()
 	done := make(chan string, 1)
-	go func() { b := make([]byte, 3); io.ReadFull(c.Tty(), b); done <- string(b) }()
+	go func() { b := make([]byte, 3); io.ReadFull(c.TTY(), b); done <- string(b) }()
 	if n, err := c.Session().SendLine(t.Context(), "x"); n != 3 || err != nil {
 		t.Fatalf("%d %v", n, err)
 	}

@@ -8,12 +8,13 @@ import (
 )
 
 var (
-	ErrClosed      = errors.New("expect: session closed")
-	ErrBusy        = errors.New("expect: another expect operation is active")
-	ErrTimeout     = errors.New("expect: timeout")
-	ErrIdleTimeout = errors.New("expect: idle timeout")
-	ErrBufferLimit = errors.New("expect: buffer limit reached")
-	ErrEmptyMatch  = errors.New("expect: empty match")
+	ErrClosed          = errors.New("expect: session closed")
+	ErrBusy            = errors.New("expect: another expect operation is active")
+	ErrTimeout         = errors.New("expect: timeout")
+	ErrIdleTimeout     = errors.New("expect: idle timeout")
+	ErrBufferLimit     = errors.New("expect: buffer limit reached")
+	ErrEmptyMatch      = errors.New("expect: empty match")
+	ErrPollUnsupported = errors.New("expect: OS polling unsupported")
 )
 
 // WriteError reports a failed, non-retryable write. Error never prints payloads
@@ -39,7 +40,7 @@ type Event struct {
 	Error            string
 }
 
-// Observer is invoked once per completed public Expect or Send operation.
+// Observer is invoked once per completed public Expect, Send or SendAll operation.
 // Observers run synchronously outside locks and must not block indefinitely.
 type Observer func(Event)
 
@@ -50,6 +51,7 @@ type sessionOptions struct {
 	outputs               []io.Writer
 	observers             []Observer
 	logger                *log.Logger
+	osPolling             bool
 }
 
 // SessionOption configures a Session before it takes ownership of the transport.
@@ -147,9 +149,14 @@ func WithLogger(l *log.Logger) SessionOption {
 	}
 }
 
-type expectOptions struct{ timeout, idle time.Duration }
+type expectOptions struct {
+	timeout, idle time.Duration
+	declaration   bool
+	streaming     Handler
+	poll          bool
+}
 
-// ExpectOption changes the timing of a single Expect operation.
+// ExpectOption configures matching or timing for a single Expect operation.
 type ExpectOption func(*expectOptions) error
 
 // WithTimeout sets the relative timer, including elapsed callback time.
@@ -173,4 +180,30 @@ func WithIdleTimeout(d time.Duration) ExpectOption {
 		o.idle = d
 		return nil
 	}
+}
+
+// WithDeclarationPriority selects the first declared matching case, regardless
+// of its byte position. Without this option the earliest byte wins.
+func WithDeclarationPriority() ExpectOption {
+	return func(o *expectOptions) error { o.declaration = true; return nil }
+}
+
+// WithStreamingFallback consumes the first 32 KiB when 64 KiB are pending and
+// no ordinary case matches. Result.CaseIndex is -1 and Match is the consumed data.
+// Continue and ContinueWithoutReset both preserve all existing timers.
+func WithStreamingFallback(handler Handler) ExpectOption {
+	return func(o *expectOptions) error {
+		if handler == nil {
+			return errors.New("expect: nil streaming handler")
+		}
+		o.streaming = handler
+		return nil
+	}
+}
+
+// WithOSPolling enables sole-reader OS readiness coordination for Poll and
+// SendAllPoll. The transport must expose syscall.Conn and a nonblocking OS fd.
+// Unsupported transports fail construction before ownership transfers.
+func WithOSPolling() SessionOption {
+	return func(o *sessionOptions) error { o.osPolling = true; return nil }
 }

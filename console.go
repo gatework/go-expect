@@ -21,6 +21,7 @@ import (
 	"io"
 	"os"
 	"sync"
+	"syscall"
 	"time"
 
 	"github.com/creack/pty"
@@ -29,7 +30,7 @@ import (
 )
 
 // Console adapts an owned PTY to Session. It does not start, wait for, signal or
-// reap processes. Tty is intended for a caller-owned exec.Cmd or local device.
+// reap processes. TTY is intended for a caller-owned exec.Cmd or local device.
 type Console struct {
 	session *Session
 	tty     *os.File
@@ -116,9 +117,9 @@ func NewConsole(opts ...ConsoleOption) (*Console, error) {
 // Session returns the single owner of Console's matching and sending operations.
 func (c *Console) Session() *Session { return c.session }
 
-// Tty returns the slave; the master is intentionally not exposed for competing reads.
+// TTY returns the slave; the master is intentionally not exposed for competing reads.
 // Close the parent's slave after starting a process when waiting for process EOF.
-func (c *Console) Tty() *os.File { return c.tty }
+func (c *Console) TTY() *os.File { return c.tty }
 
 // Close closes the Session and both PTY handles, not any attached process.
 func (c *Console) Close() error { return c.session.Close() }
@@ -150,4 +151,12 @@ func (p *ptyTransport) Close() error {
 		p.err = errors.Join(a, b)
 	})
 	return p.err
+}
+
+func (p *ptyTransport) SyscallConn() (syscall.RawConn, error) { return p.master.SyscallConn() }
+func (p *ptyTransport) normalizeReadError(err error) error {
+	if errors.Is(err, unix.EIO) {
+		return io.EOF
+	}
+	return err
 }

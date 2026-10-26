@@ -1,16 +1,19 @@
 # Changelog
 
-## Unreleased
+## v0.1.1
 
-- Add the `connector` device layer: owned OpenSSH/Telnet clients, bounded login
-  and MFA/enable exchanges, exact prompts, command-scoped confirmations, paging,
-  script preflight, full responses and per-command completion receipts.
-- Add Cisco IOS, Huawei and H3C profiles, validated configuration collection,
-  explicit save evidence and locked private atomic backups with commit receipts.
-
-- Preserve cancellation/Close when a completed write becomes ready at the same
-  time, and include pending input in rejected-wait diagnostics.
-- Reduce fragmented receive allocations by reusing private read scratch safely.
+- BREAKING: rename Console.Tty to Console.TTY; update callers as described in
+  docs/migration.md. The module remains pre-v1 and uses automatic patch versions.
+- Add opt-in Poll, SendAll, declaration priority, bounded streaming fallback and
+  standalone scoped redaction; default matching and single-write sends remain.
+- Preserve compiled regexp semantics through FromRegexp and cancel active handler
+  contexts on Close without waiting for user callbacks.
+- Retain cleanup errors and exact progress on automatic retirement; make repeated
+  positive partial writes use one send buffer rather than copying every suffix.
+- Keep go-expect focused on generic streams and PTYs. The unreleased duplicate
+  device package is removed; device-layer migration belongs to go-net-connector.
+- Preserve cancellation/Close when write completion races with stopping, include
+  pending input in rejected waits, and reduce fragmented receive allocations.
 - Verify source archive files and permissions against the tested Git tree.
 
 ## v0.1.0

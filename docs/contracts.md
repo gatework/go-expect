@@ -149,3 +149,23 @@ failed/rejected waits. They do not receive raw error messages or payloads.
 Responder event case indices match the public result, never internal rule indices.
 A sink failure stops processing and closes the session; previously delivered output and
 response effects are not retried.
+
+## Explicit compatibility operations
+
+`FromRegexp` takes an isolated snapshot including POSIX/Longest matching settings.
+`WithDeclarationPriority` chooses the first declared matching case instead of the
+earliest byte. Without the option, earliest-byte ordering is unchanged.
+`WithStreamingFallback` explicitly consumes 32 KiB when 64 KiB is pending and no
+ordinary case matches. Its retained tail is bounded; it is not a guarantee for
+patterns spanning arbitrarily long prefixes. Its callbacks do not reset timers.
+`Poll` and `SendAllPoll` require `WithOSPolling` and an OS-backed nonblocking stream;
+zero relative timeout still means wait without that timer, never poll.
+`SendAll` sends only positive-progress unsent suffixes, queues bounded peer input
+to prevent duplex backpressure deadlock, and retires on any subsequent failure.
+Its parent context owns the deadline; WithWriteTimeout applies to Send only.
+`NewRedactor` supports a chosen replacement and scoped secret changes without
+allowing previously hidden bytes to reappear. The Session filter is unchanged.
+
+Close cancels the active handler context but does not wait for user code. Handlers
+must cooperate with cancellation. Automatic retirement preserves independent
+cleanup causes through errors.Is/As; writes still expose exact Written progress.

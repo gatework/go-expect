@@ -9,7 +9,7 @@ import (
 
 func TestConsole(t *testing.T) {
 	c := NewConsole(t, expect.WithRaw())
-	go c.Tty().Write([]byte("ready"))
+	go c.TTY().Write([]byte("ready"))
 	r, err := c.Session().Expect(t.Context(), []expect.Case{{Pattern: expect.Literal("ready")}})
 	if err != nil || r.Match != "ready" {
 		t.Fatalf("%v %q", err, r.Match)

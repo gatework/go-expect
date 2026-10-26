@@ -64,6 +64,22 @@ func (s *Session) expect(ctx context.Context, cases []Case, guards []func(Result
 			return failure(err)
 		}
 	}
+	// One cancellable handler scope per wait avoids per-continuation allocation
+	// when relative and idle timers are disabled. Close never waits for callbacks.
+	handlerCtx, cancelHandlers := context.WithCancel(ctx)
+	s.lifeMu.Lock()
+	if s.isClosed() {
+		cancelHandlers()
+	} else {
+		s.handlerCancel = cancelHandlers
+	}
+	s.lifeMu.Unlock()
+	defer func() {
+		cancelHandlers()
+		s.lifeMu.Lock()
+		s.handlerCancel = nil
+		s.lifeMu.Unlock()
+	}()
 	now := time.Now()
 	relative := after(now, o.timeout)
 	idle := after(now, o.idle)
@@ -72,6 +88,8 @@ func (s *Session) expect(ctx context.Context, cases []Case, guards []func(Result
 	defer timer.Stop()
 	// Literal scan positions are local to this call and reset on consumption.
 	scanned := make([]int, len(cases))
+	var pollAck chan struct{}
+	polled := false
 	for {
 		if err = ctx.Err(); err != nil {
 			return failure(err)
@@ -101,10 +119,19 @@ func (s *Session) expect(ctx context.Context, cases []Case, guards []func(Result
 				return failure(e)
 			}
 			scanned[i] = len(s.pending)
-			if ok && (chosen < 0 || hit.start < loc.start) {
+			if ok && (chosen < 0 || (!o.declaration && hit.start < loc.start)) {
 				chosen = i
 				loc = hit
+				if o.declaration {
+					break
+				}
 			}
+		}
+		streaming := false
+		if chosen < 0 && o.streaming != nil && len(s.pending) >= 64<<10 {
+			chosen = len(cases)
+			loc = location{start: 0, end: 32 << 10}
+			streaming = true
 		}
 		eof := false
 		if chosen < 0 && s.terminal != nil {
@@ -131,8 +158,12 @@ func (s *Session) expect(ctx context.Context, cases []Case, guards []func(Result
 			if s.isClosed() {
 				return failure(ErrClosed)
 			}
-			result = Result{CaseIndex: chosen, Before: string(s.pending[:loc.start]), Match: string(s.pending[loc.start:loc.end]), Captures: loc.captures}
-			if guards != nil && guards[chosen] != nil {
+			index := chosen
+			if streaming {
+				index = -1
+			}
+			result = Result{CaseIndex: index, Before: string(s.pending[:loc.start]), Match: string(s.pending[loc.start:loc.end]), Captures: loc.captures}
+			if !streaming && guards != nil && guards[chosen] != nil {
 				if err = guards[chosen](result); err != nil {
 					return result, err
 				}
@@ -142,11 +173,16 @@ func (s *Session) expect(ctx context.Context, cases []Case, guards []func(Result
 			for i := range scanned {
 				scanned[i] = 0
 			}
-			handler := cases[chosen].Handler
+			var handler Handler
+			if streaming {
+				handler = o.streaming
+			} else {
+				handler = cases[chosen].Handler
+			}
 			if handler == nil {
 				return result, nil
 			}
-			action, handlerErr := s.callHandler(ctx, earlier(relative, idle), handler, result)
+			action, handlerErr := s.callHandler(handlerCtx, earlier(relative, idle), handler, result)
 			if handlerErr != nil {
 				if errors.Is(handlerErr, context.DeadlineExceeded) && ctx.Err() == nil {
 					if !relative.IsZero() && !time.Now().Before(relative) {
@@ -164,7 +200,9 @@ func (s *Session) expect(ctx context.Context, cases []Case, guards []func(Result
 			case Return:
 				return result, operationError(ctx, relative, idle)
 			case Continue:
-				relative = after(time.Now(), o.timeout)
+				if !streaming {
+					relative = after(time.Now(), o.timeout)
+				}
 			case ContinueWithoutReset:
 			default:
 				return result, errors.New("expect: invalid handler action")
@@ -181,6 +219,9 @@ func (s *Session) expect(ctx context.Context, cases []Case, guards []func(Result
 		}
 		if len(s.staged) > 0 {
 			n := s.opts.limit - len(s.pending)
+			if o.streaming != nil && len(s.pending) < 64<<10 {
+				n = min(n, (64<<10)-len(s.pending))
+			}
 			if n > len(s.staged) {
 				n = len(s.staged)
 			}
@@ -195,15 +236,13 @@ func (s *Session) expect(ctx context.Context, cases []Case, guards []func(Result
 			s.staged = s.staged[n:]
 			idle = after(time.Now(), o.idle)
 			if err = s.emit(data, false); err != nil {
-				s.Close()
-				return failure(err)
+				return failure(errors.Join(err, s.Close()))
 			}
 			if len(s.staged) == 0 && s.stagedErr != nil {
 				s.terminal = s.stagedErr
 				s.stagedErr = nil
 				if err = s.emit(nil, true); err != nil {
-					s.Close()
-					return failure(err)
+					return failure(errors.Join(err, s.Close()))
 				}
 			}
 			continue
@@ -215,15 +254,85 @@ func (s *Session) expect(ctx context.Context, cases []Case, guards []func(Result
 			wake = timer.C
 		}
 		select {
+		case s.inputGate <- struct{}{}:
+		case <-wake:
+			continue
 		case <-ctx.Done():
+			return failure(ctx.Err())
+		case <-s.done:
+			return failure(ErrClosed)
+		}
+		if len(s.queued) > 0 {
+			event := s.queued[0]
+			s.queued[0] = readEvent{}
+			s.queued = nil
+			s.queuedBytes -= len(event.data)
+			<-s.inputGate
+			if e := s.acceptEvent(event); e != nil {
+				return failure(errors.Join(e, s.Close()))
+			}
+			continue
+		}
+		if o.poll && pollAck == nil && !polled {
+			pollAck = make(chan struct{})
+			select {
+			case s.pollRequests <- pollAck:
+			case event, ok := <-s.events:
+				pollAck = nil
+				<-s.inputGate
+				if !ok {
+					if s.terminal == nil {
+						s.terminal = io.EOF
+					}
+					continue
+				}
+				if e := s.acceptEvent(event); e != nil {
+					return failure(errors.Join(e, s.Close()))
+				}
+				continue
+			case <-ctx.Done():
+				<-s.inputGate
+				return failure(ctx.Err())
+			case <-s.done:
+				<-s.inputGate
+				return failure(ErrClosed)
+			}
+		}
+		if o.poll && polled {
+			select {
+			case event, ok := <-s.events:
+				<-s.inputGate
+				if ok {
+					if e := s.acceptEvent(event); e != nil {
+						return failure(errors.Join(e, s.Close()))
+					}
+					continue
+				}
+			default:
+				<-s.inputGate
+				return failure(ErrTimeout)
+			}
+			continue
+		}
+		select {
+		case <-pollAck:
+			<-s.inputGate
+			polled = true
+			pollAck = nil
+			continue
+		case <-ctx.Done():
+			<-s.inputGate
 			timer.Stop()
 			return failure(ctx.Err())
 		case <-s.done:
+			<-s.inputGate
 			timer.Stop()
 			return failure(ErrClosed)
 		case <-wake:
+			<-s.inputGate
 			continue
 		case event, ok := <-s.events:
+			<-s.inputGate
 			timer.Stop()
 			if !ok {
 				if s.terminal == nil {
@@ -237,8 +346,7 @@ func (s *Session) expect(ctx context.Context, cases []Case, guards []func(Result
 				s.terminal = event.err
 				s.stagedErr = nil
 				if err = s.emit(nil, true); err != nil {
-					s.Close()
-					return failure(err)
+					return failure(errors.Join(err, s.Close()))
 				}
 			}
 		}

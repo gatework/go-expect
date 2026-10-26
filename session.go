@@ -19,20 +19,28 @@ type readEvent struct {
 // Session owns one duplex transport and one matching buffer. The transport must
 // support concurrent Read/Write and guarantee Close interrupts both. After a
 // successful NewSession, callers must not perform I/O on that transport.
-// Expect is exclusive. Send is serialized; Close and Redact are concurrency safe.
+// Expect and Poll are exclusive. Sends are serialized; Close and Redact are
+// concurrency safe. SendAll may queue bounded input for the next Expect.
 // Do not copy a Session. Callback and output execution is cooperative.
 type Session struct {
-	transport io.ReadWriteCloser
-	opts      sessionOptions
-	events    chan readEvent
-	done      chan struct{}
-	workers   sync.WaitGroup
-	lifeMu    sync.Mutex
-	closeOnce sync.Once
-	closeErr  error
-	writeGate chan struct{}
-	expecting atomic.Bool
-	// Only the active Expect accesses the protocol state below.
+	transport     io.ReadWriteCloser
+	opts          sessionOptions
+	events        chan readEvent
+	done          chan struct{}
+	workers       sync.WaitGroup
+	lifeMu        sync.Mutex
+	closeOnce     sync.Once
+	closeErr      error
+	handlerCancel context.CancelFunc
+	writeGate     chan struct{}
+	inputGate     chan struct{}
+	inputReady    chan struct{}
+	queued        []readEvent
+	queuedBytes   int
+	osIO          *osAccess
+	pollRequests  chan chan struct{}
+	expecting     atomic.Bool
+	// Only the active Expect/Poll accesses the protocol state below.
 	pending, staged     []byte
 	stagedErr, terminal error
 	diagMu              sync.Mutex
@@ -55,7 +63,15 @@ func NewSession(transport io.ReadWriteCloser, opts ...SessionOption) (*Session, 
 			return nil, err
 		}
 	}
-	s := &Session{transport: transport, opts: o, events: make(chan readEvent, 1), done: make(chan struct{}), writeGate: make(chan struct{}, 1)}
+	var access *osAccess
+	if o.osPolling {
+		var err error
+		access, err = newOSAccess(transport)
+		if err != nil {
+			return nil, err
+		}
+	}
+	s := &Session{transport: transport, opts: o, events: make(chan readEvent, 1), done: make(chan struct{}), writeGate: make(chan struct{}, 1), inputGate: make(chan struct{}, 1), inputReady: make(chan struct{}, 1), osIO: access, pollRequests: make(chan chan struct{})}
 	s.workers.Add(1)
 	go s.readLoop()
 	return s, nil
@@ -75,6 +91,10 @@ func nilInterface(value any) bool {
 	}
 }
 func (s *Session) readLoop() {
+	if s.osIO != nil {
+		s.osReadLoop()
+		return
+	}
 	defer s.workers.Done()
 	defer close(s.events)
 	empty := 0
@@ -109,9 +129,7 @@ func (s *Session) readLoop() {
 		} else if n > 0 {
 			received = data[:n]
 		}
-		select {
-		case s.events <- readEvent{data: received, err: err}:
-		case <-s.done:
+		if !s.publishRead(readEvent{data: received, err: err}) {
 			return
 		}
 		if err != nil {
@@ -137,6 +155,9 @@ func (s *Session) Close() error {
 	s.closeOnce.Do(func() {
 		s.lifeMu.Lock()
 		close(s.done)
+		if s.handlerCancel != nil {
+			s.handlerCancel()
+		}
 		s.lifeMu.Unlock()
 		transportErr := s.transport.Close()
 		s.workers.Wait()
@@ -275,12 +296,12 @@ func (s *Session) Send(ctx context.Context, text string) (n int, err error) {
 	case resultValue := <-result:
 		n, err = resultValue.n, resultValue.err
 	case <-ctx.Done():
-		s.Close()
+		cleanup := s.Close()
 		r := <-result
-		return r.n, &WriteError{Written: r.n, Cause: errors.Join(ctx.Err(), r.err)}
+		return r.n, &WriteError{Written: r.n, Cause: errors.Join(ctx.Err(), r.err, cleanup)}
 	case <-s.done:
 		r := <-result
-		return r.n, &WriteError{Written: r.n, Cause: errors.Join(ErrClosed, r.err)}
+		return r.n, &WriteError{Written: r.n, Cause: errors.Join(ErrClosed, r.err, s.Close())}
 	}
 	// Both the write result and cancellation/Close can already be ready.
 	// select chooses randomly, so recheck before reporting successful progress.
@@ -290,7 +311,7 @@ func (s *Session) Send(ctx context.Context, text string) (n int, err error) {
 		err = errors.Join(ErrClosed, err)
 	}
 	if err != nil {
-		s.Close()
+		err = errors.Join(err, s.Close())
 		return n, &WriteError{Written: n, Cause: err}
 	}
 	return n, nil
@@ -304,4 +325,23 @@ type writeResult struct {
 // SendLine appends the configured line ending (LF by default).
 func (s *Session) SendLine(ctx context.Context, text string) (int, error) {
 	return s.Send(ctx, text+s.opts.lineEnding)
+}
+
+// publishRead is called only by the sole pump. The notification can collapse:
+// receivers always inspect the event channel under inputGate before waiting.
+func (s *Session) publishRead(event readEvent) bool {
+	select {
+	case s.events <- event:
+		s.signalInput()
+		return true
+	case <-s.done:
+		return false
+	}
+}
+
+func (s *Session) signalInput() {
+	select {
+	case s.inputReady <- struct{}{}:
+	default:
+	}
 }

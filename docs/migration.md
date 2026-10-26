@@ -37,5 +37,11 @@ whole receive history.
 Always check Send errors. A failed in-flight send closes the session and must not
 be retried automatically: a device may have already received part of the reply.
 
-Console still does not start or own processes. Attach Tty to exec.Cmd, Start,
+Console still does not start or own processes. Attach TTY to exec.Cmd, Start,
 close the parent's slave when appropriate, and arrange Wait and failure cleanup.
+
+## v0.1.1
+
+Rename `Console.Tty()` calls to `Console.TTY()`. The ownership contract is unchanged.
+The device package introduced on a development branch was not part of v0.1.0; it
+is removed from this generic library. Device migration is described in connector.md.

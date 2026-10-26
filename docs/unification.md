@@ -35,3 +35,8 @@ fuzz target. This matches the coordinator deadline race reported upstream at
 https://github.com/golang/go/issues/75804. CI fuzz smokes now each require 100,000
 executions instead of racing a five-second cutoff. The targets, assertions and
 fatal exit handling are unchanged; no timeout or test failure is waived.
+
+Both macos-latest jobs remained queued with no assigned runner across the first
+three attempts. The matrix now pins the supported macos-15 image instead of the
+moving macOS 26 alias; Linux/macOS and both Go versions remain required gates.
+This is a runner-capacity fallback, not a skipped or locally substituted job.

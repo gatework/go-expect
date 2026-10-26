@@ -1,8 +1,11 @@
 import importlib.util
+import gzip
+import io
 import os
 from pathlib import Path
 import subprocess
 import tempfile
+import tarfile
 import unittest
 from unittest.mock import patch
 
@@ -119,6 +122,76 @@ class ArtifactTests(unittest.TestCase):
         (self.dist / "SHA256SUMS").write_text("".join(f"{release.hashlib.sha256((self.dist / name).read_bytes()).hexdigest()}  {name}\n" for name in release.ASSETS[:2]))
         with self.assertRaises(ValueError):
             release.verify(self.dist, "0" * 40)
+
+    def rewrite_archive(self, transform):
+        archive = gzip.decompress((self.dist / "source.tar.gz").read_bytes())
+        output = io.BytesIO()
+        with tarfile.open(fileobj=io.BytesIO(archive), mode="r:") as original:
+            members = [(m, original.extractfile(m).read() if m.isfile() else None) for m in original]
+            with tarfile.open(fileobj=output, mode="w", format=tarfile.PAX_FORMAT,
+                              pax_headers=original.pax_headers) as changed:
+                for member, data in transform(members):
+                    if data is not None:
+                        member.size = len(data)
+                    changed.addfile(member, io.BytesIO(data) if data is not None else None)
+        (self.dist / "source.tar.gz").write_bytes(gzip.compress(output.getvalue(), mtime=0))
+        (self.dist / "SHA256SUMS").write_text("".join(f"{release.hashlib.sha256((self.dist / name).read_bytes()).hexdigest()}  {name}\n" for name in release.ASSETS[:2]))
+
+    def test_changed_tree_with_correct_commit_header_is_rejected(self):
+        self.rewrite_archive(lambda items: [(m, data.replace(b"example.test/library", b"example.test/changed") if data else data) for m, data in items])
+        with self.assertRaises(ValueError):
+            release.verify(self.dist, self.sha)
+
+    def test_invalid_archive_inventory_and_modes_are_rejected(self):
+        original = (self.dist / "source.tar.gz").read_bytes()
+        def altered_file(items, name=None, mode=None, kind=None):
+            member, data = items[-1]
+            if name is not None:
+                member.name = name
+            if mode is not None:
+                member.mode = mode
+            if kind is not None:
+                member.type = kind
+                member.linkname = "go-expect/go.mod"
+                data = None
+            return items[:-1] + [(member, data)]
+        mutations = {
+            "duplicate": lambda items: items + items[-1:],
+            "missing": lambda items: items[:-1],
+            "traversal": lambda items: altered_file(items, name="go-expect/../escape"),
+            "executable": lambda items: altered_file(items, mode=0o755),
+            "unreadable": lambda items: altered_file(items, mode=0),
+            "setuid": lambda items: altered_file(items, mode=0o4644),
+            "hardlink": lambda items: altered_file(items, kind=tarfile.LNKTYPE),
+        }
+        for name, transform in mutations.items():
+            with self.subTest(name=name):
+                (self.dist / "source.tar.gz").write_bytes(original)
+                self.rewrite_archive(transform)
+                with self.assertRaises(ValueError):
+                    release.verify(self.dist, self.sha)
+
+    def test_unusable_directory_permissions_are_rejected(self):
+        original = (self.dist / "source.tar.gz").read_bytes()
+        for mode in (0, 0o4755):
+            with self.subTest(mode=mode):
+                def change(items):
+                    items[0][0].mode = mode
+                    return items
+                (self.dist / "source.tar.gz").write_bytes(original)
+                self.rewrite_archive(change)
+                with self.assertRaises(ValueError):
+                    release.verify(self.dist, self.sha)
+
+    def test_tracked_symlink_and_executable_are_preserved(self):
+        (self.root / "tool").write_text("#!/bin/sh\nexit 0\n")
+        (self.root / "tool").chmod(0o755)
+        os.symlink("go.mod", self.root / "module-link")
+        subprocess.run(["git", "add", "tool", "module-link"], check=True)
+        subprocess.run(["git", "-c", "user.name=Test", "-c", "user.email=test@example.invalid", "commit", "-qm", "tracked modes"], check=True)
+        sha = release.git("rev-parse", "HEAD")
+        release.package(self.root / "mode-package", sha)
+        release.verify(self.root / "mode-package", sha)
 
     def test_publish_then_rerun_is_read_only(self):
         api = FakeGitHub()

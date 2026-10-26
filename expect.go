@@ -39,28 +39,29 @@ func (s *Session) expect(ctx context.Context, cases []Case, guards []func(Result
 		return result, ErrBusy
 	}
 	defer s.expecting.Store(false)
+	failure := func(e error) (Result, error) { return Result{CaseIndex: -1, Before: string(s.pending)}, e }
 	if ctx == nil {
-		return result, errors.New("expect: nil context")
+		return failure(errors.New("expect: nil context"))
 	}
 	if err = ctx.Err(); err != nil {
-		return result, err
+		return failure(err)
 	}
 	if len(cases) == 0 {
-		return result, errors.New("expect: no cases")
+		return failure(errors.New("expect: no cases"))
 	}
 	cases = append([]Case(nil), cases...)
 	for _, c := range cases {
 		if err = c.Pattern.validate(false); err != nil {
-			return result, err
+			return failure(err)
 		}
 	}
 	o := expectOptions{timeout: s.opts.timeout}
 	for _, opt := range opts {
 		if opt == nil {
-			return result, errors.New("expect: nil expect option")
+			return failure(errors.New("expect: nil expect option"))
 		}
 		if err = opt(&o); err != nil {
-			return result, err
+			return failure(err)
 		}
 	}
 	now := time.Now()
@@ -71,7 +72,6 @@ func (s *Session) expect(ctx context.Context, cases []Case, guards []func(Result
 	defer timer.Stop()
 	// Literal scan positions are local to this call and reset on consumption.
 	scanned := make([]int, len(cases))
-	failure := func(e error) (Result, error) { return Result{CaseIndex: -1, Before: string(s.pending)}, e }
 	for {
 		if err = ctx.Err(); err != nil {
 			return failure(err)

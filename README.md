@@ -13,6 +13,20 @@ Requires Go 1.26+. The PTY adapter is supported and tested on Linux and macOS.
 This is an API evolution of Netflix/go-expect; see [migration](docs/migration.md).
 The original Apache-2.0 license and copyright notices are retained.
 
+## Network-device connector
+
+The [`connector` package](docs/connector.md) adds owned OpenSSH/Telnet connections,
+login/MFA and enable, exact device prompts, command/script receipts, confirmations,
+paging, validated configuration collection and private atomic backups. Basic
+Cisco IOS, Huawei and H3C profiles are included, with custom profiles supported.
+
+```sh
+go run ./examples/device
+```
+
+This local simulation covers the complete device conversation without contacting
+network equipment. The generic APIs below remain available for custom workflows.
+
 ## Password, confirmation and paging
 
 Start with an already connected `io.ReadWriteCloser` (for example `net.Conn`), or
@@ -73,8 +87,9 @@ for _,command := range commands {
 
 Use a parent context deadline to bound the entire operation. A returned prompt
 means the prompt matched; inspect device-specific failure output separately.
-There are no built-in "answer yes to everything" rules, host-key acceptance,
-connection establishment or command retries.
+The generic Session does not establish connections or retry commands. Use
+`connector` for connection ownership and device operations. Neither layer accepts
+unknown host keys or answers arbitrary confirmations automatically.
 
 A complete runnable example, including dynamic regexp replies:
 

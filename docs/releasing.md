@@ -42,6 +42,11 @@ Queue capacity is GitHub's documented maximum of 100 pending runs.
 
 The source archive has a `go-expect/` prefix and a deterministic gzip header.
 `REVISION`, the archive's Git commit header and the workflow SHA must agree.
+The verifier also compares the archive's actual paths, contents, executable modes
+and symlink targets against that commit's Git tree, rejecting missing/duplicate
+files, incompatible types and unusable permissions. The commit must be available
+in the verifier's local repository. Source packages contain the full tracked tree;
+submodules and export-ignore/export-subst transformations are not supported.
 `SHA256SUMS` covers both the archive and revision file. Artifact names include the
 run attempt so full reruns do not overwrite an earlier attempt's artifact.
 

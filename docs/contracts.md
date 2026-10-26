@@ -25,8 +25,11 @@ with cancellation; a context cannot forcibly stop them.
 
 The single receive pump uses 16 KiB blocks and a bounded queue. The match buffer
 (default 8 MiB) has a separate bound; a staged block and the pump's fixed-size
-blocks are additional bounded storage. `ErrBufferLimit` preserves input. A later
-Expect can consume already buffered text and resume reading. At exactly the limit,
+blocks are additional bounded storage.
+Small reads copy only received bytes so the pump can reuse its private scratch
+block; larger reads transfer block ownership. Neither path reuses queued bytes.
+`ErrBufferLimit` preserves input. A later Expect can consume already buffered text
+and resume reading. At exactly the limit,
 a bounded next read event distinguishes EOF from overflow; if no event arrives,
 the ordinary wait deadline applies. No automatic tail
 trimming or search window silently changes matching semantics.
@@ -86,6 +89,8 @@ forcibly interrupted. Match timeout and idle timeout return `ErrTimeout` and
 
 Read timeout/cancellation preserves the session and unconsumed buffer. Result.Before
 contains the current unmatched prefix. Zero timeout is unlimited, not polling.
+Pre-canceled and invalid calls also report an existing pending prefix when they
+acquire the exclusive wait. ErrBusy returns no input because another wait owns it.
 
 Send attempts one transport Write. It never retries a short write, the remaining
 suffix or a failed confirmation. Cancellation while waiting for the send lock
@@ -94,6 +99,8 @@ closes the session, joins the write and returns `WriteError{Written, Cause}`.
 `Written` is an actual transport byte count, not evidence the device executed a
 command. Out-of-range transport counts are rejected and reported as zero on every
 exit path. Cancellation retains both its context cause and the transport failure.
+Cancellation and Close are checked again when a write result is received, so an
+already observable stop is not hidden by a simultaneously ready result.
 `errors.Is` unwraps the original cause; a short nil-error write becomes
 `io.ErrShortWrite`. A successful zero-length Send performs no transport write.
 

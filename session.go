@@ -78,8 +78,8 @@ func (s *Session) readLoop() {
 	defer s.workers.Done()
 	defer close(s.events)
 	empty := 0
+	data := make([]byte, readChunk)
 	for {
-		data := make([]byte, readChunk)
 		n, err := s.transport.Read(data)
 		if n < 0 || n > len(data) {
 			n = 0
@@ -99,13 +99,26 @@ func (s *Session) readLoop() {
 		} else {
 			empty = 0
 		}
+		// Small terminal reads must not transfer an entire 16 KiB allocation.
+		// Copy only their bytes, retaining the scratch block for the next Read.
+		// Large reads transfer ownership and receive a fresh block below.
+		var received []byte
+		if n > 0 && n < readChunk/2 {
+			received = make([]byte, n)
+			copy(received, data[:n])
+		} else if n > 0 {
+			received = data[:n]
+		}
 		select {
-		case s.events <- readEvent{data: data[:n], err: err}:
+		case s.events <- readEvent{data: received, err: err}:
 		case <-s.done:
 			return
 		}
 		if err != nil {
 			return
+		}
+		if n >= readChunk/2 {
+			data = make([]byte, readChunk)
 		}
 	}
 }
@@ -268,6 +281,13 @@ func (s *Session) Send(ctx context.Context, text string) (n int, err error) {
 	case <-s.done:
 		r := <-result
 		return r.n, &WriteError{Written: r.n, Cause: errors.Join(ErrClosed, r.err)}
+	}
+	// Both the write result and cancellation/Close can already be ready.
+	// select chooses randomly, so recheck before reporting successful progress.
+	if stop := ctx.Err(); stop != nil {
+		err = errors.Join(stop, err)
+	} else if s.isClosed() {
+		err = errors.Join(ErrClosed, err)
 	}
 	if err != nil {
 		s.Close()

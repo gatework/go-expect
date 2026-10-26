@@ -3,11 +3,13 @@
 import argparse
 import gzip
 import hashlib
+import io
 import json
 import os
 from pathlib import Path
 import re
 import subprocess
+import tarfile
 
 ASSETS = ("source.tar.gz", "REVISION", "SHA256SUMS")
 VERSION = re.compile(r"v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\Z")
@@ -25,7 +27,7 @@ def package(directory, sha):
     if not re.fullmatch(r"[0-9a-f]{40}", sha):
         raise ValueError("expected a full commit SHA")
     directory.mkdir(parents=True, exist_ok=False)
-    archive = run("git", "archive", "--format=tar", "--prefix=go-expect/", sha)
+    archive = run("git", "-c", "tar.umask=022", "archive", "--format=tar", "--prefix=go-expect/", sha)
     with (directory / "source.tar.gz").open("wb") as output:
         with gzip.GzipFile(filename="", mode="wb", fileobj=output, mtime=0) as compressed:
             compressed.write(archive)
@@ -50,6 +52,52 @@ def verify(directory, sha):
     actual = run("git", "get-tar-commit-id", data=archive).decode().strip()
     if actual != sha:
         raise ValueError("archive commit does not match the tested commit")
+    verify_tree(archive, sha)
+
+
+def verify_tree(archive, sha):
+    """Check actual files against Git, not just a self-declared archive header."""
+    expected = {}
+    directories = {"go-expect"}
+    for entry in run("git", "ls-tree", "-rz", "--full-tree", sha).split(b"\0"):
+        if not entry:
+            continue
+        metadata, path = entry.split(b"\t", 1)
+        mode, kind, oid = metadata.decode("ascii").split()
+        if kind != "blob" or mode not in ("100644", "100755", "120000"):
+            raise ValueError("source package requires ordinary tracked files or symlinks")
+        name = "go-expect/" + os.fsdecode(path)
+        expected[name] = (mode, oid)
+        parts = name.split("/")
+        directories.update("/".join(parts[:n]) for n in range(1, len(parts)))
+    seen = set()
+    files = set()
+    with tarfile.open(fileobj=io.BytesIO(archive), mode="r:") as source:
+        for member in source:
+            if member.name in seen:
+                raise ValueError("duplicate archive member")
+            seen.add(member.name)
+            if member.isdir():
+                if member.name not in directories or member.mode not in (0o755, 0o775):
+                    raise ValueError("unexpected archive directory or permissions")
+                continue
+            if member.name not in expected:
+                raise ValueError("unexpected archive path")
+            mode, oid = expected[member.name]
+            if mode == "120000":
+                if not member.issym() or member.mode != 0o777:
+                    raise ValueError("archive symlink type mismatch")
+                content = os.fsencode(member.linkname)
+            else:
+                allowed = (0o755, 0o775) if mode == "100755" else (0o644, 0o664)
+                if not member.isfile() or member.mode not in allowed:
+                    raise ValueError("archive file type or executable mode mismatch")
+                content = source.extractfile(member).read()
+            if content != run("git", "cat-file", "blob", oid):
+                raise ValueError("archive contents differ from the tested Git tree")
+            files.add(member.name)
+    if files != set(expected):
+        raise ValueError("archive is missing tracked source files")
 
 
 def version_key(tag):

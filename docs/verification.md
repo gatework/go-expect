@@ -1,5 +1,11 @@
 # Verification record
 
+For the new device operation layer, see the
+[connector acceptance record](audits/2026-10-25-connector.md).
+
+For the subsequent local audit of the published implementation, see
+[post-release self-audit](audits/2026-10-25-post-release.md).
+
 Local acceptance was performed on `feat/session-responder`, based on upstream
 commit `73e0943`, before publication. The records below describe that checkpoint;
 remote runs and published versions are available in the repository's

@@ -1,0 +1,88 @@
+all modules verified
+ok  	github.com/gatework/go-expect	2.246s
+?   	github.com/gatework/go-expect/examples/dialogue	[no test files]
+ok  	github.com/gatework/go-expect/expecttest	1.926s
+fuzz: elapsed: 0s, gathering baseline coverage: 0/120 completed
+fuzz: elapsed: 0s, gathering baseline coverage: 120/120 completed, now fuzzing with 2 workers
+fuzz: elapsed: 1s, execs: 100000 (95887/sec), new interesting: 0 (total: 120)
+PASS
+ok  	github.com/gatework/go-expect	1.432s
+fuzz: elapsed: 0s, gathering baseline coverage: 0/116 completed
+fuzz: elapsed: 0s, gathering baseline coverage: 116/116 completed, now fuzzing with 2 workers
+fuzz: elapsed: 3s, execs: 38809 (12932/sec), new interesting: 1 (total: 117)
+fuzz: elapsed: 3s, execs: 100000 (200889/sec), new interesting: 1 (total: 117)
+PASS
+ok  	github.com/gatework/go-expect	3.653s
+fuzz: elapsed: 0s, gathering baseline coverage: 0/103 completed
+fuzz: elapsed: 0s, gathering baseline coverage: 103/103 completed, now fuzzing with 2 workers
+fuzz: elapsed: 2s, execs: 100000 (63935/sec), new interesting: 10 (total: 113)
+PASS
+ok  	github.com/gatework/go-expect	2.295s
+fuzz: elapsed: 0s, gathering baseline coverage: 0/63 completed
+fuzz: elapsed: 0s, gathering baseline coverage: 63/63 completed, now fuzzing with 2 workers
+fuzz: elapsed: 1s, execs: 100000 (72405/sec), new interesting: 1 (total: 64)
+PASS
+ok  	github.com/gatework/go-expect	3.535s
+fuzz: elapsed: 0s, gathering baseline coverage: 0/38 completed
+fuzz: elapsed: 0s, gathering baseline coverage: 38/38 completed, now fuzzing with 2 workers
+fuzz: elapsed: 3s, execs: 13664 (4553/sec), new interesting: 0 (total: 38)
+fuzz: elapsed: 6s, execs: 13664 (0/sec), new interesting: 0 (total: 38)
+fuzz: elapsed: 9s, execs: 53643 (13324/sec), new interesting: 0 (total: 38)
+fuzz: elapsed: 12s, execs: 53643 (0/sec), new interesting: 0 (total: 38)
+fuzz: elapsed: 15s, execs: 53643 (0/sec), new interesting: 0 (total: 38)
+fuzz: elapsed: 15s, execs: 100000 (129505/sec), new interesting: 0 (total: 38)
+PASS
+ok  	github.com/gatework/go-expect	22.499s
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkContinuedBurst/128-10            	       3	     40458 ns/op	   3.16 MB/s	   18581 B/op	      20 allocs/op
+BenchmarkContinuedBurst/4096-10           	       3	    354361 ns/op	  11.56 MB/s	   22586 B/op	      21 allocs/op
+BenchmarkReceivePatterns/literal/chunk_32-10         	       3	    601292 ns/op	  54.51 MB/s	  246648 B/op	    1067 allocs/op
+BenchmarkReceivePatterns/literal/chunk_1024-10       	       3	     50305 ns/op	 651.56 MB/s	  237026 B/op	      65 allocs/op
+BenchmarkReceivePatterns/all_literals/chunk_32-10    	       3	    564556 ns/op	  58.06 MB/s	  247002 B/op	    1068 allocs/op
+BenchmarkReceivePatterns/all_literals/chunk_1024-10  	       3	     28681 ns/op	1142.83 MB/s	  237114 B/op	      65 allocs/op
+BenchmarkReceivePatterns/nested_all/chunk_32-10      	       3	    549306 ns/op	  59.67 MB/s	  246874 B/op	    1067 allocs/op
+BenchmarkReceivePatterns/nested_all/chunk_1024-10    	       3	     31347 ns/op	1045.62 MB/s	  237120 B/op	      65 allocs/op
+BenchmarkReceivePatterns/regexp/chunk_32-10          	       3	   1298750 ns/op	  25.24 MB/s	  303488 B/op	    1093 allocs/op
+BenchmarkReceivePatterns/regexp/chunk_1024-10        	       3	     58250 ns/op	 562.70 MB/s	  237874 B/op	      68 allocs/op
+BenchmarkReceivePatterns/mixed_all/chunk_32-10       	       3	   1298403 ns/op	  25.24 MB/s	  265882 B/op	    1085 allocs/op
+BenchmarkReceivePatterns/mixed_all/chunk_1024-10     	       3	     61431 ns/op	 533.56 MB/s	  240085 B/op	      72 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_1-10          	       3	     14611 ns/op	  70.08 MB/s	    8192 B/op	    1024 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_32-10         	       3	      1153 ns/op	 888.37 MB/s	    1024 B/op	      32 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_1024-10       	       3	      1250 ns/op	 819.20 MB/s	    1024 B/op	       1 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1-10              	       3	     36750 ns/op	  27.86 MB/s	    1088 B/op	    1032 allocs/op
+BenchmarkPublicRedactor/safe/chunk_32-10             	       3	      2903 ns/op	 352.78 MB/s	    1050 B/op	      35 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1024-10           	       3	      1083 ns/op	 945.23 MB/s	    1050 B/op	       4 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1-10           	       3	     43347 ns/op	  22.15 MB/s	   16384 B/op	    2051 allocs/op
+BenchmarkPublicRedactor/matches/chunk_32-10          	       3	      6917 ns/op	 138.80 MB/s	    6234 B/op	     182 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1024-10        	       3	      4569 ns/op	 210.10 MB/s	    4522 B/op	       8 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1-10          	       3	     45375 ns/op	  22.04 MB/s	   16010 B/op	    2004 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_32-10         	       3	     11194 ns/op	  89.33 MB/s	    6528 B/op	     194 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1024-10       	       3	     10861 ns/op	  92.07 MB/s	    6938 B/op	       8 allocs/op
+BenchmarkRedactorRetainedTail-10                     	       3	    100028 ns/op	10482.83 MB/s	        10.00 tail-cap-B	 1048618 B/op	       5 allocs/op
+BenchmarkPublicRedactorLongBoundary/32-10            	       3	       611.0 ns/op	  52.37 MB/s	      32 B/op	       1 allocs/op
+BenchmarkPublicRedactorLongBoundary/256-10           	       3	      1847 ns/op	 138.60 MB/s	    1792 B/op	       5 allocs/op
+BenchmarkPublicRedactorLongBoundary/4096-10          	       3	     21375 ns/op	 191.63 MB/s	   31232 B/op	       5 allocs/op
+BenchmarkPublicRedactorLongBoundary/65536-10         	       3	    338028 ns/op	 193.88 MB/s	  524288 B/op	       5 allocs/op
+BenchmarkOSReceive/1-10                              	       3	     21055 ns/op	   0.05 MB/s	    6048 B/op	      14 allocs/op
+BenchmarkOSReceive/32-10                             	       3	     14986 ns/op	   2.14 MB/s	    6074 B/op	      13 allocs/op
+BenchmarkOSReceive/1024-10                           	       3	     21292 ns/op	  48.09 MB/s	   11248 B/op	      17 allocs/op
+BenchmarkOSReceive/16384-10                          	       3	     44681 ns/op	 366.69 MB/s	  150178 B/op	      25 allocs/op
+BenchmarkIdleSessions/os_false/count_1-10            	       3	  20794014 ns/op	      2017 cpu-ns/session-ms	     19056 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkIdleSessions/os_false/count_64-10           	       3	  21006708 ns/op	        15.11 cpu-ns/session-ms	     19905 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkIdleSessions/os_true/count_1-10             	       3	  21008458 ns/op	      4106 cpu-ns/session-ms	      1808 retained-B/session	     186 B/op	       8 allocs/op
+BenchmarkIdleSessions/os_true/count_64-10            	       3	  20751667 ns/op	       940.7 cpu-ns/session-ms	      7189 retained-B/session	   10357 B/op	     464 allocs/op
+BenchmarkFragmentedReceive/1-10                      	       3	   7563472 ns/op	   2.17 MB/s	  135762 B/op	   16428 allocs/op
+BenchmarkFragmentedReceive/32-10                     	       3	    262250 ns/op	  62.49 MB/s	  135682 B/op	     550 allocs/op
+BenchmarkFragmentedReceive/1024-10                   	       3	     19514 ns/op	 839.82 MB/s	  126274 B/op	      46 allocs/op
+BenchmarkFragmentedReceive/16384-10                  	       3	      5194 ns/op	3154.98 MB/s	   72808 B/op	      25 allocs/op
+BenchmarkLiteral16K-10                               	       3	    305944 ns/op	  157045 B/op	      61 allocs/op
+PASS
+ok  	github.com/gatework/go-expect	1.177s
+logged in
+completed: show status
+completed: save configuration
+consumer: stream and PTY passed
+source consumer passed (disposable module snapshot)

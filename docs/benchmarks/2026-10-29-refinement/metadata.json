@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-29",
+  "toolchain": "go1.27.3",
+  "goos": "darwin",
+  "goarch": "arm64",
+  "cpu": "Apple M5",
+  "GOMAXPROCS": 4,
+  "samples_per_variant": 10,
+  "sampling": "serial, alternating baseline/candidate order each sample; fresh process per idle population",
+  "throughput_benchtime": "100ms",
+  "idle_benchtime": "3x50ms observation",
+  "retention_benchtime": "1x keepalive-only; retained-B/session is the relevant metric",
+  "baseline": "complete round-one WIP snapshot; no Git HEAD substitution",
+  "baseline_production_sha256": {
+    "console.go": "4310ecb36d1da377a5b698e4efc48331c0d1220eafb30846432500626c2c6685",
+    "expect.go": "5bf77aed7777500ff9fe9d9c67ea05c0655231b26d79933f1dda2bf7aeff4e18",
+    "options.go": "aa05d28083239cf628d774f45530b5f3da043545c93c479656e15bbcfc8647f1",
+    "polling_other.go": "ae9d455cf37f24fc09c062143858f9ed1e496f33801b731dc7bafd7f75fbd68c",
+    "polling_unix.go": "a7b49b47b3013202fba4e73e9ef61cf61122f32fd109512803cf29f92e9acfee",
+    "session.go": "b419ce20d945a0eba7f723cc856a6cc11d62f88fecf3b6d74f36ee383301a945",
+    "stream.go": "9247219d545891765c2839c8acd3a680fca3fcadd9625acae180e300d21505c8",
+    "streaming_redactor.go": "5c5d7ae13f8c5e1c628d050f029436140a80de089e8da57e68aefe36dbc523ae"
+  },
+  "final_production_sha256": {
+    "console.go": "37efcaf456126d867861faceb6bdc06670bf4db025ef3731a9d6bf9581e19917",
+    "expect.go": "41b4f3de3606b88a26ab11b02cfbc3c7c7a3ea5a27c9e47ac2a681452a7f3195",
+    "options.go": "b917d3a075945b5ed8e40e168438264f67e52d118b68ed7f42a6aa84ef44d338",
+    "polling_other.go": "a60c50b83a89d7268e99f5aa3353238c7ad88b046c432137147ab9ccb61030fa",
+    "polling_unix.go": "6b36912a67bc3f8bfac8304b5d473562b6f581d592f5a3b53557d3bfe100c0dc",
+    "session.go": "82fc64a207503978ffb0e214da0247b925f7e048d329e8d670fb48f241e555b9",
+    "stream.go": "6813b9c91abfeeb5f20bc256c3e7b2334922e4da96f7435460e33f97fb9efcfb",
+    "streaming_redactor.go": "aa9f51fbb5771d8de810fc6ad61dd59b80d517c231bfc3369bb326b86f8ab278"
+  },
+  "final_benchmark_sha256": {
+    "quality_bench_test.go": "56e0fd058bdfa5c1d30dda2ce16bede99dd2def01be469253fb441f740e5889b",
+    "quality_bench_unix_test.go": "98655021c2c5287e83020e7f9a59e9cfca220002275112deeb39921566de819f",
+    "session_bench_test.go": "0a9ee953cbf24b927a8318deea6a658c7b0b95d27faf274ac7a62f90e93a9bd2",
+    "streaming_redactor_bench_test.go": "9cf72ec3e467db7d5d705043c1577e016f76d70e3e65ebd5823215c80b23bb01",
+    "expect_storage_bench_test.go": "eccf4686950718c3168d9045cfe33e041cb360b234fe1a18b7f546d98fe9b4e3",
+    "polling_unix_bench_test.go": "f0756d4f6d300c691d38a9e7dcd44e7ecfa8d008ae1808bbc09e857f16819847"
+  },
+  "test_binary_sha256": {
+    "expect-initial-baseline.test": "296a0585bb6b948cc976c641d392a6c80678d822b68472adc53b4cf4e8caa98f",
+    "expect-initial-candidate.test": "700c82ad144803e31777e4d5dda9c2c9c564921ce022454ddc32f298ea5278df",
+    "expect-baseline.test": "eb7f1f79337a736141d279084be5875c540f1509eed69e85c85655b2e759151b",
+    "expect-candidate.test": "85601746e247c6793dcffa202e2d2fcf85a5d0e249fbd3df48795da8cdc8aabd"
+  },
+  "initial_results": "throughput/dense include rejected suffix-capacity allocations; idle retained heap was biased by pre-baseline probe allocations",
+  "accepted_results": "throughput non-redactor rows and idle CPU/FD/thread/latency remain valid; final redactor and final idle heap supersede affected initial rows",
+  "platform_gates": "Darwin/Linux arm64 Go1.26.0 and Go1.27.3 race+vet; no remote CI or real-device claim"
+}

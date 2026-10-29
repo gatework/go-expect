@@ -39,6 +39,7 @@ func (s *Session) expect(ctx context.Context, cases []Case, guards []func(Result
 		return result, ErrBusy
 	}
 	defer s.expecting.Store(false)
+	defer s.releaseReceiveStorage()
 	failure := func(e error) (Result, error) { return Result{CaseIndex: -1, Before: string(s.pending)}, e }
 	if ctx == nil {
 		return failure(errors.New("expect: nil context"))
@@ -86,9 +87,26 @@ func (s *Session) expect(ctx context.Context, cases []Case, guards []func(Result
 	timer := time.NewTimer(time.Hour)
 	timer.Stop()
 	defer timer.Stop()
-	// Literal scan positions are local to this call and reset on consumption.
+	// Match state is local to this call and resets whenever input is consumed.
+	// Ordinary patterns retain only their existing scan offsets. Allocate All
+	// leaf state only when a pure literal tree is actually present.
 	scanned := make([]int, len(cases))
+	var allScans []patternScan
+	for i, c := range cases {
+		if c.Pattern.kind != allPattern {
+			continue
+		}
+		state := newPatternScan(c.Pattern)
+		if len(state.all) == 0 {
+			continue
+		}
+		if allScans == nil {
+			allScans = make([]patternScan, len(cases))
+		}
+		allScans[i] = state
+	}
 	var pollAck chan struct{}
+	pollOwned := false
 	polled := false
 	for {
 		if err = ctx.Err(); err != nil {
@@ -109,16 +127,20 @@ func (s *Session) expect(ctx context.Context, cases []Case, guards []func(Result
 		for i, c := range cases {
 			from := 0
 			if c.Pattern.kind == literalPattern {
-				from = scanned[i] - len(c.Pattern.text) + 1
-				if from < 0 {
-					from = 0
-				}
+				from = max(0, scanned[i]-len(c.Pattern.text)+1)
 			}
-			hit, ok, e := c.Pattern.find(s.pending, s.terminal != nil, from)
+			var hit location
+			var ok bool
+			var e error
+			if allScans != nil && len(allScans[i].all) > 0 {
+				hit, ok = allScans[i].findAll(s.pending)
+			} else {
+				hit, ok, e = c.Pattern.find(s.pending, s.terminal != nil, from)
+			}
+			scanned[i] = len(s.pending)
 			if e != nil {
 				return failure(e)
 			}
-			scanned[i] = len(s.pending)
 			if ok && (chosen < 0 || (!o.declaration && hit.start < loc.start)) {
 				chosen = i
 				loc = hit
@@ -170,8 +192,13 @@ func (s *Session) expect(ctx context.Context, cases []Case, guards []func(Result
 			}
 			// Advance without copying the remaining burst on every continuation.
 			s.pending = s.pending[loc.end:]
-			for i := range scanned {
-				scanned[i] = 0
+			if len(s.pending) == 0 {
+				s.pending = nil
+				s.pendingAlloc = 0
+			}
+			clear(scanned)
+			for i := range allScans {
+				allScans[i].reset()
 			}
 			var handler Handler
 			if streaming {
@@ -230,10 +257,19 @@ func (s *Session) expect(ctx context.Context, cases []Case, guards []func(Result
 				// The pump transfers exclusive ownership. Cap the slice so a later
 				// append cannot overwrite bytes still waiting in staged.
 				s.pending = data[:n:n]
+				s.pendingAlloc = s.stagedAlloc
 			} else {
+				grow := len(s.pending)+n > cap(s.pending)
 				s.pending = append(s.pending, data...)
+				if grow {
+					s.pendingAlloc = cap(s.pending)
+				}
 			}
 			s.staged = s.staged[n:]
+			if len(s.staged) == 0 {
+				s.staged = nil
+				s.stagedAlloc = 0
+			}
 			idle = after(time.Now(), o.idle)
 			if err = s.emit(data, false); err != nil {
 				return failure(errors.Join(err, s.Close()))
@@ -274,28 +310,11 @@ func (s *Session) expect(ctx context.Context, cases []Case, guards []func(Result
 			continue
 		}
 		if o.poll && pollAck == nil && !polled {
-			pollAck = make(chan struct{})
-			select {
-			case s.pollRequests <- pollAck:
-			case event, ok := <-s.events:
-				pollAck = nil
+			var e error
+			pollAck, pollOwned, e = s.requestPoll()
+			if e != nil {
 				<-s.inputGate
-				if !ok {
-					if s.terminal == nil {
-						s.terminal = io.EOF
-					}
-					continue
-				}
-				if e := s.acceptEvent(event); e != nil {
-					return failure(errors.Join(e, s.Close()))
-				}
-				continue
-			case <-ctx.Done():
-				<-s.inputGate
-				return failure(ctx.Err())
-			case <-s.done:
-				<-s.inputGate
-				return failure(ErrClosed)
+				return failure(errors.Join(e, s.Close()))
 			}
 		}
 		if o.poll && polled {
@@ -317,7 +336,9 @@ func (s *Session) expect(ctx context.Context, cases []Case, guards []func(Result
 		select {
 		case <-pollAck:
 			<-s.inputGate
-			polled = true
+			// A canceled caller's request stays pump-owned through its ack. A
+			// later Poll waits for it, then requests its own readiness boundary.
+			polled = pollOwned
 			pollAck = nil
 			continue
 		case <-ctx.Done():
@@ -340,16 +361,31 @@ func (s *Session) expect(ctx context.Context, cases []Case, guards []func(Result
 				}
 				continue
 			}
-			s.staged = event.data
-			s.stagedErr = event.err
-			if len(s.staged) == 0 && event.err != nil {
-				s.terminal = event.err
-				s.stagedErr = nil
-				if err = s.emit(nil, true); err != nil {
-					return failure(errors.Join(err, s.Close()))
-				}
+			if err = s.acceptEvent(event); err != nil {
+				return failure(errors.Join(err, s.Close()))
 			}
 		}
+	}
+}
+
+// Only the exclusive receive owner releases matching storage. In particular,
+// Close must not clear it while a cooperative handler is still inspecting input.
+// Track the complete allocation because slicing a consumed prefix hides that
+// size from cap. Detach only at operation return, never per continuation.
+func (s *Session) releaseReceiveStorage() {
+	releaseRemainder(&s.pending, &s.pendingAlloc)
+	releaseRemainder(&s.staged, &s.stagedAlloc)
+}
+
+func releaseRemainder(data *[]byte, allocation *int) {
+	if len(*data) == 0 {
+		*data = nil
+		*allocation = 0
+	} else if *allocation >= 64<<10 && len(*data) <= *allocation/4 {
+		remaining := make([]byte, len(*data))
+		copy(remaining, *data)
+		*data = remaining
+		*allocation = cap(remaining)
 	}
 }
 

@@ -1,0 +1,16 @@
+package main
+import (
+  "bytes"
+  "fmt"
+)
+func main() {
+  const chunks = 256
+  for _, size := range []int{257,1024,4096,16384} {
+    r, err := NewRedactor([]string{string(bytes.Repeat([]byte("a"),size)),"a"},"[X]")
+    if err != nil { panic(err) }
+    r.Append(bytes.Repeat([]byte("a"), 2*size))
+    reviewIndexCalls=0
+    for i:=0;i<chunks;i++ { r.Append([]byte("a")) }
+    fmt.Printf("long_rule=%d appended_bytes=%d short_rule_Index_calls=%d calls_per_byte=%d\n", size,chunks,reviewIndexCalls,reviewIndexCalls/chunks)
+  }
+}

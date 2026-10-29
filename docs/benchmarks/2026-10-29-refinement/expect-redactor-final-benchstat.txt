@@ -1,0 +1,134 @@
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+                                     │ /tmp/connector-refinement-20261029/expect-redactor-final-baseline.txt │ /tmp/connector-refinement-20261029/expect-redactor-final-candidate.txt │
+                                     │                                sec/op                                 │                    sec/op                      vs base                 │
+PublicRedactor/no_rules/chunk_1-4                                                               11.83µ ± 15%                                    12.07µ ±  7%         ~ (p=0.853 n=10)
+PublicRedactor/no_rules/chunk_32-4                                                              388.8n ±  8%                                    385.2n ±  6%         ~ (p=0.754 n=10)
+PublicRedactor/no_rules/chunk_1024-4                                                            92.08n ±  3%                                    90.42n ±  8%         ~ (p=0.315 n=10)
+PublicRedactor/safe/chunk_1-4                                                                   31.41µ ±  7%                                    32.05µ ±  9%         ~ (p=0.912 n=10)
+PublicRedactor/safe/chunk_32-4                                                                  1.602µ ±  9%                                    1.586µ ± 10%         ~ (p=0.218 n=10)
+PublicRedactor/safe/chunk_1024-4                                                                160.2n ±  9%                                    160.4n ± 15%         ~ (p=0.255 n=10)
+PublicRedactor/matches/chunk_1-4                                                                35.59µ ±  8%                                    21.30µ ±  7%   -40.15% (p=0.000 n=10)
+PublicRedactor/matches/chunk_32-4                                                               4.383µ ±  7%                                    4.212µ ±  6%    -3.89% (p=0.009 n=10)
+PublicRedactor/matches/chunk_1024-4                                                             2.362µ ±  7%                                    2.379µ ±  8%         ~ (p=0.868 n=10)
+PublicRedactor/overlaps/chunk_1-4                                                               37.02µ ±  8%                                    25.94µ ±  8%   -29.93% (p=0.000 n=10)
+PublicRedactor/overlaps/chunk_32-4                                                              8.387µ ±  8%                                    8.181µ ±  6%         ~ (p=0.190 n=10)
+PublicRedactor/overlaps/chunk_1024-4                                                            8.357µ ±  7%                                    8.407µ ±  5%         ~ (p=0.542 n=10)
+RedactorRetainedTail-4                                                                          58.41µ ±  9%                                    57.54µ ±  6%         ~ (p=0.579 n=10)
+PublicRedactorLongBoundary/32-4                                                                 139.2n ±  5%                                    135.5n ±  5%         ~ (p=0.306 n=10)
+PublicRedactorLongBoundary/256-4                                                               1193.0n ±  6%                                    568.5n ±  6%   -52.34% (p=0.000 n=10)
+PublicRedactorLongBoundary/4096-4                                                              18.777µ ±  2%                                    8.418µ ± 11%   -55.17% (p=0.000 n=10)
+PublicRedactorLongBoundary/65536-4                                                              300.7µ ±  3%                                    133.3µ ±  3%   -55.66% (p=0.000 n=10)
+PublicRedactorDenseLong/256-4                                                                  61.468µ ±  1%                                    5.986µ ±  6%   -90.26% (p=0.000 n=10)
+PublicRedactorDenseLong/1024-4                                                                819.982µ ±  2%                                    8.799µ ±  7%   -98.93% (p=0.000 n=10)
+PublicRedactorDenseLong/4096-4                                                               12519.08µ ±  1%                                    34.29µ ±  8%   -99.73% (p=0.000 n=10)
+PublicRedactorDenseLong/16384-4                                                              198269.8µ ±  1%                                    136.6µ ±  9%   -99.93% (p=0.000 n=10)
+PublicRedactorDenseLong/65536-4                                                             3202585.8µ ±  7%                                    549.2µ ±  6%   -99.98% (p=0.000 n=10)
+PublicRedactorMixedDenseByte/257-4                                                            2163.50n ±  1%                                    18.45n ±  7%   -99.15% (p=0.000 n=10)
+PublicRedactorMixedDenseByte/4096-4                                                          32791.50n ±  1%                                    18.35n ±  7%   -99.94% (p=0.000 n=10)
+PublicRedactorMixedDenseByte/65536-4                                                        521416.00n ±  0%                                    18.03n ±  5%  -100.00% (p=0.000 n=10)
+geomean                                                                                         28.64µ                                          3.230µ         -88.72%
+
+                                     │ /tmp/connector-refinement-20261029/expect-redactor-final-baseline.txt │ /tmp/connector-refinement-20261029/expect-redactor-final-candidate.txt │
+                                     │                                  B/s                                  │                    B/s                      vs base                    │
+PublicRedactor/no_rules/chunk_1-4                                                              82.53Mi ± 13%                                80.95Mi ±  6%            ~ (p=0.853 n=10)
+PublicRedactor/no_rules/chunk_32-4                                                             2.453Gi ±  7%                                2.475Gi ±  6%            ~ (p=0.796 n=10)
+PublicRedactor/no_rules/chunk_1024-4                                                           10.36Gi ±  3%                                10.55Gi ±  8%            ~ (p=0.315 n=10)
+PublicRedactor/safe/chunk_1-4                                                                  31.09Mi ±  7%                                30.47Mi ±  8%            ~ (p=0.971 n=10)
+PublicRedactor/safe/chunk_32-4                                                                 609.5Mi ±  8%                                615.6Mi ±  9%            ~ (p=0.218 n=10)
+PublicRedactor/safe/chunk_1024-4                                                               5.952Gi ±  8%                                5.944Gi ± 13%            ~ (p=0.280 n=10)
+PublicRedactor/matches/chunk_1-4                                                               25.73Mi ±  7%                                42.98Mi ±  6%      +67.08% (p=0.000 n=10)
+PublicRedactor/matches/chunk_32-4                                                              208.9Mi ±  7%                                217.4Mi ±  6%       +4.04% (p=0.009 n=10)
+PublicRedactor/matches/chunk_1024-4                                                            387.6Mi ±  7%                                384.9Mi ±  8%            ~ (p=0.853 n=10)
+PublicRedactor/overlaps/chunk_1-4                                                              25.76Mi ±  8%                                36.76Mi ±  7%      +42.71% (p=0.000 n=10)
+PublicRedactor/overlaps/chunk_32-4                                                             113.7Mi ±  7%                                116.6Mi ±  6%            ~ (p=0.190 n=10)
+PublicRedactor/overlaps/chunk_1024-4                                                           114.1Mi ±  6%                                113.4Mi ±  4%            ~ (p=0.542 n=10)
+RedactorRetainedTail-4                                                                         16.72Gi ±  8%                                16.97Gi ±  5%            ~ (p=0.579 n=10)
+PublicRedactorLongBoundary/32-4                                                                219.2Mi ±  5%                                225.3Mi ±  5%            ~ (p=0.280 n=10)
+PublicRedactorLongBoundary/256-4                                                               204.6Mi ±  5%                                429.4Mi ±  7%     +109.84% (p=0.000 n=10)
+PublicRedactorLongBoundary/4096-4                                                              208.0Mi ±  2%                                464.0Mi ± 10%     +123.05% (p=0.000 n=10)
+PublicRedactorLongBoundary/65536-4                                                             207.9Mi ±  3%                                468.9Mi ±  3%     +125.55% (p=0.000 n=10)
+PublicRedactorDenseLong/256-4                                                                  15.89Mi ±  1%                               163.18Mi ±  6%     +927.07% (p=0.000 n=10)
+PublicRedactorDenseLong/1024-4                                                                 4.764Mi ±  2%                              443.945Mi ±  7%    +9219.52% (p=0.000 n=10)
+PublicRedactorDenseLong/4096-4                                                                 1.249Mi ±  1%                              455.747Mi ±  7%   +36379.77% (p=0.000 n=10)
+PublicRedactorDenseLong/16384-4                                                                322.3Ki ±  0%                             468579.1Ki ±  8%  +145301.52% (p=0.000 n=10)
+PublicRedactorDenseLong/65536-4                                                                78.12Ki ±  0%                            466132.81Ki ±  5%  +596550.00% (p=0.000 n=10)
+PublicRedactorMixedDenseByte/257-4                                                             449.2Ki ±  0%                              52963.9Ki ±  7%   +11690.22% (p=0.000 n=10)
+PublicRedactorMixedDenseByte/4096-4                                                            29.30Ki ±  0%                             53237.30Ki ±  7%  +181616.67% (p=0.000 n=10)
+PublicRedactorMixedDenseByte/65536-4                                                                                                        52.91Mi ±  5%
+geomean                                                                                        52.20Mi                                      307.6Mi           +534.14%
+
+                                     │ /tmp/connector-refinement-20261029/expect-redactor-final-baseline.txt │ /tmp/connector-refinement-20261029/expect-redactor-final-candidate.txt │
+                                     │                                 B/op                                  │                   B/op                     vs base                     │
+PublicRedactor/no_rules/chunk_1-4                                                               8.000Ki ± 0%                                8.000Ki ± 0%         ~ (p=1.000 n=10) ¹
+PublicRedactor/no_rules/chunk_32-4                                                              1.000Ki ± 0%                                1.000Ki ± 0%         ~ (p=1.000 n=10) ¹
+PublicRedactor/no_rules/chunk_1024-4                                                            1.000Ki ± 0%                                1.000Ki ± 0%         ~ (p=1.000 n=10) ¹
+PublicRedactor/safe/chunk_1-4                                                                   1.062Ki ± 0%                                1.031Ki ± 0%    -2.94% (p=0.000 n=10)
+PublicRedactor/safe/chunk_32-4                                                                  1.023Ki ± 0%                                1.023Ki ± 0%         ~ (p=1.000 n=10) ¹
+PublicRedactor/safe/chunk_1024-4                                                                1.023Ki ± 0%                                1.023Ki ± 0%         ~ (p=1.000 n=10) ¹
+PublicRedactor/matches/chunk_1-4                                                               16.000Ki ± 0%                                2.031Ki ± 0%   -87.30% (p=0.000 n=10)
+PublicRedactor/matches/chunk_32-4                                                               6.086Ki ± 0%                                6.086Ki ± 0%         ~ (p=1.000 n=10) ¹
+PublicRedactor/matches/chunk_1024-4                                                             4.414Ki ± 0%                                4.414Ki ± 0%         ~ (p=1.000 n=10) ¹
+PublicRedactor/overlaps/chunk_1-4                                                              15.633Ki ± 0%                                3.141Ki ± 0%   -79.91% (p=0.000 n=10)
+PublicRedactor/overlaps/chunk_32-4                                                              6.375Ki ± 0%                                6.000Ki ± 0%    -5.88% (p=0.000 n=10)
+PublicRedactor/overlaps/chunk_1024-4                                                            6.773Ki ± 0%                                6.766Ki ± 0%    -0.12% (p=0.000 n=10)
+RedactorRetainedTail-4                                                                          1.000Mi ± 0%                                1.000Mi ± 0%         ~ (p=0.724 n=10)
+PublicRedactorLongBoundary/32-4                                                                   32.00 ± 0%                                  32.00 ± 0%         ~ (p=1.000 n=10) ¹
+PublicRedactorLongBoundary/256-4                                                                 1792.0 ± 0%                                  256.0 ± 0%   -85.71% (p=0.000 n=10)
+PublicRedactorLongBoundary/4096-4                                                              30.500Ki ± 0%                                4.000Ki ± 0%   -86.89% (p=0.000 n=10)
+PublicRedactorLongBoundary/65536-4                                                             512.00Ki ± 0%                                64.00Ki ± 0%   -87.50% (p=0.000 n=10)
+PublicRedactorDenseLong/256-4                                                                   3.375Ki ± 0%                                3.375Ki ± 0%         ~ (p=1.000 n=10) ¹
+PublicRedactorDenseLong/1024-4                                                                  13.12Ki ± 0%                                13.12Ki ± 0%         ~ (p=1.000 n=10) ¹
+PublicRedactorDenseLong/4096-4                                                                  53.25Ki ± 0%                                53.25Ki ± 0%         ~ (p=1.000 n=10) ¹
+PublicRedactorDenseLong/16384-4                                                                 216.0Ki ± 0%                                216.0Ki ± 0%         ~ (p=1.000 n=10)
+PublicRedactorDenseLong/65536-4                                                                 840.0Ki ± 0%                                840.0Ki ± 0%    +0.00% (p=0.000 n=10)
+PublicRedactorMixedDenseByte/257-4                                                              1.500Ki ± 0%                                0.000Ki ± 0%  -100.00% (p=0.000 n=10)
+PublicRedactorMixedDenseByte/4096-4                                                             8.000Ki ± 0%                                0.000Ki ± 0%  -100.00% (p=0.000 n=10)
+PublicRedactorMixedDenseByte/65536-4                                                            128.0Ki ± 0%                                  0.0Ki ± 0%  -100.00% (p=0.000 n=10)
+geomean                                                                                         9.266Ki                                                   ?                       ² ³
+¹ all samples are equal
+² summaries must be >0 to compute geomean
+³ ratios must be >0 to compute geomean
+
+                                     │ /tmp/connector-refinement-20261029/expect-redactor-final-baseline.txt │ /tmp/connector-refinement-20261029/expect-redactor-final-candidate.txt │
+                                     │                               allocs/op                               │                 allocs/op                  vs base                     │
+PublicRedactor/no_rules/chunk_1-4                                                                1.024k ± 0%                                 1.024k ± 0%         ~ (p=1.000 n=10) ¹
+PublicRedactor/no_rules/chunk_32-4                                                                32.00 ± 0%                                  32.00 ± 0%         ~ (p=1.000 n=10) ¹
+PublicRedactor/no_rules/chunk_1024-4                                                              1.000 ± 0%                                  1.000 ± 0%         ~ (p=1.000 n=10) ¹
+PublicRedactor/safe/chunk_1-4                                                                    1.032k ± 0%                                 1.022k ± 0%    -0.97% (p=0.000 n=10)
+PublicRedactor/safe/chunk_32-4                                                                    35.00 ± 0%                                  35.00 ± 0%         ~ (p=1.000 n=10) ¹
+PublicRedactor/safe/chunk_1024-4                                                                  4.000 ± 0%                                  4.000 ± 0%         ~ (p=1.000 n=10) ¹
+PublicRedactor/matches/chunk_1-4                                                                 2051.0 ± 0%                                  259.0 ± 0%   -87.37% (p=0.000 n=10)
+PublicRedactor/matches/chunk_32-4                                                                 182.0 ± 0%                                  182.0 ± 0%         ~ (p=1.000 n=10) ¹
+PublicRedactor/matches/chunk_1024-4                                                               8.000 ± 0%                                  8.000 ± 0%         ~ (p=1.000 n=10) ¹
+PublicRedactor/overlaps/chunk_1-4                                                                2004.0 ± 0%                                  404.0 ± 0%   -79.84% (p=0.000 n=10)
+PublicRedactor/overlaps/chunk_32-4                                                                194.0 ± 0%                                  194.0 ± 0%         ~ (p=1.000 n=10) ¹
+PublicRedactor/overlaps/chunk_1024-4                                                              8.000 ± 0%                                  8.000 ± 0%         ~ (p=1.000 n=10) ¹
+RedactorRetainedTail-4                                                                            5.000 ± 0%                                  5.000 ± 0%         ~ (p=1.000 n=10) ¹
+PublicRedactorLongBoundary/32-4                                                                   1.000 ± 0%                                  1.000 ± 0%         ~ (p=1.000 n=10) ¹
+PublicRedactorLongBoundary/256-4                                                                  5.000 ± 0%                                  1.000 ± 0%   -80.00% (p=0.000 n=10)
+PublicRedactorLongBoundary/4096-4                                                                 5.000 ± 0%                                  1.000 ± 0%   -80.00% (p=0.000 n=10)
+PublicRedactorLongBoundary/65536-4                                                                5.000 ± 0%                                  1.000 ± 0%   -80.00% (p=0.000 n=10)
+PublicRedactorDenseLong/256-4                                                                     5.000 ± 0%                                  5.000 ± 0%         ~ (p=1.000 n=10) ¹
+PublicRedactorDenseLong/1024-4                                                                    5.000 ± 0%                                  5.000 ± 0%         ~ (p=1.000 n=10) ¹
+PublicRedactorDenseLong/4096-4                                                                    5.000 ± 0%                                  5.000 ± 0%         ~ (p=1.000 n=10) ¹
+PublicRedactorDenseLong/16384-4                                                                   5.000 ± 0%                                  5.000 ± 0%         ~ (p=1.000 n=10) ¹
+PublicRedactorDenseLong/65536-4                                                                   5.000 ± 0%                                  5.000 ± 0%         ~ (p=1.000 n=10) ¹
+PublicRedactorMixedDenseByte/257-4                                                                4.000 ± 0%                                  0.000 ± 0%  -100.00% (p=0.000 n=10)
+PublicRedactorMixedDenseByte/4096-4                                                               2.000 ± 0%                                  0.000 ± 0%  -100.00% (p=0.000 n=10)
+PublicRedactorMixedDenseByte/65536-4                                                              2.000 ± 0%                                  0.000 ± 0%  -100.00% (p=0.000 n=10)
+geomean                                                                                           16.05                                                   ?                       ² ³
+¹ all samples are equal
+² summaries must be >0 to compute geomean
+³ ratios must be >0 to compute geomean
+
+                       │ /tmp/connector-refinement-20261029/expect-redactor-final-baseline.txt │ /tmp/connector-refinement-20261029/expect-redactor-final-candidate.txt │
+                       │                              tail-cap-B                               │                     tail-cap-B                      vs base            │
+RedactorRetainedTail-4                                                              10.00 ± 0%                                           10.00 ± 0%  ~ (p=1.000 n=10) ¹
+¹ all samples are equal
+
+                                     │ /tmp/connector-refinement-20261029/expect-redactor-final-baseline.txt │
+                                     │                                 MB/s                                  │
+PublicRedactorMixedDenseByte/65536-4                                                              0.000 ± 0%

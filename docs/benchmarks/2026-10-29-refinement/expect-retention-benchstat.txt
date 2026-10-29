@@ -1,0 +1,47 @@
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+                                                 │ /tmp/connector-refinement-20261029/expect-retention-baseline.txt │ /tmp/connector-refinement-20261029/expect-retention-candidate.txt │
+                                                 │                              sec/op                              │                  sec/op                    vs base                │
+ReceiveRemainderRetention/held_false/tail_0-4                                                          208.0n ± 40%                                167.0n ± 25%  -19.71% (p=0.021 n=10)
+ReceiveRemainderRetention/held_false/tail_8-4                                                          187.5n ± 56%                                166.5n ± 25%        ~ (p=0.543 n=10)
+ReceiveRemainderRetention/held_false/tail_4096-4                                                       187.5n ± 33%                                166.5n ± 50%        ~ (p=0.144 n=10)
+ReceiveRemainderRetention/held_true/tail_0-4                                                           166.5n ± 50%                                187.5n ± 33%        ~ (p=0.627 n=10)
+ReceiveRemainderRetention/held_true/tail_8-4                                                           167.0n ± 50%                                145.5n ± 42%  -12.87% (p=0.029 n=10)
+ReceiveRemainderRetention/held_true/tail_4096-4                                                        187.5n ± 56%                                125.0n ± 34%        ~ (p=0.082 n=10)
+geomean                                                                                                183.5n                                      158.4n        -13.66%
+
+                                                 │ /tmp/connector-refinement-20261029/expect-retention-baseline.txt │ /tmp/connector-refinement-20261029/expect-retention-candidate.txt │
+                                                 │                        retained-B/session                        │            retained-B/session              vs base                │
+ReceiveRemainderRetention/held_false/tail_0-4                                                        1051.45Ki ± 0%                                19.34Ki ± 2%  -98.16% (p=0.000 n=10)
+ReceiveRemainderRetention/held_false/tail_8-4                                                        1051.21Ki ± 0%                                18.92Ki ± 2%  -98.20% (p=0.000 n=10)
+ReceiveRemainderRetention/held_false/tail_4096-4                                                     1051.11Ki ± 0%                                22.98Ki ± 1%  -97.81% (p=0.000 n=10)
+ReceiveRemainderRetention/held_true/tail_0-4                                                           2.026Mi ± 0%                                1.018Mi ± 0%  -49.74% (p=0.000 n=10)
+ReceiveRemainderRetention/held_true/tail_8-4                                                           2.026Mi ± 0%                                1.018Mi ± 0%  -49.74% (p=0.000 n=10)
+ReceiveRemainderRetention/held_true/tail_4096-4                                                        2.026Mi ± 0%                                1.022Mi ± 0%  -49.55% (p=0.000 n=10)
+geomean                                                                                                1.442Mi                                     145.7Ki       -90.13%
+
+                                                 │ /tmp/connector-refinement-20261029/expect-retention-baseline.txt │ /tmp/connector-refinement-20261029/expect-retention-candidate.txt │
+                                                 │                               B/op                               │                   B/op                    vs base                 │
+ReceiveRemainderRetention/held_false/tail_0-4                                                          0.000 ± 0%                                   0.000 ± 0%       ~ (p=1.000 n=10) ¹
+ReceiveRemainderRetention/held_false/tail_8-4                                                          0.000 ± 0%                                   0.000 ± 0%       ~ (p=1.000 n=10) ¹
+ReceiveRemainderRetention/held_false/tail_4096-4                                                       0.000 ± 0%                                   0.000 ± 0%       ~ (p=1.000 n=10) ¹
+ReceiveRemainderRetention/held_true/tail_0-4                                                           0.000 ± 0%                                   0.000 ± 0%       ~ (p=1.000 n=10) ¹
+ReceiveRemainderRetention/held_true/tail_8-4                                                           0.000 ± 0%                                   0.000 ± 0%       ~ (p=1.000 n=10) ¹
+ReceiveRemainderRetention/held_true/tail_4096-4                                                        0.000 ± 0%                                   0.000 ± 0%       ~ (p=1.000 n=10) ¹
+geomean                                                                                                           ²                                             +0.00%                ²
+¹ all samples are equal
+² summaries must be >0 to compute geomean
+
+                                                 │ /tmp/connector-refinement-20261029/expect-retention-baseline.txt │ /tmp/connector-refinement-20261029/expect-retention-candidate.txt │
+                                                 │                            allocs/op                             │                allocs/op                  vs base                 │
+ReceiveRemainderRetention/held_false/tail_0-4                                                          0.000 ± 0%                                   0.000 ± 0%       ~ (p=1.000 n=10) ¹
+ReceiveRemainderRetention/held_false/tail_8-4                                                          0.000 ± 0%                                   0.000 ± 0%       ~ (p=1.000 n=10) ¹
+ReceiveRemainderRetention/held_false/tail_4096-4                                                       0.000 ± 0%                                   0.000 ± 0%       ~ (p=1.000 n=10) ¹
+ReceiveRemainderRetention/held_true/tail_0-4                                                           0.000 ± 0%                                   0.000 ± 0%       ~ (p=1.000 n=10) ¹
+ReceiveRemainderRetention/held_true/tail_8-4                                                           0.000 ± 0%                                   0.000 ± 0%       ~ (p=1.000 n=10) ¹
+ReceiveRemainderRetention/held_true/tail_4096-4                                                        0.000 ± 0%                                   0.000 ± 0%       ~ (p=1.000 n=10) ¹
+geomean                                                                                                           ²                                             +0.00%                ²
+¹ all samples are equal
+² summaries must be >0 to compute geomean

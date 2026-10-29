@@ -1,0 +1,177 @@
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+                                          │ /tmp/connector-refinement-20261029/expect-throughput-baseline.txt │ /tmp/connector-refinement-20261029/expect-throughput-candidate.txt │
+                                          │                              sec/op                               │                   sec/op                    vs base                │
+PTYReceive/1-4                                                                                  11.170µ ± 24%                                 7.192µ ± 23%  -35.61% (p=0.000 n=10)
+PTYReceive/32-4                                                                                 11.169µ ± 13%                                 7.079µ ±  8%  -36.62% (p=0.000 n=10)
+PTYReceive/1024-4                                                                               13.161µ ± 18%                                 9.386µ ± 10%  -28.68% (p=0.000 n=10)
+ReceivePatterns/literal/chunk_32-4                                                               583.4µ ±  4%                                 579.5µ ±  3%        ~ (p=0.796 n=10)
+ReceivePatterns/literal/chunk_1024-4                                                             42.74µ ± 10%                                 41.48µ ±  7%        ~ (p=0.436 n=10)
+ReceivePatterns/all_literals/chunk_32-4                                                          583.4µ ±  3%                                 585.3µ ±  4%        ~ (p=0.631 n=10)
+ReceivePatterns/all_literals/chunk_1024-4                                                        41.69µ ±  7%                                 42.43µ ±  6%        ~ (p=0.631 n=10)
+ReceivePatterns/nested_all/chunk_32-4                                                            582.2µ ±  3%                                 587.6µ ±  4%        ~ (p=0.912 n=10)
+ReceivePatterns/nested_all/chunk_1024-4                                                          42.49µ ±  8%                                 42.36µ ±  6%        ~ (p=0.912 n=10)
+ReceivePatterns/regexp/chunk_32-4                                                                1.306m ±  5%                                 1.304m ±  5%        ~ (p=0.631 n=10)
+ReceivePatterns/regexp/chunk_1024-4                                                              65.01µ ±  5%                                 66.23µ ±  7%        ~ (p=0.853 n=10)
+ReceivePatterns/mixed_all/chunk_32-4                                                             1.364m ±  5%                                 1.376m ±  5%        ~ (p=1.000 n=10)
+ReceivePatterns/mixed_all/chunk_1024-4                                                           67.99µ ±  7%                                 68.23µ ±  6%        ~ (p=0.971 n=10)
+PublicRedactor/no_rules/chunk_1-4                                                                13.22µ ± 10%                                 13.10µ ± 12%        ~ (p=0.481 n=10)
+PublicRedactor/no_rules/chunk_32-4                                                               436.5n ± 11%                                 437.7n ±  9%        ~ (p=0.739 n=10)
+PublicRedactor/no_rules/chunk_1024-4                                                             104.0n ±  9%                                 106.6n ± 10%        ~ (p=0.811 n=10)
+PublicRedactor/safe/chunk_1-4                                                                    34.72µ ± 10%                                 34.35µ ± 10%        ~ (p=0.684 n=10)
+PublicRedactor/safe/chunk_32-4                                                                   1.775µ ±  9%                                 1.791µ ± 10%        ~ (p=0.436 n=10)
+PublicRedactor/safe/chunk_1024-4                                                                 178.6n ± 11%                                 188.6n ± 10%        ~ (p=0.671 n=10)
+PublicRedactor/matches/chunk_1-4                                                                 39.94µ ± 12%                                 23.51µ ± 11%  -41.13% (p=0.000 n=10)
+PublicRedactor/matches/chunk_32-4                                                                4.975µ ± 13%                                 4.737µ ± 10%        ~ (p=0.123 n=10)
+PublicRedactor/matches/chunk_1024-4                                                              2.661µ ± 11%                                 2.675µ ± 11%        ~ (p=0.853 n=10)
+PublicRedactor/overlaps/chunk_1-4                                                                40.18µ ±  9%                                 29.11µ ± 11%  -27.55% (p=0.000 n=10)
+PublicRedactor/overlaps/chunk_32-4                                                               9.364µ ± 11%                                 8.798µ ±  6%        ~ (p=0.210 n=10)
+PublicRedactor/overlaps/chunk_1024-4                                                             9.370µ ± 10%                                 9.317µ ±  9%        ~ (p=0.912 n=10)
+RedactorRetainedTail-4                                                                           68.34µ ± 15%                                 69.09µ ± 20%        ~ (p=0.853 n=10)
+PublicRedactorLongBoundary/32-4                                                                  156.4n ±  9%                                 149.9n ±  9%        ~ (p=0.225 n=10)
+PublicRedactorLongBoundary/256-4                                                                1310.0n ±  9%                                 592.6n ±  9%  -54.76% (p=0.000 n=10)
+PublicRedactorLongBoundary/4096-4                                                               20.460µ ±  8%                                 9.072µ ± 10%  -55.66% (p=0.000 n=10)
+PublicRedactorLongBoundary/65536-4                                                               325.3µ ± 10%                                 140.7µ ±  7%  -56.74% (p=0.000 n=10)
+OSReceive/1-4                                                                                   10.346µ ± 39%                                 5.801µ ±  4%  -43.93% (p=0.000 n=10)
+OSReceive/32-4                                                                                  10.837µ ± 40%                                 5.889µ ±  6%  -45.66% (p=0.000 n=10)
+OSReceive/1024-4                                                                                12.058µ ± 24%                                 6.778µ ±  8%  -43.79% (p=0.000 n=10)
+OSReceive/16384-4                                                                                30.10µ ± 11%                                 30.24µ ± 13%        ~ (p=0.912 n=10)
+FragmentedReceive/1-4                                                                            8.847m ±  7%                                 8.788m ±  3%        ~ (p=0.684 n=10)
+FragmentedReceive/32-4                                                                           296.3µ ±  7%                                 294.5µ ±  4%        ~ (p=0.631 n=10)
+FragmentedReceive/1024-4                                                                         23.82µ ±  9%                                 23.91µ ±  9%        ~ (p=0.971 n=10)
+FragmentedReceive/16384-4                                                                        9.303µ ± 17%                                 8.705µ ± 11%        ~ (p=0.325 n=10)
+geomean                                                                                          22.97µ                                       19.40µ        -15.55%
+
+                                          │ /tmp/connector-refinement-20261029/expect-throughput-baseline.txt │ /tmp/connector-refinement-20261029/expect-throughput-candidate.txt │
+                                          │                                B/s                                │                    B/s                     vs base                 │
+PTYReceive/1-4                                                                                  87.89Ki ± 22%                              136.72Ki ± 21%   +55.56% (p=0.000 n=10)
+PTYReceive/32-4                                                                                 2.737Mi ± 15%                               4.311Mi ±  8%   +57.49% (p=0.000 n=10)
+PTYReceive/1024-4                                                                               74.24Mi ± 22%                              104.05Mi ± 11%   +40.15% (p=0.000 n=10)
+ReceivePatterns/literal/chunk_32-4                                                              53.58Mi ±  4%                               53.94Mi ±  3%         ~ (p=0.755 n=10)
+ReceivePatterns/literal/chunk_1024-4                                                            731.4Mi ± 11%                               753.7Mi ±  7%         ~ (p=0.436 n=10)
+ReceivePatterns/all_literals/chunk_32-4                                                         53.59Mi ±  3%                               53.42Mi ±  4%         ~ (p=0.631 n=10)
+ReceivePatterns/all_literals/chunk_1024-4                                                       750.0Mi ±  8%                               736.9Mi ±  7%         ~ (p=0.631 n=10)
+ReceivePatterns/nested_all/chunk_32-4                                                           53.69Mi ±  3%                               53.20Mi ±  4%         ~ (p=0.912 n=10)
+ReceivePatterns/nested_all/chunk_1024-4                                                         735.7Mi ±  8%                               738.1Mi ±  7%         ~ (p=0.912 n=10)
+ReceivePatterns/regexp/chunk_32-4                                                               23.94Mi ±  5%                               23.97Mi ±  5%         ~ (p=0.618 n=10)
+ReceivePatterns/regexp/chunk_1024-4                                                             481.1Mi ±  6%                               472.0Mi ±  7%         ~ (p=0.853 n=10)
+ReceivePatterns/mixed_all/chunk_32-4                                                            22.92Mi ±  5%                               22.72Mi ±  5%         ~ (p=1.000 n=10)
+ReceivePatterns/mixed_all/chunk_1024-4                                                          459.9Mi ±  7%                               458.1Mi ±  6%         ~ (p=0.987 n=10)
+PublicRedactor/no_rules/chunk_1-4                                                               73.90Mi ± 11%                               74.59Mi ± 13%         ~ (p=0.481 n=10)
+PublicRedactor/no_rules/chunk_32-4                                                              2.185Gi ± 12%                               2.179Gi ± 10%         ~ (p=0.739 n=10)
+PublicRedactor/no_rules/chunk_1024-4                                                            9.172Gi ± 10%                               8.951Gi ± 11%         ~ (p=0.796 n=10)
+PublicRedactor/safe/chunk_1-4                                                                   28.12Mi ± 11%                               28.43Mi ± 11%         ~ (p=0.644 n=10)
+PublicRedactor/safe/chunk_32-4                                                                  550.2Mi ±  9%                               545.3Mi ± 12%         ~ (p=0.436 n=10)
+PublicRedactor/safe/chunk_1024-4                                                                5.342Gi ± 11%                               5.057Gi ± 11%         ~ (p=0.684 n=10)
+PublicRedactor/matches/chunk_1-4                                                                22.93Mi ± 13%                               38.94Mi ± 13%   +69.86% (p=0.000 n=10)
+PublicRedactor/matches/chunk_32-4                                                               184.0Mi ± 16%                               193.3Mi ± 12%         ~ (p=0.123 n=10)
+PublicRedactor/matches/chunk_1024-4                                                             344.1Mi ± 12%                               342.3Mi ± 12%         ~ (p=0.853 n=10)
+PublicRedactor/overlaps/chunk_1-4                                                               23.74Mi ± 10%                               32.76Mi ± 13%   +38.01% (p=0.000 n=10)
+PublicRedactor/overlaps/chunk_32-4                                                              101.9Mi ± 12%                               108.4Mi ±  6%         ~ (p=0.210 n=10)
+PublicRedactor/overlaps/chunk_1024-4                                                            101.8Mi ± 11%                               102.4Mi ± 10%         ~ (p=0.912 n=10)
+RedactorRetainedTail-4                                                                          14.29Gi ± 17%                               14.14Gi ± 24%         ~ (p=0.853 n=10)
+PublicRedactorLongBoundary/32-4                                                                 195.1Mi ± 10%                               203.6Mi ± 10%         ~ (p=0.247 n=10)
+PublicRedactorLongBoundary/256-4                                                                186.4Mi ± 10%                               412.1Mi ± 10%  +121.13% (p=0.000 n=10)
+PublicRedactorLongBoundary/4096-4                                                               191.0Mi ±  9%                               430.6Mi ± 11%  +125.42% (p=0.000 n=10)
+PublicRedactorLongBoundary/65536-4                                                              192.2Mi ±  9%                               444.7Mi ±  7%  +131.41% (p=0.000 n=10)
+OSReceive/1-4                                                                                   92.77Ki ± 26%                              166.02Ki ±  6%   +78.95% (p=0.000 n=10)
+OSReceive/32-4                                                                                  2.813Mi ± 28%                               5.183Mi ±  6%   +84.24% (p=0.000 n=10)
+OSReceive/1024-4                                                                                81.01Mi ± 19%                              144.12Mi ±  8%   +77.90% (p=0.000 n=10)
+OSReceive/16384-4                                                                               519.2Mi ± 12%                               516.6Mi ± 12%         ~ (p=0.912 n=10)
+FragmentedReceive/1-4                                                                           1.764Mi ±  6%                               1.779Mi ±  3%         ~ (p=0.643 n=10)
+FragmentedReceive/32-4                                                                          52.74Mi ±  7%                               53.08Mi ±  4%         ~ (p=0.631 n=10)
+FragmentedReceive/1024-4                                                                        656.1Mi ± 10%                               653.8Mi ± 10%         ~ (p=0.971 n=10)
+FragmentedReceive/16384-4                                                                       1.641Gi ± 21%                               1.754Gi ± 12%         ~ (p=0.315 n=10)
+geomean                                                                                         107.0Mi                                     126.8Mi         +18.42%
+
+                                          │ /tmp/connector-refinement-20261029/expect-throughput-baseline.txt │ /tmp/connector-refinement-20261029/expect-throughput-candidate.txt │
+                                          │                               B/op                                │                   B/op                    vs base                  │
+PTYReceive/1-4                                                                                     547.0 ± 0%                                 547.0 ± 0%        ~ (p=0.070 n=10)
+PTYReceive/32-4                                                                                    610.0 ± 0%                                 610.0 ± 0%    0.00% (p=0.019 n=10)
+PTYReceive/1024-4                                                                                5.534Ki ± 0%                               5.533Ki ± 0%   -0.02% (p=0.003 n=10)
+ReceivePatterns/literal/chunk_32-4                                                               240.5Ki ± 0%                               240.4Ki ± 0%   -0.05% (p=0.000 n=10)
+ReceivePatterns/literal/chunk_1024-4                                                             231.3Ki ± 0%                               231.2Ki ± 0%   -0.05% (p=0.000 n=10)
+ReceivePatterns/all_literals/chunk_32-4                                                          240.7Ki ± 0%                               240.6Ki ± 0%   -0.05% (p=0.000 n=10)
+ReceivePatterns/all_literals/chunk_1024-4                                                        231.5Ki ± 0%                               231.4Ki ± 0%   -0.05% (p=0.000 n=10)
+ReceivePatterns/nested_all/chunk_32-4                                                            240.8Ki ± 0%                               240.6Ki ± 0%   -0.04% (p=0.000 n=10)
+ReceivePatterns/nested_all/chunk_1024-4                                                          231.6Ki ± 0%                               231.5Ki ± 0%   -0.05% (p=0.000 n=10)
+ReceivePatterns/regexp/chunk_32-4                                                                246.0Ki ± 0%                               245.2Ki ± 0%        ~ (p=0.075 n=10)
+ReceivePatterns/regexp/chunk_1024-4                                                              235.2Ki ± 0%                               235.0Ki ± 0%   -0.11% (p=0.043 n=10)
+ReceivePatterns/mixed_all/chunk_32-4                                                             245.3Ki ± 1%                               245.0Ki ± 1%        ~ (p=0.481 n=10)
+ReceivePatterns/mixed_all/chunk_1024-4                                                           235.1Ki ± 0%                               235.1Ki ± 0%        ~ (p=0.529 n=10)
+PublicRedactor/no_rules/chunk_1-4                                                                8.000Ki ± 0%                               8.000Ki ± 0%        ~ (p=1.000 n=10) ¹
+PublicRedactor/no_rules/chunk_32-4                                                               1.000Ki ± 0%                               1.000Ki ± 0%        ~ (p=1.000 n=10) ¹
+PublicRedactor/no_rules/chunk_1024-4                                                             1.000Ki ± 0%                               1.000Ki ± 0%        ~ (p=1.000 n=10) ¹
+PublicRedactor/safe/chunk_1-4                                                                    1.062Ki ± 0%                               1.031Ki ± 0%   -2.94% (p=0.000 n=10)
+PublicRedactor/safe/chunk_32-4                                                                   1.023Ki ± 0%                               1.039Ki ± 0%   +1.53% (p=0.000 n=10)
+PublicRedactor/safe/chunk_1024-4                                                                 1.023Ki ± 0%                               1.039Ki ± 0%   +1.53% (p=0.000 n=10)
+PublicRedactor/matches/chunk_1-4                                                                16.000Ki ± 0%                               2.031Ki ± 0%  -87.30% (p=0.000 n=10)
+PublicRedactor/matches/chunk_32-4                                                                6.086Ki ± 0%                               6.555Ki ± 0%   +7.70% (p=0.000 n=10)
+PublicRedactor/matches/chunk_1024-4                                                              4.414Ki ± 0%                               4.430Ki ± 0%   +0.35% (p=0.000 n=10)
+PublicRedactor/overlaps/chunk_1-4                                                               15.633Ki ± 0%                               3.133Ki ± 0%  -79.96% (p=0.000 n=10)
+PublicRedactor/overlaps/chunk_32-4                                                               6.375Ki ± 0%                               6.125Ki ± 0%   -3.92% (p=0.000 n=10)
+PublicRedactor/overlaps/chunk_1024-4                                                             6.773Ki ± 0%                               6.766Ki ± 0%   -0.12% (p=0.000 n=10)
+RedactorRetainedTail-4                                                                           1.000Mi ± 0%                               1.000Mi ± 0%   +0.00% (p=0.000 n=10)
+PublicRedactorLongBoundary/32-4                                                                    32.00 ± 0%                                 32.00 ± 0%        ~ (p=1.000 n=10) ¹
+PublicRedactorLongBoundary/256-4                                                                  1792.0 ± 0%                                 256.0 ± 0%  -85.71% (p=0.000 n=10)
+PublicRedactorLongBoundary/4096-4                                                               30.500Ki ± 0%                               4.000Ki ± 0%  -86.89% (p=0.000 n=10)
+PublicRedactorLongBoundary/65536-4                                                              512.00Ki ± 0%                               64.00Ki ± 0%  -87.50% (p=0.000 n=10)
+OSReceive/1-4                                                                                      547.0 ± 0%                                 546.0 ± 0%   -0.18% (p=0.000 n=10)
+OSReceive/32-4                                                                                     610.0 ± 0%                                 609.0 ± 0%   -0.16% (p=0.000 n=10)
+OSReceive/1024-4                                                                                 5.533Ki ± 0%                               5.533Ki ± 0%   -0.01% (p=0.014 n=10)
+OSReceive/16384-4                                                                                146.6Ki ± 0%                               146.6Ki ± 0%        ~ (p=0.214 n=10)
+FragmentedReceive/1-4                                                                            132.6Ki ± 0%                               132.5Ki ± 0%   -0.08% (p=0.000 n=10)
+FragmentedReceive/32-4                                                                           132.5Ki ± 0%                               132.4Ki ± 0%   -0.08% (p=0.000 n=10)
+FragmentedReceive/1024-4                                                                         123.3Ki ± 0%                               123.2Ki ± 0%   -0.09% (p=0.000 n=10)
+FragmentedReceive/16384-4                                                                        71.06Ki ± 0%                               70.95Ki ± 0%   -0.15% (p=0.000 n=10)
+geomean                                                                                          17.21Ki                                    13.33Ki       -22.54%
+¹ all samples are equal
+
+                                          │ /tmp/connector-refinement-20261029/expect-throughput-baseline.txt │ /tmp/connector-refinement-20261029/expect-throughput-candidate.txt │
+                                          │                             allocs/op                             │                allocs/op                  vs base                  │
+PTYReceive/1-4                                                                                     12.00 ± 0%                                 12.00 ± 0%        ~ (p=1.000 n=10) ¹
+PTYReceive/32-4                                                                                    13.00 ± 0%                                 13.00 ± 0%        ~ (p=1.000 n=10) ¹
+PTYReceive/1024-4                                                                                  16.00 ± 0%                                 16.00 ± 0%        ~ (p=1.000 n=10) ¹
+ReceivePatterns/literal/chunk_32-4                                                                1.064k ± 0%                                1.063k ± 0%   -0.09% (p=0.000 n=10)
+ReceivePatterns/literal/chunk_1024-4                                                               64.00 ± 0%                                 63.00 ± 0%   -1.56% (p=0.000 n=10)
+ReceivePatterns/all_literals/chunk_32-4                                                           1.065k ± 0%                                1.064k ± 0%   -0.09% (p=0.000 n=10)
+ReceivePatterns/all_literals/chunk_1024-4                                                          65.00 ± 0%                                 64.00 ± 0%   -1.54% (p=0.000 n=10)
+ReceivePatterns/nested_all/chunk_32-4                                                             1.065k ± 0%                                1.064k ± 0%   -0.09% (p=0.000 n=10)
+ReceivePatterns/nested_all/chunk_1024-4                                                            65.00 ± 0%                                 64.00 ± 0%   -1.54% (p=0.000 n=10)
+ReceivePatterns/regexp/chunk_32-4                                                                 1.069k ± 0%                                1.069k ± 0%   -0.05% (p=0.021 n=10)
+ReceivePatterns/regexp/chunk_1024-4                                                                69.00 ± 0%                                 68.00 ± 0%   -1.45% (p=0.000 n=10)
+ReceivePatterns/mixed_all/chunk_32-4                                                              1.069k ± 0%                                1.067k ± 0%   -0.14% (p=0.001 n=10)
+ReceivePatterns/mixed_all/chunk_1024-4                                                             68.00 ± 0%                                 67.00 ± 0%   -1.47% (p=0.000 n=10)
+PublicRedactor/no_rules/chunk_1-4                                                                 1.024k ± 0%                                1.024k ± 0%        ~ (p=1.000 n=10) ¹
+PublicRedactor/no_rules/chunk_32-4                                                                 32.00 ± 0%                                 32.00 ± 0%        ~ (p=1.000 n=10) ¹
+PublicRedactor/no_rules/chunk_1024-4                                                               1.000 ± 0%                                 1.000 ± 0%        ~ (p=1.000 n=10) ¹
+PublicRedactor/safe/chunk_1-4                                                                     1.032k ± 0%                                1.020k ± 0%   -1.16% (p=0.000 n=10)
+PublicRedactor/safe/chunk_32-4                                                                     35.00 ± 0%                                 35.00 ± 0%        ~ (p=1.000 n=10) ¹
+PublicRedactor/safe/chunk_1024-4                                                                   4.000 ± 0%                                 4.000 ± 0%        ~ (p=1.000 n=10) ¹
+PublicRedactor/matches/chunk_1-4                                                                  2051.0 ± 0%                                 257.0 ± 0%  -87.47% (p=0.000 n=10)
+PublicRedactor/matches/chunk_32-4                                                                  182.0 ± 0%                                 182.0 ± 0%        ~ (p=1.000 n=10) ¹
+PublicRedactor/matches/chunk_1024-4                                                                8.000 ± 0%                                 8.000 ± 0%        ~ (p=1.000 n=10) ¹
+PublicRedactor/overlaps/chunk_1-4                                                                 2004.0 ± 0%                                 402.0 ± 0%  -79.94% (p=0.000 n=10)
+PublicRedactor/overlaps/chunk_32-4                                                                 194.0 ± 0%                                 194.0 ± 0%        ~ (p=1.000 n=10) ¹
+PublicRedactor/overlaps/chunk_1024-4                                                               8.000 ± 0%                                 8.000 ± 0%        ~ (p=1.000 n=10) ¹
+RedactorRetainedTail-4                                                                             5.000 ± 0%                                 5.000 ± 0%        ~ (p=1.000 n=10) ¹
+PublicRedactorLongBoundary/32-4                                                                    1.000 ± 0%                                 1.000 ± 0%        ~ (p=1.000 n=10) ¹
+PublicRedactorLongBoundary/256-4                                                                   5.000 ± 0%                                 1.000 ± 0%  -80.00% (p=0.000 n=10)
+PublicRedactorLongBoundary/4096-4                                                                  5.000 ± 0%                                 1.000 ± 0%  -80.00% (p=0.000 n=10)
+PublicRedactorLongBoundary/65536-4                                                                 5.000 ± 0%                                 1.000 ± 0%  -80.00% (p=0.000 n=10)
+OSReceive/1-4                                                                                      12.00 ± 0%                                 12.00 ± 0%        ~ (p=1.000 n=10) ¹
+OSReceive/32-4                                                                                     13.00 ± 0%                                 13.00 ± 0%        ~ (p=1.000 n=10) ¹
+OSReceive/1024-4                                                                                   16.00 ± 0%                                 16.00 ± 0%        ~ (p=1.000 n=10) ¹
+OSReceive/16384-4                                                                                  24.00 ± 0%                                 24.00 ± 0%        ~ (p=1.000 n=10) ¹
+FragmentedReceive/1-4                                                                             16.43k ± 0%                                16.43k ± 0%   -0.01% (p=0.000 n=10)
+FragmentedReceive/32-4                                                                             550.0 ± 0%                                 549.0 ± 0%   -0.18% (p=0.000 n=10)
+FragmentedReceive/1024-4                                                                           46.00 ± 0%                                 45.00 ± 0%   -2.17% (p=0.000 n=10)
+FragmentedReceive/16384-4                                                                          25.00 ± 0%                                 24.00 ± 0%   -4.00% (p=0.000 n=10)
+geomean                                                                                            61.11                                      48.65       -20.40%
+¹ all samples are equal
+
+                       │ /tmp/connector-refinement-20261029/expect-throughput-baseline.txt │ /tmp/connector-refinement-20261029/expect-throughput-candidate.txt │
+                       │                            tail-cap-B                             │                tail-cap-B                  vs base                 │
+RedactorRetainedTail-4                                                          10.00 ± 0%                                  20.00 ± 0%  +100.00% (p=0.000 n=10)

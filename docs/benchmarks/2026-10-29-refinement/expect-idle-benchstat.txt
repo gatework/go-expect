@@ -1,0 +1,107 @@
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+                        │ /tmp/connector-refinement-20261029/expect-idle-baseline.txt │ /tmp/connector-refinement-20261029/expect-idle-candidate.txt │
+                        │                           sec/op                            │                sec/op                  vs base               │
+OSIdlePopulation/1-4                                                     50.92m ±  0%                             51.03m ± 0%  +0.22% (p=0.035 n=10)
+OSIdlePopulation/64-4                                                    50.89m ±  1%                             50.91m ± 0%       ~ (p=0.684 n=10)
+OSIdlePopulation/256-4                                                   50.25m ±  5%                             51.05m ± 0%  +1.58% (p=0.023 n=10)
+OSIdlePopulation/1024-4                                                  52.55m ± 22%                             51.02m ± 0%  -2.90% (p=0.023 n=10)
+geomean                                                                  51.15m                                   51.00m       -0.28%
+
+                        │ /tmp/connector-refinement-20261029/expect-idle-baseline.txt │ /tmp/connector-refinement-20261029/expect-idle-candidate.txt │
+                        │                        close-p50-sec                        │            close-p50-sec              vs base                │
+OSIdlePopulation/1-4                                                  11030.17µ ±  0%                           43.56µ ± 35%  -99.61% (p=0.000 n=10)
+OSIdlePopulation/64-4                                                 6300.062µ ± 27%                           8.709µ ± 33%  -99.86% (p=0.000 n=10)
+OSIdlePopulation/256-4                                                5610.896µ ±  8%                           7.375µ ± 20%  -99.87% (p=0.000 n=10)
+OSIdlePopulation/1024-4                                               5734.312µ ±  4%                           3.480µ ± 37%  -99.94% (p=0.000 n=10)
+geomean                                                                  6.876m                                 9.933µ        -99.86%
+
+                        │ /tmp/connector-refinement-20261029/expect-idle-baseline.txt │ /tmp/connector-refinement-20261029/expect-idle-candidate.txt │
+                        │                        close-p95-sec                        │            close-p95-sec              vs base                │
+OSIdlePopulation/1-4                                                   11030.17µ ± 0%                           43.56µ ± 35%  -99.61% (p=0.000 n=10)
+OSIdlePopulation/64-4                                                  10690.58µ ± 4%                           17.15µ ± 41%  -99.84% (p=0.000 n=10)
+OSIdlePopulation/256-4                                                 10703.67µ ± 5%                           12.33µ ± 28%  -99.88% (p=0.000 n=10)
+OSIdlePopulation/1024-4                                               10868.938µ ± 2%                           5.980µ ± 36%  -99.94% (p=0.000 n=10)
+geomean                                                                   10.82m                                15.32µ        -99.86%
+
+                        │ /tmp/connector-refinement-20261029/expect-idle-baseline.txt │ /tmp/connector-refinement-20261029/expect-idle-candidate.txt │
+                        │                     cpu-sec/session-ms                      │          cpu-sec/session-ms           vs base                │
+OSIdlePopulation/1-4                                                     8.814µ ± 47%                           2.662µ ± 28%  -69.80% (p=0.000 n=10)
+OSIdlePopulation/64-4                                                  2457.50n ± 28%                           37.18n ± 18%  -98.49% (p=0.000 n=10)
+OSIdlePopulation/256-4                                                 2388.00n ± 19%                           10.56n ± 15%  -99.56% (p=0.000 n=10)
+OSIdlePopulation/1024-4                                               8512.500n ±  4%                           1.643n ± 39%  -99.98% (p=0.000 n=10)
+geomean                                                                  4.581µ                                 36.20n        -99.21%
+
+                        │ /tmp/connector-refinement-20261029/expect-idle-baseline.txt │ /tmp/connector-refinement-20261029/expect-idle-candidate.txt │
+                        │                          fd-delta                           │              fd-delta                vs base                 │
+OSIdlePopulation/1-4                                                       2.000 ± 0%                            2.000 ± 0%       ~ (p=1.000 n=10) ¹
+OSIdlePopulation/64-4                                                      128.0 ± 0%                            128.0 ± 0%       ~ (p=1.000 n=10) ¹
+OSIdlePopulation/256-4                                                     512.0 ± 0%                            512.0 ± 0%       ~ (p=1.000 n=10) ¹
+OSIdlePopulation/1024-4                                                   2.048k ± 0%                           2.048k ± 0%       ~ (p=1.000 n=10) ¹
+geomean                                                                    128.0                                 128.0       +0.00%
+¹ all samples are equal
+
+                        │ /tmp/connector-refinement-20261029/expect-idle-baseline.txt │ /tmp/connector-refinement-20261029/expect-idle-candidate.txt │
+                        │                        poll-p50-sec                         │             poll-p50-sec              vs base                │
+OSIdlePopulation/1-4                                                    5916.9µ ± 86%                           195.6µ ± 49%  -96.69% (p=0.000 n=10)
+OSIdlePopulation/64-4                                                  7919.75µ ± 15%                           49.58µ ± 31%  -99.37% (p=0.000 n=10)
+OSIdlePopulation/256-4                                                 5840.52µ ±  8%                           42.40µ ± 41%  -99.27% (p=0.000 n=10)
+OSIdlePopulation/1024-4                                               14544.42µ ± 11%                           43.04µ ± 45%  -99.70% (p=0.000 n=10)
+geomean                                                                  7.943m                                 64.86µ        -99.18%
+
+                        │ /tmp/connector-refinement-20261029/expect-idle-baseline.txt │ /tmp/connector-refinement-20261029/expect-idle-candidate.txt │
+                        │                        poll-p95-sec                         │             poll-p95-sec              vs base                │
+OSIdlePopulation/1-4                                                    5916.9µ ± 86%                           195.6µ ± 49%  -96.69% (p=0.000 n=10)
+OSIdlePopulation/64-4                                                 11425.88µ ± 14%                           74.54µ ± 28%  -99.35% (p=0.000 n=10)
+OSIdlePopulation/256-4                                                10861.90µ ±  3%                           76.37µ ± 12%  -99.30% (p=0.000 n=10)
+OSIdlePopulation/1024-4                                               76014.19µ ± 15%                           66.71µ ± 74%  -99.91% (p=0.000 n=10)
+geomean                                                                  15.37m                                 92.84µ        -99.40%
+
+                        │ /tmp/connector-refinement-20261029/expect-idle-baseline.txt │ /tmp/connector-refinement-20261029/expect-idle-candidate.txt │
+                        │                     retained-B/session                      │         retained-B/session          vs base                  │
+OSIdlePopulation/1-4                                                 -43.22Ki ± -1%                          -48.20Ki ± 0%  +11.53% (p=0.000 n=10)
+OSIdlePopulation/64-4                                                 6.302Ki ±  1%                           1.156Ki ± 1%  -81.65% (p=0.000 n=10)
+OSIdlePopulation/256-4                                                6.956Ki ±  0%                           1.737Ki ± 0%  -75.02% (p=0.000 n=10)
+OSIdlePopulation/1024-4                                               8.318Ki ± 20%                           1.888Ki ± 0%  -77.31% (p=0.000 n=10)
+geomean                                                                             ¹                                       -67.18%                ¹
+¹ summaries must be >0 to compute geomean
+
+                        │ /tmp/connector-refinement-20261029/expect-idle-baseline.txt │ /tmp/connector-refinement-20261029/expect-idle-candidate.txt │
+                        │                        thread-delta                         │          thread-delta            vs base                     │
+OSIdlePopulation/1-4                                                      1.000 ±   ?                        0.000 ± 0%  -100.00% (p=0.001 n=10)
+OSIdlePopulation/64-4                                                     63.00 ±  2%                         0.00 ± 0%  -100.00% (p=0.000 n=10)
+OSIdlePopulation/256-4                                                    255.0 ±  0%                          0.0 ± 0%  -100.00% (p=0.000 n=10)
+OSIdlePopulation/1024-4                                                   908.5 ± 11%                          0.0 ±  ?  -100.00% (p=0.000 n=10)
+geomean                                                                   61.81                                          ?                       ¹ ²
+¹ summaries must be >0 to compute geomean
+² ratios must be >0 to compute geomean
+
+                        │ /tmp/connector-refinement-20261029/expect-idle-baseline.txt │ /tmp/connector-refinement-20261029/expect-idle-candidate.txt │
+                        │                           threads                           │               threads                 vs base                │
+OSIdlePopulation/1-4                                                      8.000 ± 12%                            7.000 ±  0%  -12.50% (p=0.001 n=10)
+OSIdlePopulation/64-4                                                    70.000 ±  1%                            7.000 ±  0%  -90.00% (p=0.000 n=10)
+OSIdlePopulation/256-4                                                  262.000 ±  0%                            7.000 ±  0%  -97.33% (p=0.000 n=10)
+OSIdlePopulation/1024-4                                                 915.500 ± 11%                            7.000 ± 14%  -99.24% (p=0.000 n=10)
+geomean                                                                   107.7                                  7.000        -93.50%
+
+                        │ /tmp/connector-refinement-20261029/expect-idle-baseline.txt │ /tmp/connector-refinement-20261029/expect-idle-candidate.txt │
+                        │                            B/op                             │              B/op                vs base                     │
+OSIdlePopulation/1-4                                                    426.000 ±  7%                         5.000 ± ?   -98.83% (p=0.000 n=10)
+OSIdlePopulation/64-4                                                 27558.500 ±  4%                         5.000 ± ?   -99.98% (p=0.000 n=10)
+OSIdlePopulation/256-4                                               109101.000 ±  4%                         5.000 ± ?  -100.00% (p=0.000 n=10)
+OSIdlePopulation/1024-4                                                 310.0Ki ± 19%                         0.0Ki ± ?  -100.00% (p=0.000 n=10)
+geomean                                                                 24.66Ki                                          ?                       ¹ ²
+¹ summaries must be >0 to compute geomean
+² ratios must be >0 to compute geomean
+
+                        │ /tmp/connector-refinement-20261029/expect-idle-baseline.txt │ /tmp/connector-refinement-20261029/expect-idle-candidate.txt │
+                        │                          allocs/op                          │            allocs/op             vs base                     │
+OSIdlePopulation/1-4                                                      19.00 ± 11%                         0.00 ± 0%  -100.00% (p=0.000 n=10)
+OSIdlePopulation/64-4                                                    1.238k ±  4%                       0.000k ± 0%  -100.00% (p=0.000 n=10)
+OSIdlePopulation/256-4                                                   4.903k ±  3%                       0.000k ± 0%  -100.00% (p=0.000 n=10)
+OSIdlePopulation/1024-4                                                  14.26k ± 19%                        0.00k ± 0%  -100.00% (p=0.000 n=10)
+geomean                                                                  1.133k                                          ?                       ¹ ²
+¹ summaries must be >0 to compute geomean
+² ratios must be >0 to compute geomean

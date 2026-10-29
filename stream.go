@@ -19,6 +19,11 @@ func (s *Session) Poll(ctx context.Context, cases []Case, opts ...ExpectOption) 
 
 func (s *Session) acceptEvent(event readEvent) error {
 	s.staged = event.data
+	s.stagedAlloc = cap(event.data)
+	if len(s.staged) == 0 {
+		s.staged = nil
+		s.stagedAlloc = 0
+	}
 	s.stagedErr = event.err
 	if len(event.data) == 0 && event.err != nil {
 		s.terminal = event.err

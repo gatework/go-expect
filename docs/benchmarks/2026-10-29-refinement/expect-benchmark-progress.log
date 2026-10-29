@@ -1,0 +1,141 @@
+throughput sample=1/10 variant=baseline exit=0 elapsed=5.3s
+throughput sample=1/10 variant=candidate exit=0 elapsed=10.3s
+throughput sample=2/10 variant=candidate exit=0 elapsed=14.9s
+throughput sample=2/10 variant=baseline exit=0 elapsed=19.4s
+throughput sample=3/10 variant=baseline exit=0 elapsed=24.0s
+throughput sample=3/10 variant=candidate exit=0 elapsed=28.6s
+throughput sample=4/10 variant=candidate exit=0 elapsed=33.2s
+throughput sample=4/10 variant=baseline exit=0 elapsed=37.8s
+throughput sample=5/10 variant=baseline exit=0 elapsed=42.4s
+throughput sample=5/10 variant=candidate exit=0 elapsed=47.0s
+throughput sample=6/10 variant=candidate exit=0 elapsed=51.6s
+throughput sample=6/10 variant=baseline exit=0 elapsed=56.1s
+throughput sample=7/10 variant=baseline exit=0 elapsed=60.7s
+throughput sample=7/10 variant=candidate exit=0 elapsed=65.2s
+throughput sample=8/10 variant=candidate exit=0 elapsed=69.8s
+throughput sample=8/10 variant=baseline exit=0 elapsed=74.4s
+throughput sample=9/10 variant=baseline exit=0 elapsed=78.9s
+throughput sample=9/10 variant=candidate exit=0 elapsed=83.6s
+throughput sample=10/10 variant=candidate exit=0 elapsed=88.2s
+throughput sample=10/10 variant=baseline exit=0 elapsed=92.7s
+dense sample=1/10 variant=baseline exit=0 elapsed=98.5s
+dense sample=1/10 variant=candidate exit=0 elapsed=99.5s
+dense sample=2/10 variant=candidate exit=0 elapsed=100.5s
+dense sample=2/10 variant=baseline exit=0 elapsed=106.2s
+dense sample=3/10 variant=baseline exit=0 elapsed=112.0s
+dense sample=3/10 variant=candidate exit=0 elapsed=113.0s
+dense sample=4/10 variant=candidate exit=0 elapsed=113.9s
+dense sample=4/10 variant=baseline exit=0 elapsed=119.1s
+dense sample=5/10 variant=baseline exit=0 elapsed=124.2s
+dense sample=5/10 variant=candidate exit=0 elapsed=125.2s
+dense sample=6/10 variant=candidate exit=0 elapsed=126.2s
+dense sample=6/10 variant=baseline exit=0 elapsed=131.3s
+dense sample=7/10 variant=baseline exit=0 elapsed=136.4s
+dense sample=7/10 variant=candidate exit=0 elapsed=137.4s
+dense sample=8/10 variant=candidate exit=0 elapsed=138.4s
+dense sample=8/10 variant=baseline exit=0 elapsed=143.5s
+dense sample=9/10 variant=baseline exit=0 elapsed=148.7s
+dense sample=9/10 variant=candidate exit=0 elapsed=149.7s
+dense sample=10/10 variant=candidate exit=0 elapsed=150.7s
+dense sample=10/10 variant=baseline exit=0 elapsed=155.8s
+retention sample=1/10 variant=baseline exit=0 elapsed=155.8s
+retention sample=1/10 variant=candidate exit=0 elapsed=155.8s
+retention sample=2/10 variant=candidate exit=0 elapsed=155.9s
+retention sample=2/10 variant=baseline exit=0 elapsed=155.9s
+retention sample=3/10 variant=baseline exit=0 elapsed=155.9s
+retention sample=3/10 variant=candidate exit=0 elapsed=155.9s
+retention sample=4/10 variant=candidate exit=0 elapsed=155.9s
+retention sample=4/10 variant=baseline exit=0 elapsed=156.0s
+retention sample=5/10 variant=baseline exit=0 elapsed=156.0s
+retention sample=5/10 variant=candidate exit=0 elapsed=156.0s
+retention sample=6/10 variant=candidate exit=0 elapsed=156.0s
+retention sample=6/10 variant=baseline exit=0 elapsed=156.1s
+retention sample=7/10 variant=baseline exit=0 elapsed=156.1s
+retention sample=7/10 variant=candidate exit=0 elapsed=156.1s
+retention sample=8/10 variant=candidate exit=0 elapsed=156.1s
+retention sample=8/10 variant=baseline exit=0 elapsed=156.2s
+retention sample=9/10 variant=baseline exit=0 elapsed=156.2s
+retention sample=9/10 variant=candidate exit=0 elapsed=156.2s
+retention sample=10/10 variant=candidate exit=0 elapsed=156.2s
+retention sample=10/10 variant=baseline exit=0 elapsed=156.2s
+idle count=1 sample=1/10 variant=baseline exit=0 elapsed=156.5s
+idle count=1 sample=1/10 variant=candidate exit=0 elapsed=156.7s
+idle count=1 sample=2/10 variant=candidate exit=0 elapsed=156.9s
+idle count=1 sample=2/10 variant=baseline exit=0 elapsed=157.2s
+idle count=1 sample=3/10 variant=baseline exit=0 elapsed=157.5s
+idle count=1 sample=3/10 variant=candidate exit=0 elapsed=157.7s
+idle count=1 sample=4/10 variant=candidate exit=0 elapsed=157.9s
+idle count=1 sample=4/10 variant=baseline exit=0 elapsed=158.2s
+idle count=1 sample=5/10 variant=baseline exit=0 elapsed=158.4s
+idle count=1 sample=5/10 variant=candidate exit=0 elapsed=158.6s
+idle count=1 sample=6/10 variant=candidate exit=0 elapsed=158.9s
+idle count=1 sample=6/10 variant=baseline exit=0 elapsed=159.1s
+idle count=1 sample=7/10 variant=baseline exit=0 elapsed=159.4s
+idle count=1 sample=7/10 variant=candidate exit=0 elapsed=159.6s
+idle count=1 sample=8/10 variant=candidate exit=0 elapsed=159.8s
+idle count=1 sample=8/10 variant=baseline exit=0 elapsed=160.1s
+idle count=1 sample=9/10 variant=baseline exit=0 elapsed=160.3s
+idle count=1 sample=9/10 variant=candidate exit=0 elapsed=160.6s
+idle count=1 sample=10/10 variant=candidate exit=0 elapsed=160.8s
+idle count=1 sample=10/10 variant=baseline exit=0 elapsed=161.0s
+idle count=64 sample=1/10 variant=baseline exit=0 elapsed=162.1s
+idle count=64 sample=1/10 variant=candidate exit=0 elapsed=162.3s
+idle count=64 sample=2/10 variant=candidate exit=0 elapsed=162.6s
+idle count=64 sample=2/10 variant=baseline exit=0 elapsed=163.6s
+idle count=64 sample=3/10 variant=baseline exit=0 elapsed=164.6s
+idle count=64 sample=3/10 variant=candidate exit=0 elapsed=164.8s
+idle count=64 sample=4/10 variant=candidate exit=0 elapsed=165.1s
+idle count=64 sample=4/10 variant=baseline exit=0 elapsed=166.1s
+idle count=64 sample=5/10 variant=baseline exit=0 elapsed=167.2s
+idle count=64 sample=5/10 variant=candidate exit=0 elapsed=167.5s
+idle count=64 sample=6/10 variant=candidate exit=0 elapsed=167.7s
+idle count=64 sample=6/10 variant=baseline exit=0 elapsed=168.7s
+idle count=64 sample=7/10 variant=baseline exit=0 elapsed=169.8s
+idle count=64 sample=7/10 variant=candidate exit=0 elapsed=170.0s
+idle count=64 sample=8/10 variant=candidate exit=0 elapsed=170.3s
+idle count=64 sample=8/10 variant=baseline exit=0 elapsed=171.3s
+idle count=64 sample=9/10 variant=baseline exit=0 elapsed=172.3s
+idle count=64 sample=9/10 variant=candidate exit=0 elapsed=172.5s
+idle count=64 sample=10/10 variant=candidate exit=0 elapsed=172.7s
+idle count=64 sample=10/10 variant=baseline exit=0 elapsed=173.8s
+idle count=256 sample=1/10 variant=baseline exit=0 elapsed=177.0s
+idle count=256 sample=1/10 variant=candidate exit=0 elapsed=177.3s
+idle count=256 sample=2/10 variant=candidate exit=0 elapsed=177.5s
+idle count=256 sample=2/10 variant=baseline exit=0 elapsed=180.7s
+idle count=256 sample=3/10 variant=baseline exit=0 elapsed=183.8s
+idle count=256 sample=3/10 variant=candidate exit=0 elapsed=184.1s
+idle count=256 sample=4/10 variant=candidate exit=0 elapsed=184.3s
+idle count=256 sample=4/10 variant=baseline exit=0 elapsed=187.5s
+idle count=256 sample=5/10 variant=baseline exit=0 elapsed=190.6s
+idle count=256 sample=5/10 variant=candidate exit=0 elapsed=190.9s
+idle count=256 sample=6/10 variant=candidate exit=0 elapsed=191.1s
+idle count=256 sample=6/10 variant=baseline exit=0 elapsed=194.1s
+idle count=256 sample=7/10 variant=baseline exit=0 elapsed=197.3s
+idle count=256 sample=7/10 variant=candidate exit=0 elapsed=197.5s
+idle count=256 sample=8/10 variant=candidate exit=0 elapsed=197.8s
+idle count=256 sample=8/10 variant=baseline exit=0 elapsed=200.8s
+idle count=256 sample=9/10 variant=baseline exit=0 elapsed=204.0s
+idle count=256 sample=9/10 variant=candidate exit=0 elapsed=204.3s
+idle count=256 sample=10/10 variant=candidate exit=0 elapsed=204.6s
+idle count=256 sample=10/10 variant=baseline exit=0 elapsed=207.7s
+idle count=1024 sample=1/10 variant=baseline exit=0 elapsed=238.1s
+idle count=1024 sample=1/10 variant=candidate exit=0 elapsed=238.3s
+idle count=1024 sample=2/10 variant=candidate exit=0 elapsed=238.6s
+idle count=1024 sample=2/10 variant=baseline exit=0 elapsed=273.8s
+idle count=1024 sample=3/10 variant=baseline exit=0 elapsed=309.6s
+idle count=1024 sample=3/10 variant=candidate exit=0 elapsed=309.8s
+idle count=1024 sample=4/10 variant=candidate exit=0 elapsed=310.1s
+idle count=1024 sample=4/10 variant=baseline exit=0 elapsed=344.6s
+idle count=1024 sample=5/10 variant=baseline exit=0 elapsed=378.9s
+idle count=1024 sample=5/10 variant=candidate exit=0 elapsed=379.2s
+idle count=1024 sample=6/10 variant=candidate exit=0 elapsed=379.5s
+idle count=1024 sample=6/10 variant=baseline exit=0 elapsed=411.5s
+idle count=1024 sample=7/10 variant=baseline exit=0 elapsed=442.0s
+idle count=1024 sample=7/10 variant=candidate exit=0 elapsed=442.3s
+idle count=1024 sample=8/10 variant=candidate exit=0 elapsed=442.6s
+idle count=1024 sample=8/10 variant=baseline exit=0 elapsed=475.1s
+idle count=1024 sample=9/10 variant=baseline exit=0 elapsed=513.8s
+idle count=1024 sample=9/10 variant=candidate exit=0 elapsed=514.1s
+idle count=1024 sample=10/10 variant=candidate exit=0 elapsed=514.4s
+idle count=1024 sample=10/10 variant=baseline exit=0 elapsed=542.1s
+COMPLETE elapsed=542.1s

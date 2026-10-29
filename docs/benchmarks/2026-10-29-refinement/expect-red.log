@@ -1,0 +1,16 @@
+--- FAIL: TestReceiveReleasesConsumedAndDetachesSmallRemainder (0.00s)
+    --- FAIL: TestReceiveReleasesConsumedAndDetachesSmallRemainder/empty (0.00s)
+        expect_storage_test.go:31: exhausted staged input retains its backing allocation
+    --- FAIL: TestReceiveReleasesConsumedAndDetachesSmallRemainder/small (0.00s)
+        expect_storage_test.go:31: exhausted staged input retains its backing allocation
+--- FAIL: TestReceiveCancellationDetachesAfterContinuation (0.00s)
+    expect_storage_test.go:72: canceled operation retains the consumed burst allocation
+--- FAIL: TestOSPollingUsesRuntimeWaitWithoutPeriodicWake (0.11s)
+    polling_unix_test.go:55: OS read pump did not enter runtime RawConn.Read
+--- FAIL: TestOSPollingHonorsWrappedReadNormalizer (0.00s)
+    polling_unix_test.go:89: ready=true err=EOF, want wrapped normalizer
+--- FAIL: TestPublicRedactorDenseWarmSuffixReuse (0.02s)
+    streaming_redactor_test.go:22: warm covered suffix allocated 2 times, want zero
+FAIL
+FAIL	github.com/gatework/go-expect	1.021s
+FAIL

@@ -1,0 +1,5 @@
+--- FAIL: TestPollAfterPumpExitDoesNotPublishUnownedRequest (0.00s)
+    polling_unix_test.go:258: Poll published a request after its owning pump exited
+FAIL
+FAIL	github.com/gatework/go-expect	0.497s
+FAIL

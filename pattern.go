@@ -203,3 +203,93 @@ func completeUTF8(data []byte) int {
 	}
 	return len(data)
 }
+
+// patternScan belongs to one Expect call. Pure literal All trees can retain
+// their first hits as input grows; regular expressions always see the full view.
+type patternScan struct {
+	all []literalScan
+}
+
+type literalScan struct {
+	text    string
+	scanned int
+	hit     location
+	found   bool
+}
+
+func newPatternScan(p Pattern) patternScan {
+	if p.kind != allPattern {
+		return patternScan{}
+	}
+	count := literalCount(p)
+	if count == 0 {
+		return patternScan{}
+	}
+	state := patternScan{all: make([]literalScan, 0, count)}
+	state.addLiterals(p)
+	return state
+}
+
+func literalCount(p Pattern) int {
+	if p.kind == literalPattern {
+		return 1
+	}
+	if p.kind != allPattern {
+		return 0
+	}
+	total := 0
+	for _, child := range p.all {
+		count := literalCount(child)
+		if count == 0 {
+			return 0
+		}
+		total += count
+	}
+	return total
+}
+
+func (s *patternScan) addLiterals(p Pattern) {
+	if p.kind == literalPattern {
+		s.all = append(s.all, literalScan{text: p.text})
+		return
+	}
+	for _, child := range p.all {
+		s.addLiterals(child)
+	}
+}
+
+func (s *patternScan) findAll(data []byte) (location, bool) {
+	loc := location{start: len(data)}
+	complete := true
+	for i := range s.all {
+		literal := &s.all[i]
+		if !literal.found {
+			from := max(0, literal.scanned-len(literal.text)+1)
+			index := bytes.Index(data[from:], []byte(literal.text))
+			literal.scanned = len(data)
+			if index >= 0 {
+				start := from + index
+				literal.hit = location{start: start, end: start + len(literal.text)}
+				literal.found = true
+			}
+		}
+		if !literal.found {
+			complete = false
+			continue
+		}
+		loc.start = min(loc.start, literal.hit.start)
+		loc.end = max(loc.end, literal.hit.end)
+	}
+	if !complete {
+		return location{}, false
+	}
+	return loc, true
+}
+
+func (s *patternScan) reset() {
+	for i := range s.all {
+		s.all[i].scanned = 0
+		s.all[i].hit = location{}
+		s.all[i].found = false
+	}
+}

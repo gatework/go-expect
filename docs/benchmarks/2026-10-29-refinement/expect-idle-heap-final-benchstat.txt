@@ -1,0 +1,74 @@
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+                  │ /tmp/connector-refinement-20261029/expect-idle-heap-final-baseline.txt │ /tmp/connector-refinement-20261029/expect-idle-heap-final-candidate.txt │
+                  │                                 sec/op                                 │                      sec/op                       vs base               │
+OSIdleHeap/1-4                                                                50.88m ±  0%                                        50.98m ± 0%       ~ (p=0.280 n=10)
+OSIdleHeap/64-4                                                               50.79m ±  1%                                        50.99m ± 0%       ~ (p=0.315 n=10)
+OSIdleHeap/256-4                                                              50.24m ±  1%                                        50.97m ± 0%  +1.45% (p=0.002 n=10)
+OSIdleHeap/1024-4                                                             56.50m ± 10%                                        51.03m ± 0%  -9.69% (p=0.000 n=10)
+geomean                                                                       52.04m                                              50.99m       -2.02%
+
+                  │ /tmp/connector-refinement-20261029/expect-idle-heap-final-baseline.txt │ /tmp/connector-refinement-20261029/expect-idle-heap-final-candidate.txt │
+                  │                           cpu-sec/session-ms                           │               cpu-sec/session-ms                 vs base                │
+OSIdleHeap/1-4                                                               12.537µ ± 46%                                      2.631µ ± 18%  -79.01% (p=0.000 n=10)
+OSIdleHeap/64-4                                                             2526.00n ± 26%                                      37.22n ± 21%  -98.53% (p=0.000 n=10)
+OSIdleHeap/256-4                                                           2241.000n ± 17%                                      9.508n ± 17%  -99.58% (p=0.000 n=10)
+OSIdleHeap/1024-4                                                          7979.000n ±  6%                                      2.003n ± 33%  -99.97% (p=0.000 n=10)
+geomean                                                                       4.878µ                                            36.95n        -99.24%
+
+                  │ /tmp/connector-refinement-20261029/expect-idle-heap-final-baseline.txt │ /tmp/connector-refinement-20261029/expect-idle-heap-final-candidate.txt │
+                  │                                fd-delta                                │                    fd-delta                     vs base                 │
+OSIdleHeap/1-4                                                                  2.000 ± 0%                                       2.000 ± 0%       ~ (p=1.000 n=10) ¹
+OSIdleHeap/64-4                                                                 128.0 ± 0%                                       128.0 ± 0%       ~ (p=1.000 n=10) ¹
+OSIdleHeap/256-4                                                                512.0 ± 0%                                       512.0 ± 0%       ~ (p=1.000 n=10) ¹
+OSIdleHeap/1024-4                                                              2.048k ± 0%                                      2.048k ± 0%       ~ (p=1.000 n=10) ¹
+geomean                                                                         128.0                                            128.0       +0.00%
+¹ all samples are equal
+
+                  │ /tmp/connector-refinement-20261029/expect-idle-heap-final-baseline.txt │ /tmp/connector-refinement-20261029/expect-idle-heap-final-candidate.txt │
+                  │                           retained-B/session                           │               retained-B/session                 vs base                │
+OSIdleHeap/1-4                                                               2.039Ki ± 23%                                     1.555Ki ± 30%  -23.75% (p=0.014 n=10)
+OSIdleHeap/64-4                                                              7.080Ki ±  1%                                     1.940Ki ±  0%  -72.59% (p=0.000 n=10)
+OSIdleHeap/256-4                                                             7.148Ki ±  0%                                     1.934Ki ±  0%  -72.95% (p=0.000 n=10)
+OSIdleHeap/1024-4                                                            8.579Ki ± 15%                                     1.938Ki ±  0%  -77.42% (p=0.000 n=10)
+geomean                                                                      5.455Ki                                           1.834Ki        -66.39%
+
+                  │ /tmp/connector-refinement-20261029/expect-idle-heap-final-baseline.txt │ /tmp/connector-refinement-20261029/expect-idle-heap-final-candidate.txt │
+                  │                              thread-delta                              │                thread-delta                 vs base                     │
+OSIdleHeap/1-4                                                                  1.000 ± 0%                                   0.000 ± 0%  -100.00% (p=0.000 n=10)
+OSIdleHeap/64-4                                                                 63.00 ± 2%                                    0.00 ± 0%  -100.00% (p=0.000 n=10)
+OSIdleHeap/256-4                                                                255.0 ± 0%                                     0.0 ± 0%  -100.00% (p=0.000 n=10)
+OSIdleHeap/1024-4                                                               997.0 ± 2%                                     0.0 ± 0%  -100.00% (p=0.000 n=10)
+geomean                                                                         63.26                                                    ?                       ¹ ²
+¹ summaries must be >0 to compute geomean
+² ratios must be >0 to compute geomean
+
+                  │ /tmp/connector-refinement-20261029/expect-idle-heap-final-baseline.txt │ /tmp/connector-refinement-20261029/expect-idle-heap-final-candidate.txt │
+                  │                                threads                                 │                     threads                      vs base                │
+OSIdleHeap/1-4                                                                  8.000 ± 0%                                        7.000 ± 0%  -12.50% (p=0.000 n=10)
+OSIdleHeap/64-4                                                                70.000 ± 1%                                        7.000 ± 0%  -90.00% (p=0.000 n=10)
+OSIdleHeap/256-4                                                              262.000 ± 0%                                        7.000 ± 0%  -97.33% (p=0.000 n=10)
+OSIdleHeap/1024-4                                                            1004.000 ± 2%                                        7.000 ± 0%  -99.30% (p=0.000 n=10)
+geomean                                                                         110.2                                             7.000       -93.65%
+
+                  │ /tmp/connector-refinement-20261029/expect-idle-heap-final-baseline.txt │ /tmp/connector-refinement-20261029/expect-idle-heap-final-candidate.txt │
+                  │                                  B/op                                  │                    B/op                     vs base                     │
+OSIdleHeap/1-4                                                                429.000 ± 6%                                    5.000 ± ?   -98.83% (p=0.000 n=10)
+OSIdleHeap/64-4                                                             26969.000 ± 4%                                    5.000 ± ?   -99.98% (p=0.000 n=10)
+OSIdleHeap/256-4                                                              106.2Ki ± 1%                                    0.0Ki ± ?  -100.00% (p=0.000 n=10)
+OSIdleHeap/1024-4                                                          349326.500 ± 8%                                    5.000 ± ?  -100.00% (p=0.000 n=10)
+geomean                                                                       25.14Ki                                                    ?                       ¹ ²
+¹ summaries must be >0 to compute geomean
+² ratios must be >0 to compute geomean
+
+                  │ /tmp/connector-refinement-20261029/expect-idle-heap-final-baseline.txt │ /tmp/connector-refinement-20261029/expect-idle-heap-final-candidate.txt │
+                  │                               allocs/op                                │                 allocs/op                   vs base                     │
+OSIdleHeap/1-4                                                                 19.00 ± 11%                                    0.00 ± 0%  -100.00% (p=0.000 n=10)
+OSIdleHeap/64-4                                                               1.212k ±  3%                                  0.000k ± 0%  -100.00% (p=0.000 n=10)
+OSIdleHeap/256-4                                                              4.886k ±  1%                                  0.000k ± 0%  -100.00% (p=0.000 n=10)
+OSIdleHeap/1024-4                                                             15.39k ±  7%                                   0.00k ± 0%  -100.00% (p=0.000 n=10)
+geomean                                                                       1.147k                                                     ?                       ¹ ²
+¹ summaries must be >0 to compute geomean
+² ratios must be >0 to compute geomean

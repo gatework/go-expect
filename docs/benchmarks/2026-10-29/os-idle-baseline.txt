@@ -1,0 +1,86 @@
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSReceive/1-10                              	   10000	     10184 ns/op	   0.10 MB/s	   16930 B/op	      13 allocs/op
+BenchmarkOSReceive/1-10                              	   10000	     10206 ns/op	   0.10 MB/s	   16930 B/op	      13 allocs/op
+BenchmarkOSReceive/1-10                              	   10000	     10213 ns/op	   0.10 MB/s	   16930 B/op	      13 allocs/op
+BenchmarkOSReceive/1-10                              	   10000	     10186 ns/op	   0.10 MB/s	   16930 B/op	      13 allocs/op
+BenchmarkOSReceive/1-10                              	   10000	     10290 ns/op	   0.10 MB/s	   16930 B/op	      13 allocs/op
+BenchmarkOSReceive/1-10                              	   10000	     10110 ns/op	   0.10 MB/s	   16930 B/op	      13 allocs/op
+BenchmarkOSReceive/1-10                              	   10000	     10120 ns/op	   0.10 MB/s	   16930 B/op	      13 allocs/op
+BenchmarkOSReceive/1-10                              	   10000	     10159 ns/op	   0.10 MB/s	   16930 B/op	      13 allocs/op
+BenchmarkOSReceive/1-10                              	   10000	     10212 ns/op	   0.10 MB/s	   16930 B/op	      13 allocs/op
+BenchmarkOSReceive/1-10                              	   10000	     10226 ns/op	   0.10 MB/s	   16930 B/op	      13 allocs/op
+BenchmarkOSReceive/32-10                             	   10000	     10270 ns/op	   3.12 MB/s	   16993 B/op	      14 allocs/op
+BenchmarkOSReceive/32-10                             	   10000	     10219 ns/op	   3.13 MB/s	   16993 B/op	      14 allocs/op
+BenchmarkOSReceive/32-10                             	   10000	     10359 ns/op	   3.09 MB/s	   16993 B/op	      14 allocs/op
+BenchmarkOSReceive/32-10                             	   10000	     10292 ns/op	   3.11 MB/s	   16993 B/op	      14 allocs/op
+BenchmarkOSReceive/32-10                             	   10000	     10294 ns/op	   3.11 MB/s	   16993 B/op	      14 allocs/op
+BenchmarkOSReceive/32-10                             	   10000	     10262 ns/op	   3.12 MB/s	   16993 B/op	      14 allocs/op
+BenchmarkOSReceive/32-10                             	   10000	     10296 ns/op	   3.11 MB/s	   16993 B/op	      14 allocs/op
+BenchmarkOSReceive/32-10                             	   10000	     10194 ns/op	   3.14 MB/s	   16993 B/op	      14 allocs/op
+BenchmarkOSReceive/32-10                             	   10000	     10176 ns/op	   3.14 MB/s	   16993 B/op	      14 allocs/op
+BenchmarkOSReceive/32-10                             	   10000	     10246 ns/op	   3.12 MB/s	   16993 B/op	      14 allocs/op
+BenchmarkOSReceive/1024-10                           	   10000	     10874 ns/op	  94.17 MB/s	   22049 B/op	      17 allocs/op
+BenchmarkOSReceive/1024-10                           	   10000	     10977 ns/op	  93.29 MB/s	   22049 B/op	      17 allocs/op
+BenchmarkOSReceive/1024-10                           	    9505	     10930 ns/op	  93.69 MB/s	   22049 B/op	      17 allocs/op
+BenchmarkOSReceive/1024-10                           	   10000	     10867 ns/op	  94.23 MB/s	   22049 B/op	      17 allocs/op
+BenchmarkOSReceive/1024-10                           	   10000	     10910 ns/op	  93.86 MB/s	   22049 B/op	      17 allocs/op
+BenchmarkOSReceive/1024-10                           	   10000	     10781 ns/op	  94.98 MB/s	   22049 B/op	      17 allocs/op
+BenchmarkOSReceive/1024-10                           	   10000	     10962 ns/op	  93.42 MB/s	   22049 B/op	      17 allocs/op
+BenchmarkOSReceive/1024-10                           	   10000	     11052 ns/op	  92.65 MB/s	   22049 B/op	      17 allocs/op
+BenchmarkOSReceive/1024-10                           	   10000	     11228 ns/op	  91.20 MB/s	   22049 B/op	      17 allocs/op
+BenchmarkOSReceive/1024-10                           	   10000	     10862 ns/op	  94.27 MB/s	   22049 B/op	      17 allocs/op
+BenchmarkOSReceive/16384-10                          	    4807	     27301 ns/op	 600.12 MB/s	  150144 B/op	      24 allocs/op
+BenchmarkOSReceive/16384-10                          	    4749	     27107 ns/op	 604.42 MB/s	  150143 B/op	      24 allocs/op
+BenchmarkOSReceive/16384-10                          	    4482	     27440 ns/op	 597.08 MB/s	  150142 B/op	      24 allocs/op
+BenchmarkOSReceive/16384-10                          	    4533	     27622 ns/op	 593.15 MB/s	  150141 B/op	      24 allocs/op
+BenchmarkOSReceive/16384-10                          	    4622	     27006 ns/op	 606.68 MB/s	  150141 B/op	      24 allocs/op
+BenchmarkOSReceive/16384-10                          	    4472	     26903 ns/op	 609.00 MB/s	  150141 B/op	      24 allocs/op
+BenchmarkOSReceive/16384-10                          	    4453	     27008 ns/op	 606.64 MB/s	  150143 B/op	      24 allocs/op
+BenchmarkOSReceive/16384-10                          	    4256	     27291 ns/op	 600.34 MB/s	  150144 B/op	      24 allocs/op
+BenchmarkOSReceive/16384-10                          	    4467	     27273 ns/op	 600.75 MB/s	  150141 B/op	      24 allocs/op
+BenchmarkOSReceive/16384-10                          	    4410	     27130 ns/op	 603.91 MB/s	  150143 B/op	      24 allocs/op
+BenchmarkIdleSessions/os_false/count_1-10            	       5	  21018933 ns/op	      3233 cpu-ns/session-ms	     19056 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkIdleSessions/os_false/count_1-10            	       5	  20875742 ns/op	      3962 cpu-ns/session-ms	     19056 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkIdleSessions/os_false/count_1-10            	       5	  21009283 ns/op	      5554 cpu-ns/session-ms	     19056 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkIdleSessions/os_false/count_1-10            	       5	  20612958 ns/op	      5718 cpu-ns/session-ms	     19056 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkIdleSessions/os_false/count_1-10            	       5	  21003217 ns/op	      6895 cpu-ns/session-ms	     19056 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkIdleSessions/os_false/count_1-10            	       5	  21029550 ns/op	      5633 cpu-ns/session-ms	     19056 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkIdleSessions/os_false/count_1-10            	       5	  20860550 ns/op	      5180 cpu-ns/session-ms	     19056 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkIdleSessions/os_false/count_1-10            	       5	  21024392 ns/op	      4230 cpu-ns/session-ms	     19056 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkIdleSessions/os_false/count_1-10            	       5	  20835017 ns/op	      4260 cpu-ns/session-ms	     19056 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkIdleSessions/os_false/count_1-10            	       5	  21003667 ns/op	      4926 cpu-ns/session-ms	     19056 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkIdleSessions/os_false/count_64-10           	       5	  20905525 ns/op	        73.15 cpu-ns/session-ms	     19236 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkIdleSessions/os_false/count_64-10           	       5	  21033083 ns/op	        85.35 cpu-ns/session-ms	     19203 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkIdleSessions/os_false/count_64-10           	       5	  20675217 ns/op	        73.22 cpu-ns/session-ms	     19203 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkIdleSessions/os_false/count_64-10           	       5	  20863875 ns/op	        89.74 cpu-ns/session-ms	     19330 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkIdleSessions/os_false/count_64-10           	       5	  21026492 ns/op	        77.06 cpu-ns/session-ms	     19218 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkIdleSessions/os_false/count_64-10           	       5	  21365100 ns/op	        59.04 cpu-ns/session-ms	     19406 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkIdleSessions/os_false/count_64-10           	       5	  22022950 ns/op	        76.27 cpu-ns/session-ms	     19399 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkIdleSessions/os_false/count_64-10           	       5	  22027075 ns/op	        72.15 cpu-ns/session-ms	     19236 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkIdleSessions/os_false/count_64-10           	       5	  21878617 ns/op	        94.06 cpu-ns/session-ms	     19190 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkIdleSessions/os_false/count_64-10           	       5	  21854625 ns/op	        67.30 cpu-ns/session-ms	     19203 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkIdleSessions/os_true/count_1-10             	       5	  21534500 ns/op	     16728 cpu-ns/session-ms	      1784 retained-B/session	     164 B/op	       7 allocs/op
+BenchmarkIdleSessions/os_true/count_1-10             	       5	  21662825 ns/op	     10303 cpu-ns/session-ms	      1888 retained-B/session	     164 B/op	       7 allocs/op
+BenchmarkIdleSessions/os_true/count_1-10             	       5	  21766908 ns/op	     23639 cpu-ns/session-ms	      1784 retained-B/session	     182 B/op	       8 allocs/op
+BenchmarkIdleSessions/os_true/count_1-10             	       5	  21034008 ns/op	     10778 cpu-ns/session-ms	      1784 retained-B/session	     164 B/op	       7 allocs/op
+BenchmarkIdleSessions/os_true/count_1-10             	       5	  21750458 ns/op	     13203 cpu-ns/session-ms	      1784 retained-B/session	     182 B/op	       8 allocs/op
+BenchmarkIdleSessions/os_true/count_1-10             	       5	  21903433 ns/op	     14036 cpu-ns/session-ms	      1784 retained-B/session	     164 B/op	       7 allocs/op
+BenchmarkIdleSessions/os_true/count_1-10             	       5	  21833558 ns/op	     15546 cpu-ns/session-ms	      1888 retained-B/session	     168 B/op	       7 allocs/op
+BenchmarkIdleSessions/os_true/count_1-10             	       5	  21740542 ns/op	     17677 cpu-ns/session-ms	      1848 retained-B/session	     168 B/op	       7 allocs/op
+BenchmarkIdleSessions/os_true/count_1-10             	       5	  22021283 ns/op	     13880 cpu-ns/session-ms	      1800 retained-B/session	     185 B/op	       8 allocs/op
+BenchmarkIdleSessions/os_true/count_1-10             	       5	  21936408 ns/op	     16379 cpu-ns/session-ms	      1784 retained-B/session	     185 B/op	       8 allocs/op
+BenchmarkIdleSessions/os_true/count_64-10            	       5	  20689325 ns/op	      4280 cpu-ns/session-ms	      6276 retained-B/session	   12984 B/op	     489 allocs/op
+BenchmarkIdleSessions/os_true/count_64-10            	       5	  21563633 ns/op	      4131 cpu-ns/session-ms	      1607 retained-B/session	   11473 B/op	     468 allocs/op
+BenchmarkIdleSessions/os_true/count_64-10            	       5	  21489775 ns/op	      3129 cpu-ns/session-ms	      1610 retained-B/session	   10550 B/op	     473 allocs/op
+BenchmarkIdleSessions/os_true/count_64-10            	       5	  21952825 ns/op	      3565 cpu-ns/session-ms	      1854 retained-B/session	   11372 B/op	     510 allocs/op
+BenchmarkIdleSessions/os_true/count_64-10            	       5	  21668192 ns/op	      3768 cpu-ns/session-ms	      1674 retained-B/session	   11187 B/op	     502 allocs/op
+BenchmarkIdleSessions/os_true/count_64-10            	       5	  20649550 ns/op	      3507 cpu-ns/session-ms	      1722 retained-B/session	   10433 B/op	     468 allocs/op
+BenchmarkIdleSessions/os_true/count_64-10            	       5	  21335217 ns/op	      3465 cpu-ns/session-ms	      1554 retained-B/session	   10865 B/op	     487 allocs/op
+BenchmarkIdleSessions/os_true/count_64-10            	       5	  21336633 ns/op	      2774 cpu-ns/session-ms	      1543 retained-B/session	   10875 B/op	     488 allocs/op
+BenchmarkIdleSessions/os_true/count_64-10            	       5	  21614158 ns/op	      4137 cpu-ns/session-ms	      1573 retained-B/session	   10588 B/op	     475 allocs/op
+BenchmarkIdleSessions/os_true/count_64-10            	       5	  21644008 ns/op	      3508 cpu-ns/session-ms	      1569 retained-B/session	   10462 B/op	     469 allocs/op
+PASS
+ok  	github.com/gatework/go-expect	46.313s

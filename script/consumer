@@ -1,11 +1,19 @@
 #!/usr/bin/env bash
 set -euo pipefail
 repo_root=$(cd "$(dirname "$0")/.." && pwd)
-consumer_dir=$(mktemp -d "${TMPDIR:-/tmp}/go-expect-consumer.XXXXXX")
+consumer_dir=$(mktemp -d "${TMPDIR:-/tmp}/go-expect-source-consumer.XXXXXX")
 trap 'rm -rf "$consumer_dir"' EXIT
-cp "$repo_root/testdata/consumer/main.go" "$consumer_dir/main.go"
+# Compile a consumer against a disposable snapshot of this source module.
+# External dependencies keep their exact go.mod/go.sum versions; this check
+# does not establish adoption of an independently published module version.
+tar --exclude=.git -C "$repo_root" -cf - . | tar -C "$consumer_dir" -xf -
+mkdir -p "$consumer_dir/cmd/source-consumer"
+cp "$consumer_dir/testdata/consumer/main.go" "$consumer_dir/cmd/source-consumer/main.go"
 cd "$consumer_dir"
-go mod init consumer.example/smoke
-go mod edit -replace "github.com/gatework/go-expect=$repo_root"
-go mod tidy
-go run .
+replacement_modules=$(GOWORK=off GOFLAGS=-mod=readonly go list -m -f '{{if .Replace}}{{.Path}}{{end}}' all)
+if [ -n "$replacement_modules" ]; then
+  printf '%s\n' 'Source consumer requires pinned dependencies without module replacements' >&2
+  exit 1
+fi
+GOWORK=off GOFLAGS=-mod=readonly go run ./cmd/source-consumer
+printf '%s\n' 'source consumer passed (disposable module snapshot)'

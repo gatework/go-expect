@@ -1,0 +1,68 @@
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+                                  │ docs/benchmarks/2026-10-29/os-idle-baseline.txt │ docs/benchmarks/2026-10-29/os-idle-candidate.txt │
+                                  │                     sec/op                      │          sec/op           vs base                │
+OSReceive/1-10                                                         10.196µ ± 1%                8.975µ ± 0%  -11.98% (p=0.000 n=10)
+OSReceive/32-10                                                        10.266µ ± 1%                9.049µ ± 1%  -11.86% (p=0.000 n=10)
+OSReceive/1024-10                                                      10.920µ ± 1%                9.705µ ± 1%  -11.13% (p=0.000 n=10)
+OSReceive/16384-10                                                      27.20µ ± 1%                27.31µ ± 1%        ~ (p=0.218 n=10)
+IdleSessions/os_false/count_1-10                                        21.00m ± 1%                21.67m ± 2%   +3.16% (p=0.000 n=10)
+IdleSessions/os_false/count_64-10                                       21.20m ± 4%                21.60m ± 1%        ~ (p=0.393 n=10)
+IdleSessions/os_true/count_1-10                                         21.76m ± 1%                21.44m ± 3%        ~ (p=0.353 n=10)
+IdleSessions/os_true/count_64-10                                        21.53m ± 4%                20.92m ± 3%   -2.81% (p=0.035 n=10)
+geomean                                                                 532.7µ                     509.2µ        -4.42%
+
+                   │ docs/benchmarks/2026-10-29/os-idle-baseline.txt │ docs/benchmarks/2026-10-29/os-idle-candidate.txt │
+                   │                       B/s                       │           B/s             vs base                │
+OSReceive/1-10                                          97.66Ki ± 0%              107.42Ki ± 0%  +10.00% (p=0.000 n=10)
+OSReceive/32-10                                         2.975Mi ± 1%               3.371Mi ± 1%  +13.30% (p=0.000 n=10)
+OSReceive/1024-10                                       89.43Mi ± 1%              100.63Mi ± 1%  +12.52% (p=0.000 n=10)
+OSReceive/16384-10                                      574.4Mi ± 1%               572.2Mi ± 1%        ~ (p=0.218 n=10)
+geomean                                                 10.99Mi                    11.95Mi        +8.72%
+
+                                  │ docs/benchmarks/2026-10-29/os-idle-baseline.txt │ docs/benchmarks/2026-10-29/os-idle-candidate.txt │
+                                  │                      B/op                       │          B/op           vs base                  │
+OSReceive/1-10                                                      16930.0 ±  0%                547.0 ±  0%  -96.77% (p=0.000 n=10)
+OSReceive/32-10                                                     16993.0 ±  0%                610.0 ±  0%  -96.41% (p=0.000 n=10)
+OSReceive/1024-10                                                  21.532Ki ±  0%              5.533Ki ±  0%  -74.30% (p=0.000 n=10)
+OSReceive/16384-10                                                  146.6Ki ±  0%              146.6Ki ±  0%        ~ (p=0.983 n=10)
+IdleSessions/os_false/count_1-10                                      0.000 ±  0%                0.000 ±  0%        ~ (p=1.000 n=10) ¹
+IdleSessions/os_false/count_64-10                                     0.000 ±  0%                0.000 ±  0%        ~ (p=1.000 n=10) ¹
+IdleSessions/os_true/count_1-10                                       168.0 ± 10%                174.0 ±  6%        ~ (p=0.853 n=10)
+IdleSessions/os_true/count_64-10                                    10.62Ki ±  6%              10.44Ki ± 20%        ~ (p=0.928 n=10)
+geomean                                                                           ²                           -63.67%                ²
+¹ all samples are equal
+² summaries must be >0 to compute geomean
+
+                                  │ docs/benchmarks/2026-10-29/os-idle-baseline.txt │ docs/benchmarks/2026-10-29/os-idle-candidate.txt │
+                                  │                    allocs/op                    │        allocs/op         vs base                 │
+OSReceive/1-10                                                        13.00 ±  0%                 12.00 ±  0%  -7.69% (p=0.000 n=10)
+OSReceive/32-10                                                       14.00 ±  0%                 13.00 ±  0%  -7.14% (p=0.000 n=10)
+OSReceive/1024-10                                                     17.00 ±  0%                 16.00 ±  0%  -5.88% (p=0.000 n=10)
+OSReceive/16384-10                                                    24.00 ±  0%                 24.00 ±  0%       ~ (p=1.000 n=10) ¹
+IdleSessions/os_false/count_1-10                                      0.000 ±  0%                 0.000 ±  0%       ~ (p=1.000 n=10) ¹
+IdleSessions/os_false/count_64-10                                     0.000 ±  0%                 0.000 ±  0%       ~ (p=1.000 n=10) ¹
+IdleSessions/os_true/count_1-10                                       7.000 ± 14%                 7.000 ± 14%       ~ (p=1.000 n=10)
+IdleSessions/os_true/count_64-10                                      481.0 ±  4%                 479.5 ±  7%       ~ (p=0.725 n=10)
+geomean                                                                           ²                            -2.69%                ²
+¹ all samples are equal
+² summaries must be >0 to compute geomean
+
+                                  │ docs/benchmarks/2026-10-29/os-idle-baseline.txt │ docs/benchmarks/2026-10-29/os-idle-candidate.txt │
+                                  │               cpu-sec/session-ms                │    cpu-sec/session-ms     vs base                │
+IdleSessions/os_false/count_1-10                                       5.053µ ± 22%               4.571µ ± 47%        ~ (p=0.481 n=10)
+IdleSessions/os_false/count_64-10                                      74.74n ± 20%               64.38n ± 19%  -13.87% (p=0.035 n=10)
+IdleSessions/os_true/count_1-10                                        14.79µ ± 27%               17.71µ ± 38%        ~ (p=0.280 n=10)
+IdleSessions/os_true/count_64-10                                       3.537µ ± 17%               3.490µ ± 10%        ~ (p=0.481 n=10)
+geomean                                                                2.108µ                     2.065µ         -2.05%
+
+                                  │ docs/benchmarks/2026-10-29/os-idle-baseline.txt │ docs/benchmarks/2026-10-29/os-idle-candidate.txt │
+                                  │               retained-B/session                │   retained-B/session     vs base                 │
+IdleSessions/os_false/count_1-10                                      18.61Ki ±  0%             18.61Ki ±  0%       ~ (p=1.000 n=10) ¹
+IdleSessions/os_false/count_64-10                                     18.78Ki ±  1%             18.84Ki ±  1%       ~ (p=0.238 n=10)
+IdleSessions/os_true/count_1-10                                       1.742Ki ±  6%             1.789Ki ±  2%  +2.69% (p=0.037 n=10)
+IdleSessions/os_true/count_64-10                                      1.571Ki ± 15%             1.548Ki ± 33%       ~ (p=0.579 n=10)
+geomean                                                               5.561Ki                   5.582Ki        +0.39%
+¹ all samples are equal

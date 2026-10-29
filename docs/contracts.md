@@ -33,6 +33,10 @@ and resume reading. At exactly the limit,
 a bounded next read event distinguishes EOF from overflow; if no event arrives,
 the ordinary wait deadline applies. No automatic tail
 trimming or search window silently changes matching semantics.
+Exhausted receive slices release their storage. At an operation boundary a
+remaining slice detaches if its original allocation is at least 64 KiB and the
+remainder uses at most one quarter of it. Continuations do not copy the entire
+remaining burst; returned Results remain independently owned.
 
 ## Matching and results
 
@@ -160,11 +164,25 @@ ordinary case matches. Its retained tail is bounded; it is not a guarantee for
 patterns spanning arbitrarily long prefixes. Its callbacks do not reset timers.
 `Poll` and `SendAllPoll` require `WithOSPolling` and an OS-backed nonblocking stream;
 zero relative timeout still means wait without that timer, never poll.
+When the transport also supports working `SetReadDeadline(time.Time) error`, the
+sole read pump waits in the Go runtime poller. Otherwise construction selects the
+native poll fallback. This choice never changes midstream. Each explicit Poll
+publishes one request and wakes the runtime reader with a deadline. The pump
+publishes earlier bytes, clears that deadline, performs an immediate readiness
+read, publishes its bytes, and acknowledges the request. A canceled caller leaves
+that request owned by the pump until acknowledgment; the next Poll establishes
+its own readiness boundary. Close joins the pump without adding wake descriptors.
+Adapters may forward `NormalizeReadError(error) error` for raw read errors. PTY
+adapters use it to translate EIO into EOF; ordinary EIO and control errors retain
+their original meaning.
 `SendAll` sends only positive-progress unsent suffixes, queues bounded peer input
 to prevent duplex backpressure deadlock, and retires on any subsequent failure.
 Its parent context owns the deadline; WithWriteTimeout applies to Send only.
 `NewRedactor` supports a chosen replacement and scoped secret changes without
 allowing previously hidden bytes to reappear. The Session filter is unchanged.
+Public redaction compiles rules longer than 256 bytes once per rule scope and
+maintains their incremental KMP state. It merges ordered covered intervals,
+reuses a bounded retained suffix, and detaches oversized transient storage.
 
 Close cancels the active handler context but does not wait for user code. Handlers
 must cooperate with cancellation. Automatic retirement preserves independent

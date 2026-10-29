@@ -1,0 +1,130 @@
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkPublicRedactorDenseLong/256-4    	   18183	      6550 ns/op	 156.33 MB/s	    3968 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/1024-4   	   12618	      9466 ns/op	 432.69 MB/s	   15488 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/4096-4   	    3309	     36300 ns/op	 451.35 MB/s	   62720 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/16384-4  	     876	    143191 ns/op	 457.68 MB/s	  253952 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/65536-4  	     201	    580718 ns/op	 451.41 MB/s	  991233 B/op	       5 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/257-4         	 5322471	        22.53 ns/op	  44.39 MB/s	       0 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/4096-4        	 5627482	        20.73 ns/op	  48.24 MB/s	       0 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/65536-4       	 6000561	        19.95 ns/op	  50.13 MB/s	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkPublicRedactorDenseLong/256-4    	   17226	      6937 ns/op	 147.61 MB/s	    3968 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/1024-4   	   12186	      9816 ns/op	 417.27 MB/s	   15488 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/4096-4   	    3166	     38580 ns/op	 424.68 MB/s	   62720 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/16384-4  	     789	    151390 ns/op	 432.89 MB/s	  253952 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/65536-4  	     175	    674411 ns/op	 388.70 MB/s	  991237 B/op	       5 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/257-4         	 5926779	        19.89 ns/op	  50.29 MB/s	       0 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/4096-4        	 6285656	        20.09 ns/op	  49.77 MB/s	       0 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/65536-4       	 6099769	        19.41 ns/op	  51.51 MB/s	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkPublicRedactorDenseLong/256-4    	   19839	      6061 ns/op	 168.96 MB/s	    3968 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/1024-4   	   13454	      8904 ns/op	 460.03 MB/s	   15488 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/4096-4   	    3504	     34593 ns/op	 473.62 MB/s	   62720 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/16384-4  	     876	    137236 ns/op	 477.54 MB/s	  253952 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/65536-4  	     211	    568936 ns/op	 460.76 MB/s	  991235 B/op	       5 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/257-4         	 6218421	        20.55 ns/op	  48.66 MB/s	       0 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/4096-4        	 6283243	        19.20 ns/op	  52.08 MB/s	       0 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/65536-4       	 6264805	        18.82 ns/op	  53.14 MB/s	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkPublicRedactorDenseLong/256-4    	   17269	      7152 ns/op	 143.17 MB/s	    3968 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/1024-4   	   10000	     12116 ns/op	 338.06 MB/s	   15488 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/4096-4   	    3360	     36554 ns/op	 448.21 MB/s	   62720 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/16384-4  	     848	    142758 ns/op	 459.07 MB/s	  253952 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/65536-4  	     211	    556865 ns/op	 470.75 MB/s	  991235 B/op	       5 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/257-4         	 6646848	        18.73 ns/op	  53.39 MB/s	       0 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/4096-4        	 6555286	        18.31 ns/op	  54.62 MB/s	       0 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/65536-4       	 6445404	        18.42 ns/op	  54.30 MB/s	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkPublicRedactorDenseLong/256-4    	   20378	      5878 ns/op	 174.22 MB/s	    3968 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/1024-4   	   13941	      8630 ns/op	 474.60 MB/s	   15488 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/4096-4   	    3748	     32563 ns/op	 503.15 MB/s	   62720 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/16384-4  	     958	    141257 ns/op	 463.95 MB/s	  253952 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/65536-4  	     224	    534351 ns/op	 490.58 MB/s	  991234 B/op	       5 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/257-4         	 7243642	        16.96 ns/op	  58.96 MB/s	       0 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/4096-4        	 6520203	        17.84 ns/op	  56.06 MB/s	       0 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/65536-4       	 6784308	        17.10 ns/op	  58.48 MB/s	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkPublicRedactorDenseLong/256-4    	   20161	      5903 ns/op	 173.48 MB/s	    3968 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/1024-4   	   13614	      8815 ns/op	 464.65 MB/s	   15488 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/4096-4   	    3537	     34299 ns/op	 477.68 MB/s	   62720 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/16384-4  	     879	    136183 ns/op	 481.23 MB/s	  253952 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/65536-4  	     212	    554689 ns/op	 472.60 MB/s	  991235 B/op	       5 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/257-4         	 6785586	        17.23 ns/op	  58.04 MB/s	       0 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/4096-4        	 6988374	        17.03 ns/op	  58.71 MB/s	       0 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/65536-4       	 6898153	        17.45 ns/op	  57.30 MB/s	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkPublicRedactorDenseLong/256-4    	   20792	      5758 ns/op	 177.84 MB/s	    3968 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/1024-4   	   14089	      8492 ns/op	 482.34 MB/s	   15488 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/4096-4   	    3553	     33417 ns/op	 490.29 MB/s	   62720 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/16384-4  	     915	    132819 ns/op	 493.42 MB/s	  253952 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/65536-4  	     224	    531563 ns/op	 493.16 MB/s	  991232 B/op	       5 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/257-4         	 6792404	        17.01 ns/op	  58.80 MB/s	       0 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/4096-4        	 7199064	        16.57 ns/op	  60.35 MB/s	       0 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/65536-4       	 6975526	        17.53 ns/op	  57.06 MB/s	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkPublicRedactorDenseLong/256-4    	   19314	      6198 ns/op	 165.22 MB/s	    3968 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/1024-4   	   13984	      8562 ns/op	 478.41 MB/s	   15488 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/4096-4   	    3950	     33067 ns/op	 495.49 MB/s	   62720 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/16384-4  	     885	    130333 ns/op	 502.83 MB/s	  253952 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/65536-4  	     222	    543963 ns/op	 481.91 MB/s	  991235 B/op	       5 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/257-4         	 7052065	        16.75 ns/op	  59.69 MB/s	       0 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/4096-4        	 7238817	        16.35 ns/op	  61.15 MB/s	       0 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/65536-4       	 7386357	        16.43 ns/op	  60.88 MB/s	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkPublicRedactorDenseLong/256-4    	   20814	      5748 ns/op	 178.13 MB/s	    3968 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/1024-4   	   13754	      8662 ns/op	 472.87 MB/s	   15488 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/4096-4   	    3570	     33286 ns/op	 492.22 MB/s	   62720 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/16384-4  	     904	    132696 ns/op	 493.88 MB/s	  253952 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/65536-4  	     219	    546499 ns/op	 479.68 MB/s	  991235 B/op	       5 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/257-4         	 6959463	        16.83 ns/op	  59.42 MB/s	       0 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/4096-4        	 7350613	        16.40 ns/op	  60.99 MB/s	       0 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/65536-4       	 7348081	        16.61 ns/op	  60.20 MB/s	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkPublicRedactorDenseLong/256-4    	   20496	      5851 ns/op	 175.02 MB/s	    3968 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/1024-4   	   13990	      8515 ns/op	 481.01 MB/s	   15488 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/4096-4   	    3837	     33796 ns/op	 484.79 MB/s	   62720 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/16384-4  	     924	    133965 ns/op	 489.20 MB/s	  253953 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/65536-4  	     222	    584994 ns/op	 448.11 MB/s	  991235 B/op	       5 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/257-4         	 6689708	        19.70 ns/op	  50.77 MB/s	       0 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/4096-4        	 6407332	        18.78 ns/op	  53.24 MB/s	       0 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/65536-4       	 6649626	        17.85 ns/op	  56.03 MB/s	       0 B/op	       0 allocs/op
+PASS

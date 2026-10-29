@@ -1,0 +1,4 @@
+go version go1.27.3 linux/arm64
+ok  	github.com/gatework/go-expect	1.764s
+?   	github.com/gatework/go-expect/examples/dialogue	[no test files]
+ok  	github.com/gatework/go-expect/expecttest	1.009s

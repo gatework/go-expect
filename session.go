@@ -16,6 +16,10 @@ type readEvent struct {
 	err  error
 }
 
+type pollRequest struct {
+	ack chan struct{}
+}
+
 // Session owns one duplex transport and one matching buffer. The transport must
 // support concurrent Read/Write and guarantee Close interrupts both. After a
 // successful NewSession, callers must not perform I/O on that transport.
@@ -38,10 +42,14 @@ type Session struct {
 	queued        []readEvent
 	queuedBytes   int
 	osIO          *osAccess
-	pollRequests  chan chan struct{}
+	pollMu        sync.Mutex
+	pollRequest   *pollRequest
+	pollStopped   bool
 	expecting     atomic.Bool
 	// Only the active Expect/Poll accesses the protocol state below.
 	pending, staged     []byte
+	pendingAlloc        int
+	stagedAlloc         int
 	stagedErr, terminal error
 	diagMu              sync.Mutex
 	redactor            redactor
@@ -71,7 +79,7 @@ func NewSession(transport io.ReadWriteCloser, opts ...SessionOption) (*Session, 
 			return nil, err
 		}
 	}
-	s := &Session{transport: transport, opts: o, events: make(chan readEvent, 1), done: make(chan struct{}), writeGate: make(chan struct{}, 1), inputGate: make(chan struct{}, 1), inputReady: make(chan struct{}, 1), osIO: access, pollRequests: make(chan chan struct{})}
+	s := &Session{transport: transport, opts: o, events: make(chan readEvent, 1), done: make(chan struct{}), writeGate: make(chan struct{}, 1), inputGate: make(chan struct{}, 1), inputReady: make(chan struct{}, 1), osIO: access}
 	s.workers.Add(1)
 	go s.readLoop()
 	return s, nil

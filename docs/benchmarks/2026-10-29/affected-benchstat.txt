@@ -1,0 +1,132 @@
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+                                           │ docs/benchmarks/2026-10-29/affected-baseline.txt │ docs/benchmarks/2026-10-29/affected-candidate.txt │
+                                           │                      sec/op                      │          sec/op            vs base                │
+ReceivePatterns/literal/chunk_32-10                                               553.0µ ± 3%                 560.2µ ± 1%   +1.30% (p=0.001 n=10)
+ReceivePatterns/literal/chunk_1024-10                                             39.98µ ± 1%                 40.03µ ± 1%        ~ (p=0.579 n=10)
+ReceivePatterns/all_literals/chunk_32-10                                         1063.0µ ± 3%                 566.0µ ± 0%  -46.75% (p=0.000 n=10)
+ReceivePatterns/all_literals/chunk_1024-10                                        55.78µ ± 1%                 40.93µ ± 2%  -26.62% (p=0.000 n=10)
+ReceivePatterns/nested_all/chunk_32-10                                           1113.5µ ± 3%                 563.4µ ± 1%  -49.40% (p=0.000 n=10)
+ReceivePatterns/nested_all/chunk_1024-10                                          57.19µ ± 1%                 41.55µ ± 1%  -27.34% (p=0.000 n=10)
+ReceivePatterns/regexp/chunk_32-10                                                1.260m ± 1%                 1.261m ± 1%        ~ (p=0.436 n=10)
+ReceivePatterns/regexp/chunk_1024-10                                              65.05µ ± 1%                 65.19µ ± 1%        ~ (p=0.289 n=10)
+ReceivePatterns/mixed_all/chunk_32-10                                             1.314m ± 1%                 1.326m ± 1%   +0.89% (p=0.011 n=10)
+ReceivePatterns/mixed_all/chunk_1024-10                                           66.81µ ± 1%                 67.04µ ± 1%        ~ (p=0.393 n=10)
+PublicRedactor/no_rules/chunk_1-10                                                30.25µ ± 1%                 11.66µ ± 1%  -61.44% (p=0.000 n=10)
+PublicRedactor/no_rules/chunk_32-10                                              1757.5n ± 0%                 387.1n ± 1%  -77.97% (p=0.000 n=10)
+PublicRedactor/no_rules/chunk_1024-10                                            1170.0n ± 1%                 103.4n ± 1%  -91.17% (p=0.000 n=10)
+PublicRedactor/safe/chunk_1-10                                                    40.48µ ± 1%                 30.29µ ± 0%  -25.16% (p=0.000 n=10)
+PublicRedactor/safe/chunk_32-10                                                   2.693µ ± 0%                 1.555µ ± 7%  -42.26% (p=0.000 n=10)
+PublicRedactor/safe/chunk_1024-10                                                1250.0n ± 1%                 170.3n ± 2%  -86.37% (p=0.000 n=10)
+PublicRedactor/matches/chunk_1-10                                                 35.11µ ± 1%                 35.76µ ± 1%   +1.85% (p=0.000 n=10)
+PublicRedactor/matches/chunk_32-10                                                4.205µ ± 0%                 4.384µ ± 1%   +4.26% (p=0.000 n=10)
+PublicRedactor/matches/chunk_1024-10                                              2.477µ ± 0%                 2.357µ ± 3%   -4.81% (p=0.000 n=10)
+PublicRedactor/overlaps/chunk_1-10                                                37.02µ ± 1%                 36.61µ ± 0%   -1.10% (p=0.000 n=10)
+PublicRedactor/overlaps/chunk_32-10                                               7.804µ ± 1%                 7.920µ ± 1%   +1.49% (p=0.001 n=10)
+PublicRedactor/overlaps/chunk_1024-10                                             8.527µ ± 1%                 8.299µ ± 0%   -2.67% (p=0.000 n=10)
+RedactorRetainedTail-10                                                         1052.98µ ± 1%                 57.46µ ± 2%  -94.54% (p=0.000 n=10)
+FragmentedReceive/1-10                                                            8.371m ± 1%                 8.499m ± 0%   +1.53% (p=0.019 n=10)
+FragmentedReceive/32-10                                                           278.5µ ± 1%                 284.2µ ± 3%        ~ (p=0.075 n=10)
+FragmentedReceive/1024-10                                                         24.49µ ± 1%                 23.29µ ± 2%   -4.89% (p=0.000 n=10)
+FragmentedReceive/16384-10                                                        9.346µ ± 1%                 8.878µ ± 1%   -5.01% (p=0.000 n=10)
+geomean                                                                           48.07µ                      30.12µ       -37.35%
+
+                                           │ docs/benchmarks/2026-10-29/affected-baseline.txt │ docs/benchmarks/2026-10-29/affected-candidate.txt │
+                                           │                       B/s                        │           B/s            vs base                  │
+ReceivePatterns/literal/chunk_32-10                                              56.52Mi ± 3%              55.80Mi ± 1%     -1.28% (p=0.001 n=10)
+ReceivePatterns/literal/chunk_1024-10                                            781.8Mi ± 1%              780.9Mi ± 1%          ~ (p=0.579 n=10)
+ReceivePatterns/all_literals/chunk_32-10                                         29.41Mi ± 3%              55.23Mi ± 0%    +87.78% (p=0.000 n=10)
+ReceivePatterns/all_literals/chunk_1024-10                                       560.4Mi ± 1%              763.7Mi ± 1%    +36.28% (p=0.000 n=10)
+ReceivePatterns/nested_all/chunk_32-10                                           28.08Mi ± 3%              55.48Mi ± 1%    +97.61% (p=0.000 n=10)
+ReceivePatterns/nested_all/chunk_1024-10                                         546.6Mi ± 1%              752.3Mi ± 1%    +37.63% (p=0.000 n=10)
+ReceivePatterns/regexp/chunk_32-10                                               24.80Mi ± 1%              24.78Mi ± 1%          ~ (p=0.446 n=10)
+ReceivePatterns/regexp/chunk_1024-10                                             480.6Mi ± 1%              479.5Mi ± 1%          ~ (p=0.315 n=10)
+ReceivePatterns/mixed_all/chunk_32-10                                            23.79Mi ± 1%              23.58Mi ± 1%     -0.88% (p=0.011 n=10)
+ReceivePatterns/mixed_all/chunk_1024-10                                          467.8Mi ± 1%              466.3Mi ± 1%          ~ (p=0.393 n=10)
+PublicRedactor/no_rules/chunk_1-10                                               32.29Mi ± 1%              83.72Mi ± 1%   +159.30% (p=0.000 n=10)
+PublicRedactor/no_rules/chunk_32-10                                              555.8Mi ± 0%             2522.6Mi ± 1%   +353.90% (p=0.000 n=10)
+PublicRedactor/no_rules/chunk_1024-10                                            834.8Mi ± 1%             9449.0Mi ± 1%  +1031.96% (p=0.000 n=10)
+PublicRedactor/safe/chunk_1-10                                                   24.13Mi ± 1%              32.24Mi ± 0%    +33.62% (p=0.000 n=10)
+PublicRedactor/safe/chunk_32-10                                                  362.6Mi ± 0%              628.1Mi ± 7%    +73.21% (p=0.000 n=10)
+PublicRedactor/safe/chunk_1024-10                                                781.3Mi ± 1%             5732.5Mi ± 2%   +633.70% (p=0.000 n=10)
+PublicRedactor/matches/chunk_1-10                                                26.08Mi ± 1%              25.60Mi ± 1%     -1.83% (p=0.000 n=10)
+PublicRedactor/matches/chunk_32-10                                               217.7Mi ± 0%              208.8Mi ± 1%     -4.09% (p=0.000 n=10)
+PublicRedactor/matches/chunk_1024-10                                             369.7Mi ± 0%              388.3Mi ± 3%     +5.04% (p=0.000 n=10)
+PublicRedactor/overlaps/chunk_1-10                                               25.76Mi ± 1%              26.04Mi ± 1%     +1.11% (p=0.000 n=10)
+PublicRedactor/overlaps/chunk_32-10                                              122.2Mi ± 1%              120.4Mi ± 1%     -1.47% (p=0.001 n=10)
+PublicRedactor/overlaps/chunk_1024-10                                            111.8Mi ± 1%              114.9Mi ± 0%     +2.74% (p=0.000 n=10)
+RedactorRetainedTail-10                                                          949.7Mi ± 1%            17403.1Mi ± 2%  +1732.51% (p=0.000 n=10)
+FragmentedReceive/1-10                                                           1.869Mi ± 1%              1.841Mi ± 1%     -1.53% (p=0.020 n=10)
+FragmentedReceive/32-10                                                          56.11Mi ± 1%              55.00Mi ± 3%          ~ (p=0.075 n=10)
+FragmentedReceive/1024-10                                                        638.2Mi ± 1%              671.1Mi ± 2%     +5.14% (p=0.000 n=10)
+FragmentedReceive/16384-10                                                       1.633Gi ± 1%              1.719Gi ± 1%     +5.28% (p=0.000 n=10)
+geomean                                                                          141.6Mi                   225.9Mi         +59.60%
+
+                                           │ docs/benchmarks/2026-10-29/affected-baseline.txt │ docs/benchmarks/2026-10-29/affected-candidate.txt │
+                                           │                       B/op                       │           B/op             vs base                │
+ReceivePatterns/literal/chunk_32-10                                              240.5Ki ± 0%                240.5Ki ± 0%        ~ (p=0.493 n=10)
+ReceivePatterns/literal/chunk_1024-10                                            231.3Ki ± 0%                231.3Ki ± 0%        ~ (p=0.405 n=10)
+ReceivePatterns/all_literals/chunk_32-10                                         240.5Ki ± 0%                240.7Ki ± 0%   +0.07% (p=0.000 n=10)
+ReceivePatterns/all_literals/chunk_1024-10                                       231.3Ki ± 0%                231.5Ki ± 0%   +0.07% (p=0.000 n=10)
+ReceivePatterns/nested_all/chunk_32-10                                           240.5Ki ± 0%                240.8Ki ± 0%   +0.10% (p=0.000 n=10)
+ReceivePatterns/nested_all/chunk_1024-10                                         231.3Ki ± 0%                231.6Ki ± 0%   +0.11% (p=0.000 n=10)
+ReceivePatterns/regexp/chunk_32-10                                               251.8Ki ± 1%                252.0Ki ± 1%        ~ (p=0.971 n=10)
+ReceivePatterns/regexp/chunk_1024-10                                             240.8Ki ± 0%                241.1Ki ± 0%        ~ (p=0.123 n=10)
+ReceivePatterns/mixed_all/chunk_32-10                                            253.0Ki ± 1%                251.8Ki ± 1%        ~ (p=0.218 n=10)
+ReceivePatterns/mixed_all/chunk_1024-10                                          241.1Ki ± 0%                241.2Ki ± 0%        ~ (p=0.912 n=10)
+PublicRedactor/no_rules/chunk_1-10                                              24.000Ki ± 0%                8.000Ki ± 0%  -66.67% (p=0.000 n=10)
+PublicRedactor/no_rules/chunk_32-10                                              3.000Ki ± 0%                1.000Ki ± 0%  -66.67% (p=0.000 n=10)
+PublicRedactor/no_rules/chunk_1024-10                                            5.188Ki ± 0%                1.000Ki ± 0%  -80.72% (p=0.000 n=10)
+PublicRedactor/safe/chunk_1-10                                                  23.969Ki ± 0%                1.062Ki ± 0%  -95.57% (p=0.000 n=10)
+PublicRedactor/safe/chunk_32-10                                                  4.477Ki ± 0%                1.023Ki ± 0%  -77.14% (p=0.000 n=10)
+PublicRedactor/safe/chunk_1024-10                                                5.211Ki ± 0%                1.023Ki ± 0%  -80.36% (p=0.000 n=10)
+PublicRedactor/matches/chunk_1-10                                                17.01Ki ± 0%                16.00Ki ± 0%   -5.93% (p=0.000 n=10)
+PublicRedactor/matches/chunk_32-10                                               5.414Ki ± 0%                6.086Ki ± 0%  +12.41% (p=0.000 n=10)
+PublicRedactor/matches/chunk_1024-10                                             5.273Ki ± 0%                4.414Ki ± 0%  -16.30% (p=0.000 n=10)
+PublicRedactor/overlaps/chunk_1-10                                               18.77Ki ± 0%                15.63Ki ± 0%  -16.69% (p=0.000 n=10)
+PublicRedactor/overlaps/chunk_32-10                                              5.789Ki ± 0%                6.375Ki ± 0%  +10.12% (p=0.000 n=10)
+PublicRedactor/overlaps/chunk_1024-10                                            7.266Ki ± 0%                6.773Ki ± 0%   -6.77% (p=0.000 n=10)
+RedactorRetainedTail-10                                                          7.014Mi ± 0%                1.000Mi ± 0%  -85.74% (p=0.000 n=10)
+FragmentedReceive/1-10                                                           132.6Ki ± 0%                132.6Ki ± 0%        ~ (p=0.425 n=10)
+FragmentedReceive/32-10                                                          132.5Ki ± 0%                132.5Ki ± 0%        ~ (p=0.838 n=10)
+FragmentedReceive/1024-10                                                        123.3Ki ± 0%                123.3Ki ± 0%   -0.00% (p=0.012 n=10)
+FragmentedReceive/16384-10                                                       71.06Ki ± 0%                71.06Ki ± 0%        ~ (p=0.141 n=10)
+geomean                                                                          53.89Ki                     34.19Ki       -36.56%
+
+                                           │ docs/benchmarks/2026-10-29/affected-baseline.txt │ docs/benchmarks/2026-10-29/affected-candidate.txt │
+                                           │                    allocs/op                     │        allocs/op         vs base                  │
+ReceivePatterns/literal/chunk_32-10                                               1.064k ± 0%               1.064k ± 0%        ~ (p=1.000 n=10) ¹
+ReceivePatterns/literal/chunk_1024-10                                              64.00 ± 0%                64.00 ± 0%        ~ (p=1.000 n=10) ¹
+ReceivePatterns/all_literals/chunk_32-10                                          1.063k ± 0%               1.065k ± 0%   +0.19% (p=0.000 n=10)
+ReceivePatterns/all_literals/chunk_1024-10                                         63.00 ± 0%                65.00 ± 0%   +3.17% (p=0.000 n=10)
+ReceivePatterns/nested_all/chunk_32-10                                            1.063k ± 0%               1.065k ± 0%   +0.19% (p=0.000 n=10)
+ReceivePatterns/nested_all/chunk_1024-10                                           63.00 ± 0%                65.00 ± 0%   +3.17% (p=0.000 n=10)
+ReceivePatterns/regexp/chunk_32-10                                                1.072k ± 0%               1.071k ± 0%        ~ (p=0.257 n=10)
+ReceivePatterns/regexp/chunk_1024-10                                               71.00 ± 0%                71.00 ± 1%        ~ (p=0.474 n=10)
+ReceivePatterns/mixed_all/chunk_32-10                                             1.071k ± 0%               1.071k ± 0%        ~ (p=0.690 n=10)
+ReceivePatterns/mixed_all/chunk_1024-10                                            70.00 ± 1%                70.00 ± 0%        ~ (p=1.000 n=10)
+PublicRedactor/no_rules/chunk_1-10                                                3.072k ± 0%               1.024k ± 0%  -66.67% (p=0.000 n=10)
+PublicRedactor/no_rules/chunk_32-10                                                96.00 ± 0%                32.00 ± 0%  -66.67% (p=0.000 n=10)
+PublicRedactor/no_rules/chunk_1024-10                                              8.000 ± 0%                1.000 ± 0%  -87.50% (p=0.000 n=10)
+PublicRedactor/safe/chunk_1-10                                                    3.068k ± 0%               1.032k ± 0%  -66.36% (p=0.000 n=10)
+PublicRedactor/safe/chunk_32-10                                                   161.00 ± 0%                35.00 ± 0%  -78.26% (p=0.000 n=10)
+PublicRedactor/safe/chunk_1024-10                                                 11.000 ± 0%                4.000 ± 0%  -63.64% (p=0.000 n=10)
+PublicRedactor/matches/chunk_1-10                                                 2.176k ± 0%               2.051k ± 0%   -5.74% (p=0.000 n=10)
+PublicRedactor/matches/chunk_32-10                                                 166.0 ± 0%                182.0 ± 0%   +9.64% (p=0.000 n=10)
+PublicRedactor/matches/chunk_1024-10                                              14.000 ± 0%                8.000 ± 0%  -42.86% (p=0.000 n=10)
+PublicRedactor/overlaps/chunk_1-10                                                2.402k ± 0%               2.004k ± 0%  -16.57% (p=0.000 n=10)
+PublicRedactor/overlaps/chunk_32-10                                                184.0 ± 0%                194.0 ± 0%   +5.43% (p=0.000 n=10)
+PublicRedactor/overlaps/chunk_1024-10                                             15.000 ± 0%                8.000 ± 0%  -46.67% (p=0.000 n=10)
+RedactorRetainedTail-10                                                           35.000 ± 0%                5.000 ± 0%  -85.71% (p=0.000 n=10)
+FragmentedReceive/1-10                                                            16.43k ± 0%               16.43k ± 0%        ~ (p=1.000 n=10) ¹
+FragmentedReceive/32-10                                                            550.0 ± 0%                550.0 ± 0%        ~ (p=1.000 n=10) ¹
+FragmentedReceive/1024-10                                                          46.00 ± 0%                46.00 ± 0%        ~ (p=1.000 n=10) ¹
+FragmentedReceive/16384-10                                                         25.00 ± 0%                25.00 ± 0%        ~ (p=1.000 n=10) ¹
+geomean                                                                            205.3                     136.3       -33.63%
+¹ all samples are equal
+
+                        │ docs/benchmarks/2026-10-29/affected-baseline.txt │ docs/benchmarks/2026-10-29/affected-candidate.txt │
+                        │                    tail-cap-B                    │        tail-cap-B          vs base                │
+RedactorRetainedTail-10                                         16.00 ± 0%                  10.00 ± 0%  -37.50% (p=0.000 n=10)

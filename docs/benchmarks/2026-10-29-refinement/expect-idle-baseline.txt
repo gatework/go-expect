@@ -1,0 +1,240 @@
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdlePopulation/1-4 	       3	  51027750 ns/op	  11340166 close-p50-ns	  11340166 close-p95-ns	      7233 cpu-ns/session-ms	         2.000 fd-delta	   1283166 poll-p50-ns	   1283166 poll-p95-ns	    -44024 retained-B/session	         1.000 thread-delta	         8.000 threads	     426 B/op	      19 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdlePopulation/1-4 	       3	  51032236 ns/op	  11041959 close-p50-ns	  11041959 close-p95-ns	      9507 cpu-ns/session-ms	         2.000 fd-delta	  11023500 poll-p50-ns	  11023500 poll-p95-ns	    -44488 retained-B/session	         1.000 thread-delta	         8.000 threads	     397 B/op	      17 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdlePopulation/1-4 	       3	  51028458 ns/op	  11022250 close-p50-ns	  11022250 close-p95-ns	      6849 cpu-ns/session-ms	         2.000 fd-delta	   3821417 poll-p50-ns	   3821417 poll-p95-ns	    -49344 retained-B/session	         0 thread-delta	         7.000 threads	     426 B/op	      19 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdlePopulation/1-4 	       3	  50939000 ns/op	  11012625 close-p50-ns	  11012625 close-p95-ns	      4337 cpu-ns/session-ms	         2.000 fd-delta	  11020334 poll-p50-ns	  11020334 poll-p95-ns	    -44488 retained-B/session	         1.000 thread-delta	         8.000 threads	     432 B/op	      19 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdlePopulation/1-4 	       3	  51013931 ns/op	  11027542 close-p50-ns	  11027542 close-p95-ns	      5531 cpu-ns/session-ms	         2.000 fd-delta	   1225875 poll-p50-ns	   1225875 poll-p95-ns	    -44024 retained-B/session	         1.000 thread-delta	         8.000 threads	     397 B/op	      17 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdlePopulation/1-4 	       3	  50753222 ns/op	  11004292 close-p50-ns	  11004292 close-p95-ns	     12852 cpu-ns/session-ms	         2.000 fd-delta	   1924625 poll-p50-ns	   1924625 poll-p95-ns	    -49344 retained-B/session	         1.000 thread-delta	         8.000 threads	     397 B/op	      17 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdlePopulation/1-4 	       3	  50707708 ns/op	  11054625 close-p50-ns	  11054625 close-p95-ns	     12992 cpu-ns/session-ms	         2.000 fd-delta	   6638500 poll-p50-ns	   6638500 poll-p95-ns	    -44008 retained-B/session	         1.000 thread-delta	         8.000 threads	     421 B/op	      18 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdlePopulation/1-4 	       3	  50597597 ns/op	  11032792 close-p50-ns	  11032792 close-p95-ns	      8121 cpu-ns/session-ms	         2.000 fd-delta	   7327709 poll-p50-ns	   7327709 poll-p95-ns	    -44024 retained-B/session	         1.000 thread-delta	         8.000 threads	     426 B/op	      19 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdlePopulation/1-4 	       3	  50731958 ns/op	  11044208 close-p50-ns	  11044208 close-p95-ns	     14415 cpu-ns/session-ms	         2.000 fd-delta	   5195209 poll-p50-ns	   5195209 poll-p95-ns	    -49808 retained-B/session	         0 thread-delta	         7.000 threads	     450 B/op	      20 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdlePopulation/1-4 	       3	  50908180 ns/op	  10359500 close-p50-ns	  10359500 close-p95-ns	      9743 cpu-ns/session-ms	         2.000 fd-delta	   9221875 poll-p50-ns	   9221875 poll-p95-ns	    -44008 retained-B/session	         1.000 thread-delta	         8.000 threads	     520 B/op	      23 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdlePopulation/64-4         	       3	  50301278 ns/op	   8544917 close-p50-ns	  10384083 close-p95-ns	      2040 cpu-ns/session-ms	       128.0 fd-delta	   8796125 poll-p50-ns	  10788583 poll-p95-ns	      6528 retained-B/session	        64.00 thread-delta	        71.00 threads	   28373 B/op	    1275 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdlePopulation/64-4         	       3	  50403833 ns/op	   7997958 close-p50-ns	  10865042 close-p95-ns	      2837 cpu-ns/session-ms	       128.0 fd-delta	   6738250 poll-p50-ns	  11009958 poll-p95-ns	      6452 retained-B/session	        63.00 thread-delta	        70.00 threads	   27130 B/op	    1219 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdlePopulation/64-4         	       3	  50362333 ns/op	   6280083 close-p50-ns	  11000458 close-p95-ns	      3146 cpu-ns/session-ms	       128.0 fd-delta	   5210042 poll-p50-ns	  10709709 poll-p95-ns	      6453 retained-B/session	        63.00 thread-delta	        70.00 threads	   26544 B/op	    1192 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdlePopulation/64-4         	       3	  50858792 ns/op	   6922708 close-p50-ns	  10924375 close-p95-ns	      2225 cpu-ns/session-ms	       128.0 fd-delta	   8082416 poll-p50-ns	  11657541 poll-p95-ns	      6499 retained-B/session	        63.00 thread-delta	        70.00 threads	   27864 B/op	    1252 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdlePopulation/64-4         	       3	  50363542 ns/op	   5746083 close-p50-ns	  10558000 close-p95-ns	      3157 cpu-ns/session-ms	       128.0 fd-delta	   8378584 poll-p50-ns	  12969917 poll-p95-ns	      6453 retained-B/session	        63.00 thread-delta	        70.00 threads	   26557 B/op	    1193 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdlePopulation/64-4         	       3	  50980042 ns/op	   3372083 close-p50-ns	  10577167 close-p95-ns	      1672 cpu-ns/session-ms	       128.0 fd-delta	   7976208 poll-p50-ns	  12165958 poll-p95-ns	      6438 retained-B/session	        63.00 thread-delta	        70.00 threads	   28045 B/op	    1260 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdlePopulation/64-4         	       3	  51037597 ns/op	   6751209 close-p50-ns	  10804000 close-p95-ns	      2422 cpu-ns/session-ms	       128.0 fd-delta	   8463584 poll-p50-ns	  13312625 poll-p95-ns	      6452 retained-B/session	        63.00 thread-delta	        70.00 threads	   28114 B/op	    1263 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdlePopulation/64-4         	       3	  50921764 ns/op	   5166000 close-p50-ns	  10953709 close-p95-ns	      2400 cpu-ns/session-ms	       128.0 fd-delta	   7863291 poll-p50-ns	  10970250 poll-p95-ns	      6453 retained-B/session	        63.00 thread-delta	        70.00 threads	   27253 B/op	    1224 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdlePopulation/64-4         	       3	  51404222 ns/op	   4881458 close-p50-ns	  10267166 close-p95-ns	      2493 cpu-ns/session-ms	       128.0 fd-delta	   7133834 poll-p50-ns	  11617875 poll-p95-ns	      6536 retained-B/session	        64.00 thread-delta	        71.00 threads	   26592 B/op	    1194 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdlePopulation/64-4         	       3	  51911208 ns/op	   6320042 close-p50-ns	  10116542 close-p95-ns	      2530 cpu-ns/session-ms	       128.0 fd-delta	   7607208 poll-p50-ns	  11233875 poll-p95-ns	      6460 retained-B/session	        63.00 thread-delta	        70.00 threads	   27904 B/op	    1253 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdlePopulation/256-4         	       3	  50097833 ns/op	   6246250 close-p50-ns	  10803625 close-p95-ns	      2440 cpu-ns/session-ms	       512.0 fd-delta	   6225625 poll-p50-ns	  10553333 poll-p95-ns	      7132 retained-B/session	       256.0 thread-delta	       263.0 threads	  108474 B/op	    4875 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdlePopulation/256-4         	       3	  50338542 ns/op	   5594416 close-p50-ns	  10892250 close-p95-ns	      2076 cpu-ns/session-ms	       512.0 fd-delta	   6253167 poll-p50-ns	  10489542 poll-p95-ns	      7111 retained-B/session	       255.0 thread-delta	       262.0 threads	  109722 B/op	    4931 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdlePopulation/256-4         	       3	  50689653 ns/op	   5374708 close-p50-ns	  10724250 close-p95-ns	      2336 cpu-ns/session-ms	       512.0 fd-delta	   5859917 poll-p50-ns	  10689667 poll-p95-ns	      7112 retained-B/session	       255.0 thread-delta	       262.0 threads	  107877 B/op	    4848 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdlePopulation/256-4         	       3	  54093944 ns/op	   5171750 close-p50-ns	  10179167 close-p95-ns	      2789 cpu-ns/session-ms	       512.0 fd-delta	   6674709 poll-p50-ns	  10978875 poll-p95-ns	      7121 retained-B/session	       255.0 thread-delta	       262.0 threads	  115114 B/op	    5173 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdlePopulation/256-4         	       3	  50075764 ns/op	   5536792 close-p50-ns	  10736459 close-p95-ns	      2238 cpu-ns/session-ms	       512.0 fd-delta	   5821125 poll-p50-ns	  10968459 poll-p95-ns	      7133 retained-B/session	       256.0 thread-delta	       263.0 threads	  107021 B/op	    4809 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdlePopulation/256-4         	       3	  50320000 ns/op	   5342958 close-p50-ns	  10378250 close-p95-ns	      2105 cpu-ns/session-ms	       512.0 fd-delta	   5354959 poll-p50-ns	  10892375 poll-p95-ns	      7136 retained-B/session	       256.0 thread-delta	       263.0 threads	  110877 B/op	    4983 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdlePopulation/256-4         	       3	  52795403 ns/op	   6071375 close-p50-ns	  10683083 close-p95-ns	      2905 cpu-ns/session-ms	       512.0 fd-delta	   5475750 poll-p50-ns	  10145541 poll-p95-ns	      7115 retained-B/session	       254.0 thread-delta	       261.0 threads	  113917 B/op	    5042 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdlePopulation/256-4         	       3	  50189972 ns/op	   5627375 close-p50-ns	  10581667 close-p95-ns	      2726 cpu-ns/session-ms	       512.0 fd-delta	   5336500 poll-p50-ns	  10831417 poll-p95-ns	      7115 retained-B/session	       255.0 thread-delta	       262.0 threads	  106752 B/op	    4797 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdlePopulation/256-4         	       3	  50056014 ns/op	   5831959 close-p50-ns	  10745500 close-p95-ns	      2834 cpu-ns/session-ms	       512.0 fd-delta	   5955791 poll-p50-ns	  10900500 poll-p95-ns	      7124 retained-B/session	       255.0 thread-delta	       262.0 threads	  109992 B/op	    4943 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdlePopulation/256-4         	       3	  50065208 ns/op	   6058958 close-p50-ns	  10068417 close-p95-ns	      2267 cpu-ns/session-ms	       512.0 fd-delta	   5597209 poll-p50-ns	  10955875 poll-p95-ns	      7125 retained-B/session	       255.0 thread-delta	       262.0 threads	  108480 B/op	    4875 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdlePopulation/1024-4         	       3	  52896431 ns/op	   5721500 close-p50-ns	  10626875 close-p95-ns	      8055 cpu-ns/session-ms	      2048 fd-delta	  12063708 poll-p50-ns	  71926666 poll-p95-ns	      7999 retained-B/session	       926.0 thread-delta	       933.0 threads	  352002 B/op	   15820 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdlePopulation/1024-4         	       3	  55417889 ns/op	   5546709 close-p50-ns	  10623500 close-p95-ns	      8436 cpu-ns/session-ms	      2048 fd-delta	  13681667 poll-p50-ns	  87434667 poll-p95-ns	     10697 retained-B/session	       888.0 thread-delta	       895.0 threads	  323645 B/op	   14545 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdlePopulation/1024-4         	       3	  50485125 ns/op	   5628291 close-p50-ns	  10990625 close-p95-ns	      8623 cpu-ns/session-ms	      2048 fd-delta	  14468125 poll-p50-ns	  87562208 poll-p95-ns	      8681 retained-B/session	       886.0 thread-delta	       894.0 threads	  297328 B/op	   13363 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdlePopulation/1024-4         	       3	  64022417 ns/op	   5788291 close-p50-ns	  10870709 close-p95-ns	      8640 cpu-ns/session-ms	      2048 fd-delta	  15675458 poll-p50-ns	  85889292 poll-p95-ns	      8270 retained-B/session	       906.0 thread-delta	       913.0 threads	  377072 B/op	   16946 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdlePopulation/1024-4         	       3	  51197625 ns/op	   5747125 close-p50-ns	  11028416 close-p95-ns	      8444 cpu-ns/session-ms	      2048 fd-delta	  14471208 poll-p50-ns	  76057250 poll-p95-ns	     10230 retained-B/session	       910.0 thread-delta	       917.0 threads	  299906 B/op	   13478 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdlePopulation/1024-4         	       3	  52199278 ns/op	   5619708 close-p50-ns	  10939667 close-p95-ns	      8502 cpu-ns/session-ms	      2048 fd-delta	  15310208 poll-p50-ns	  75971125 poll-p95-ns	      8354 retained-B/session	       907.0 thread-delta	       914.0 threads	  311146 B/op	   13984 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdlePopulation/1024-4         	       3	  50253167 ns/op	   5602167 close-p50-ns	  10739000 close-p95-ns	      8804 cpu-ns/session-ms	      2048 fd-delta	  14617625 poll-p50-ns	  69452708 poll-p95-ns	      8880 retained-B/session	       906.0 thread-delta	       913.0 threads	  299050 B/op	   13440 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdlePopulation/1024-4         	       3	  73533055 ns/op	   5845083 close-p50-ns	  10854500 close-p95-ns	      8523 cpu-ns/session-ms	      2048 fd-delta	  15148750 poll-p50-ns	  73113083 poll-p95-ns	      8339 retained-B/session	       931.0 thread-delta	       938.0 threads	  423378 B/op	   19028 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdlePopulation/1024-4         	       3	  51509347 ns/op	   5983417 close-p50-ns	  15839125 close-p95-ns	      8744 cpu-ns/session-ms	      2048 fd-delta	  15982958 poll-p50-ns	  95794042 poll-p95-ns	      8329 retained-B/session	      1009 thread-delta	      1016 threads	  305565 B/op	   13733 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdlePopulation/1024-4         	       3	  56931111 ns/op	   5962083 close-p50-ns	  10867166 close-p95-ns	      8152 cpu-ns/session-ms	      2048 fd-delta	  12979291 poll-p50-ns	  61944042 poll-p95-ns	      8869 retained-B/session	      1022 thread-delta	      1029 threads	  344442 B/op	   15480 allocs/op
+PASS

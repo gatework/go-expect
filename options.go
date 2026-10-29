@@ -204,6 +204,10 @@ func WithStreamingFallback(handler Handler) ExpectOption {
 // WithOSPolling enables sole-reader OS readiness coordination for Poll and
 // SendAllPoll. The transport must expose syscall.Conn and a nonblocking OS fd.
 // Unsupported transports fail construction before ownership transfers.
+// A working SetReadDeadline(time.Time) error capability selects the runtime
+// poller; otherwise construction selects the bounded native-poll fallback.
+// Wrappers may forward NormalizeReadError(error) error for transport-specific
+// read errors, such as PTY EIO at EOF. Control errors are never normalized.
 func WithOSPolling() SessionOption {
 	return func(o *sessionOptions) error { o.osPolling = true; return nil }
 }

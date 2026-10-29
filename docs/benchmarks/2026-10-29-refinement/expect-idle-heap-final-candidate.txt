@@ -1,0 +1,240 @@
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdleHeap/1-4 	       3	  51054333 ns/op	      2460 cpu-ns/session-ms	         2.000 fd-delta	      1592 retained-B/session	         0 thread-delta	         7.000 threads	      10 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdleHeap/1-4 	       3	  50970111 ns/op	      2790 cpu-ns/session-ms	         2.000 fd-delta	      2072 retained-B/session	         0 thread-delta	         7.000 threads	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdleHeap/1-4 	       3	  50737889 ns/op	      2645 cpu-ns/session-ms	         2.000 fd-delta	      2056 retained-B/session	         0 thread-delta	         7.000 threads	       5 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdleHeap/1-4 	       3	  50932194 ns/op	      1668 cpu-ns/session-ms	         2.000 fd-delta	      1560 retained-B/session	         0 thread-delta	         7.000 threads	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdleHeap/1-4 	       3	  50745264 ns/op	      2278 cpu-ns/session-ms	         2.000 fd-delta	      1592 retained-B/session	         0 thread-delta	         7.000 threads	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdleHeap/1-4 	       3	  51026931 ns/op	      2167 cpu-ns/session-ms	         2.000 fd-delta	      1592 retained-B/session	         0 thread-delta	         7.000 threads	       5 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdleHeap/1-4 	       3	  50994875 ns/op	      2873 cpu-ns/session-ms	         2.000 fd-delta	      2040 retained-B/session	         0 thread-delta	         7.000 threads	      10 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdleHeap/1-4 	       3	  50654583 ns/op	      2617 cpu-ns/session-ms	         2.000 fd-delta	      2296 retained-B/session	         0 thread-delta	         7.000 threads	      16 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdleHeap/1-4 	       3	  51049167 ns/op	      2655 cpu-ns/session-ms	         2.000 fd-delta	      1592 retained-B/session	         0 thread-delta	         7.000 threads	      10 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdleHeap/1-4 	       3	  51052569 ns/op	      2895 cpu-ns/session-ms	         2.000 fd-delta	      1592 retained-B/session	         0 thread-delta	         7.000 threads	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdleHeap/64-4         	       3	  50968375 ns/op	        32.68 cpu-ns/session-ms	       128.0 fd-delta	      1972 retained-B/session	         0 thread-delta	         7.000 threads	       5 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdleHeap/64-4         	       3	  50673125 ns/op	        32.05 cpu-ns/session-ms	       128.0 fd-delta	      1987 retained-B/session	         0 thread-delta	         7.000 threads	       5 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdleHeap/64-4         	       3	  51037583 ns/op	        38.75 cpu-ns/session-ms	       128.0 fd-delta	      1988 retained-B/session	         0 thread-delta	         7.000 threads	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdleHeap/64-4         	       3	  50779208 ns/op	        32.39 cpu-ns/session-ms	       128.0 fd-delta	      1988 retained-B/session	         0 thread-delta	         8.000 threads	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdleHeap/64-4         	       3	  51056861 ns/op	        49.84 cpu-ns/session-ms	       128.0 fd-delta	      1987 retained-B/session	         0 thread-delta	         7.000 threads	       5 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdleHeap/64-4         	       3	  51002403 ns/op	        44.79 cpu-ns/session-ms	       128.0 fd-delta	      1987 retained-B/session	         0 thread-delta	         7.000 threads	       5 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdleHeap/64-4         	       3	  50890750 ns/op	        35.69 cpu-ns/session-ms	       128.0 fd-delta	      1987 retained-B/session	         0 thread-delta	         7.000 threads	       5 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdleHeap/64-4         	       3	  50739403 ns/op	        45.02 cpu-ns/session-ms	       128.0 fd-delta	      1980 retained-B/session	         0 thread-delta	         7.000 threads	      16 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdleHeap/64-4         	       3	  51025000 ns/op	        33.15 cpu-ns/session-ms	       128.0 fd-delta	      1987 retained-B/session	         0 thread-delta	         7.000 threads	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdleHeap/64-4         	       3	  51047528 ns/op	        42.72 cpu-ns/session-ms	       128.0 fd-delta	      1988 retained-B/session	         0 thread-delta	         7.000 threads	       5 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdleHeap/256-4         	       3	  50754750 ns/op	         7.409 cpu-ns/session-ms	       512.0 fd-delta	      1980 retained-B/session	         0 thread-delta	         7.000 threads	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdleHeap/256-4         	       3	  50965639 ns/op	        11.10 cpu-ns/session-ms	       512.0 fd-delta	      1980 retained-B/session	         0 thread-delta	         7.000 threads	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdleHeap/256-4         	       3	  51044917 ns/op	         8.515 cpu-ns/session-ms	       512.0 fd-delta	      1976 retained-B/session	         0 thread-delta	         7.000 threads	       5 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdleHeap/256-4         	       3	  50975111 ns/op	        10.53 cpu-ns/session-ms	       512.0 fd-delta	      1980 retained-B/session	         0 thread-delta	         7.000 threads	       5 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdleHeap/256-4         	       3	  50833222 ns/op	         7.935 cpu-ns/session-ms	       512.0 fd-delta	      1999 retained-B/session	         1.000 thread-delta	         8.000 threads	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdleHeap/256-4         	       3	  51045361 ns/op	        10.02 cpu-ns/session-ms	       512.0 fd-delta	      1978 retained-B/session	         0 thread-delta	         7.000 threads	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdleHeap/256-4         	       3	  51043667 ns/op	         8.997 cpu-ns/session-ms	       512.0 fd-delta	      1980 retained-B/session	         0 thread-delta	         7.000 threads	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdleHeap/256-4         	       3	  50953528 ns/op	        10.80 cpu-ns/session-ms	       512.0 fd-delta	      1980 retained-B/session	         0 thread-delta	         7.000 threads	       5 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdleHeap/256-4         	       3	  51040208 ns/op	         8.898 cpu-ns/session-ms	       512.0 fd-delta	      1980 retained-B/session	         0 thread-delta	         7.000 threads	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdleHeap/256-4         	       3	  50900014 ns/op	        14.46 cpu-ns/session-ms	       512.0 fd-delta	      1980 retained-B/session	         0 thread-delta	         7.000 threads	       5 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdleHeap/1024-4         	       3	  51048417 ns/op	         1.957 cpu-ns/session-ms	      2048 fd-delta	      1983 retained-B/session	         0 thread-delta	         7.000 threads	       5 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdleHeap/1024-4         	       3	  50720417 ns/op	         2.827 cpu-ns/session-ms	      2048 fd-delta	      1983 retained-B/session	         0 thread-delta	         7.000 threads	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdleHeap/1024-4         	       3	  51027528 ns/op	         1.881 cpu-ns/session-ms	      2048 fd-delta	      1984 retained-B/session	         0 thread-delta	         7.000 threads	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdleHeap/1024-4         	       3	  50973750 ns/op	         2.049 cpu-ns/session-ms	      2048 fd-delta	      1984 retained-B/session	         0 thread-delta	         7.000 threads	       5 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdleHeap/1024-4         	       3	  51027111 ns/op	         1.741 cpu-ns/session-ms	      2048 fd-delta	      1984 retained-B/session	         0 thread-delta	         7.000 threads	       5 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdleHeap/1024-4         	       3	  51040514 ns/op	         2.345 cpu-ns/session-ms	      2048 fd-delta	      1984 retained-B/session	         0 thread-delta	         7.000 threads	       5 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdleHeap/1024-4         	       3	  51030014 ns/op	         1.728 cpu-ns/session-ms	      2048 fd-delta	      1984 retained-B/session	         0 thread-delta	         7.000 threads	       5 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdleHeap/1024-4         	       3	  50982792 ns/op	         2.577 cpu-ns/session-ms	      2048 fd-delta	      1983 retained-B/session	         0 thread-delta	         7.000 threads	       5 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdleHeap/1024-4         	       3	  51025569 ns/op	         1.721 cpu-ns/session-ms	      2048 fd-delta	      1984 retained-B/session	         0 thread-delta	         7.000 threads	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdleHeap/1024-4         	       3	  50874944 ns/op	         2.672 cpu-ns/session-ms	      2048 fd-delta	      1983 retained-B/session	         0 thread-delta	         7.000 threads	      10 B/op	       0 allocs/op
+PASS

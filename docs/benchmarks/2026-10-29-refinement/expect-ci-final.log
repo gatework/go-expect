@@ -1,0 +1,117 @@
+all modules verified
+ok  	github.com/gatework/go-expect	4.090s
+?   	github.com/gatework/go-expect/examples/dialogue	[no test files]
+ok  	github.com/gatework/go-expect/expecttest	1.441s
+fuzz: elapsed: 0s, gathering baseline coverage: 0/120 completed
+fuzz: elapsed: 0s, gathering baseline coverage: 120/120 completed, now fuzzing with 2 workers
+fuzz: elapsed: 1s, execs: 100000 (90903/sec), new interesting: 0 (total: 120)
+PASS
+ok  	github.com/gatework/go-expect	1.603s
+fuzz: elapsed: 0s, gathering baseline coverage: 0/118 completed
+fuzz: elapsed: 0s, gathering baseline coverage: 118/118 completed, now fuzzing with 2 workers
+fuzz: elapsed: 1s, execs: 100000 (103785/sec), new interesting: 2 (total: 120)
+PASS
+ok  	github.com/gatework/go-expect	1.332s
+fuzz: elapsed: 0s, gathering baseline coverage: 0/125 completed
+fuzz: elapsed: 0s, gathering baseline coverage: 125/125 completed, now fuzzing with 2 workers
+fuzz: elapsed: 3s, execs: 85191 (28393/sec), new interesting: 0 (total: 125)
+fuzz: elapsed: 6s, execs: 85191 (0/sec), new interesting: 0 (total: 125)
+fuzz: elapsed: 6s, execs: 100000 (76097/sec), new interesting: 1 (total: 126)
+PASS
+ok  	github.com/gatework/go-expect	6.595s
+fuzz: elapsed: 0s, gathering baseline coverage: 0/67 completed
+fuzz: elapsed: 0s, gathering baseline coverage: 67/67 completed, now fuzzing with 2 workers
+fuzz: elapsed: 1s, execs: 100000 (116634/sec), new interesting: 1 (total: 68)
+PASS
+ok  	github.com/gatework/go-expect	1.238s
+fuzz: elapsed: 0s, gathering baseline coverage: 0/40 completed
+fuzz: elapsed: 0s, gathering baseline coverage: 40/40 completed, now fuzzing with 2 workers
+fuzz: elapsed: 3s, execs: 37199 (12399/sec), new interesting: 1 (total: 41)
+fuzz: elapsed: 6s, execs: 50849 (4550/sec), new interesting: 1 (total: 41)
+fuzz: elapsed: 6s, execs: 100000 (145576/sec), new interesting: 1 (total: 41)
+PASS
+ok  	github.com/gatework/go-expect	6.701s
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkContinuedBurst/128-10              	       3	     58694 ns/op	   2.18 MB/s	   18506 B/op	      20 allocs/op
+BenchmarkContinuedBurst/4096-10             	       3	    848375 ns/op	   4.83 MB/s	   22474 B/op	      20 allocs/op
+BenchmarkReceiveRemainderRetention/held_false/tail_0-10         	       3	       430.7 ns/op	     19678 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_false/tail_8-10         	       3	        97.33 ns/op	     19631 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_false/tail_4096-10      	       3	       208.3 ns/op	     24353 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_true/tail_0-10          	       3	        83.33 ns/op	   1068299 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_true/tail_8-10          	       3	       139.0 ns/op	   1068105 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_true/tail_4096-10       	       3	        55.67 ns/op	   1071908 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkPTYReceive/1-10                                        	       3	     16431 ns/op	   0.06 MB/s	    6325 B/op	      16 allocs/op
+BenchmarkPTYReceive/32-10                                       	       3	     26764 ns/op	   1.20 MB/s	    6234 B/op	      16 allocs/op
+BenchmarkPTYReceive/1024-10                                     	       3	     25708 ns/op	  39.83 MB/s	   11296 B/op	      19 allocs/op
+BenchmarkOSIdlePopulation/1-10                                  	       3	  50838125 ns/op	     38625 close-p50-ns	     38625 close-p95-ns	      2680 cpu-ns/session-ms	         2.000 fd-delta	    227750 poll-p50-ns	    227750 poll-p95-ns	      1576 retained-B/session	         0 thread-delta	        12.00 threads	       0 B/op	       0 allocs/op
+BenchmarkOSIdlePopulation/64-10                                 	       3	  50781125 ns/op	      7208 close-p50-ns	     11167 close-p95-ns	        37.30 cpu-ns/session-ms	       128.0 fd-delta	     32292 poll-p50-ns	     44500 poll-p95-ns	      1708 retained-B/session	         0 thread-delta	        12.00 threads	       0 B/op	       0 allocs/op
+BenchmarkOSIdlePopulation/256-10                                	       3	  51039264 ns/op	      5416 close-p50-ns	      7209 close-p95-ns	        11.59 cpu-ns/session-ms	       512.0 fd-delta	     39417 poll-p50-ns	     81750 poll-p95-ns	      1902 retained-B/session	         1.000 thread-delta	        13.00 threads	       0 B/op	       0 allocs/op
+BenchmarkOSIdlePopulation/1024-10                               	       3	  50869556 ns/op	      3917 close-p50-ns	      6958 close-p95-ns	         2.155 cpu-ns/session-ms	      2048 fd-delta	     46208 poll-p50-ns	     63875 poll-p95-ns	      1918 retained-B/session	         0 thread-delta	        13.00 threads	       0 B/op	       0 allocs/op
+BenchmarkOSIdleHeap/1-10                                        	       3	  51045111 ns/op	      3249 cpu-ns/session-ms	         2.000 fd-delta	      1576 retained-B/session	         0 thread-delta	        13.00 threads	      10 B/op	       0 allocs/op
+BenchmarkOSIdleHeap/64-10                                       	       3	  50797333 ns/op	        38.21 cpu-ns/session-ms	       128.0 fd-delta	      1491 retained-B/session	         0 thread-delta	        13.00 threads	       0 B/op	       0 allocs/op
+BenchmarkOSIdleHeap/256-10                                      	       3	  50643653 ns/op	        11.40 cpu-ns/session-ms	       512.0 fd-delta	      1492 retained-B/session	         0 thread-delta	        13.00 threads	      10 B/op	       0 allocs/op
+BenchmarkOSIdleHeap/1024-10                                     	       3	  50915458 ns/op	         2.816 cpu-ns/session-ms	      2048 fd-delta	      1590 retained-B/session	         0 thread-delta	        13.00 threads	       0 B/op	       0 allocs/op
+BenchmarkReceivePatterns/literal/chunk_32-10                    	       3	   1331861 ns/op	  24.61 MB/s	  246168 B/op	    1063 allocs/op
+BenchmarkReceivePatterns/literal/chunk_1024-10                  	       3	     82264 ns/op	 398.44 MB/s	  236765 B/op	      63 allocs/op
+BenchmarkReceivePatterns/all_literals/chunk_32-10               	       3	   1112556 ns/op	  29.46 MB/s	  246336 B/op	    1064 allocs/op
+BenchmarkReceivePatterns/all_literals/chunk_1024-10             	       3	     67542 ns/op	 485.29 MB/s	  236928 B/op	      64 allocs/op
+BenchmarkReceivePatterns/nested_all/chunk_32-10                 	       3	   1105958 ns/op	  29.64 MB/s	  246416 B/op	    1064 allocs/op
+BenchmarkReceivePatterns/nested_all/chunk_1024-10               	       3	    102930 ns/op	 318.44 MB/s	  237008 B/op	      64 allocs/op
+BenchmarkReceivePatterns/regexp/chunk_32-10                     	       3	   2761222 ns/op	  11.87 MB/s	  276029 B/op	    1081 allocs/op
+BenchmarkReceivePatterns/regexp/chunk_1024-10                   	       3	     80833 ns/op	 405.49 MB/s	  239813 B/op	      72 allocs/op
+BenchmarkReceivePatterns/mixed_all/chunk_32-10                  	       3	   1807000 ns/op	  18.14 MB/s	  263640 B/op	    1078 allocs/op
+BenchmarkReceivePatterns/mixed_all/chunk_1024-10                	       3	     79472 ns/op	 412.43 MB/s	  239813 B/op	      71 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_1-10                     	       3	     28097 ns/op	  36.44 MB/s	    8192 B/op	    1024 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_32-10                    	       3	      2736 ns/op	 374.22 MB/s	    1024 B/op	      32 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_1024-10                  	       3	      1403 ns/op	 730.04 MB/s	    1024 B/op	       1 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1-10                         	       3	     77847 ns/op	  13.15 MB/s	    1056 B/op	    1022 allocs/op
+BenchmarkPublicRedactor/safe/chunk_32-10                        	       3	      2792 ns/op	 366.81 MB/s	    1050 B/op	      35 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1024-10                      	       3	       708.3 ns/op	1445.65 MB/s	    1050 B/op	       4 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1-10                      	       3	     29194 ns/op	  32.88 MB/s	    2080 B/op	     259 allocs/op
+BenchmarkPublicRedactor/matches/chunk_32-10                     	       3	      6986 ns/op	 137.42 MB/s	    6234 B/op	     182 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1024-10                   	       3	      4000 ns/op	 240.00 MB/s	    4522 B/op	       8 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1-10                     	       3	     35292 ns/op	  28.34 MB/s	    3216 B/op	     404 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_32-10                    	       3	     12042 ns/op	  83.04 MB/s	    6149 B/op	     194 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1024-10                  	       3	     12139 ns/op	  82.38 MB/s	    6928 B/op	       8 allocs/op
+BenchmarkRedactorRetainedTail-10                                	       3	    280778 ns/op	3734.55 MB/s	        10.00 tail-cap-B	 1048618 B/op	       5 allocs/op
+BenchmarkPublicRedactorLongBoundary/32-10                       	       3	       916.7 ns/op	  34.91 MB/s	      32 B/op	       1 allocs/op
+BenchmarkPublicRedactorLongBoundary/256-10                      	       3	      1583 ns/op	 161.68 MB/s	     256 B/op	       1 allocs/op
+BenchmarkPublicRedactorLongBoundary/4096-10                     	       3	     12153 ns/op	 337.05 MB/s	    4096 B/op	       1 allocs/op
+BenchmarkPublicRedactorLongBoundary/65536-10                    	       3	    284097 ns/op	 230.68 MB/s	   65536 B/op	       1 allocs/op
+BenchmarkOSReceive/1-10                                         	       3	     17597 ns/op	   0.06 MB/s	    6048 B/op	      14 allocs/op
+BenchmarkOSReceive/32-10                                        	       3	     19111 ns/op	   1.67 MB/s	    6117 B/op	      15 allocs/op
+BenchmarkOSReceive/1024-10                                      	       3	     15930 ns/op	  64.28 MB/s	   11178 B/op	      18 allocs/op
+BenchmarkOSReceive/16384-10                                     	       3	     40250 ns/op	 407.06 MB/s	  150176 B/op	      25 allocs/op
+BenchmarkIdleSessions/os_false/count_1-10                       	       3	  21036500 ns/op	      4669 cpu-ns/session-ms	     18944 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkIdleSessions/os_false/count_64-10                      	       3	  21037264 ns/op	        77.88 cpu-ns/session-ms	     19199 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkIdleSessions/os_true/count_1-10                        	       3	  21049611 ns/op	      6263 cpu-ns/session-ms	      1776 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkIdleSessions/os_true/count_64-10                       	       3	  21041222 ns/op	        97.10 cpu-ns/session-ms	      1504 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkFragmentedReceive/1-10                                 	       3	  15959347 ns/op	   1.03 MB/s	  135709 B/op	   16427 allocs/op
+BenchmarkFragmentedReceive/32-10                                	       3	    501195 ns/op	  32.70 MB/s	  135906 B/op	     552 allocs/op
+BenchmarkFragmentedReceive/1024-10                              	       3	     39930 ns/op	 410.41 MB/s	  126162 B/op	      45 allocs/op
+BenchmarkFragmentedReceive/16384-10                             	       3	     13514 ns/op	1212.67 MB/s	   72770 B/op	      25 allocs/op
+BenchmarkLiteral16K-10                                          	       3	    486542 ns/op	  156858 B/op	      59 allocs/op
+BenchmarkPublicRedactorDenseLong/256-10                         	       3	     11542 ns/op	  88.72 MB/s	    3456 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/1024-10                        	       3	     18042 ns/op	 227.03 MB/s	   13440 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/4096-10                        	       3	     57680 ns/op	 284.05 MB/s	   54528 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/16384-10                       	       3	    246889 ns/op	 265.45 MB/s	  221184 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/65536-10                       	       3	    866445 ns/op	 302.55 MB/s	  860160 B/op	       5 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/257-10                    	       3	       597.3 ns/op	   1.67 MB/s	     341 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/4096-10                   	       3	       458.3 ns/op	   2.18 MB/s	    5461 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/65536-10                  	       3	      5667 ns/op	   0.18 MB/s	   87381 B/op	       0 allocs/op
+PASS
+ok  	github.com/gatework/go-expect	2.946s
+logged in
+completed: show status
+completed: save configuration
+consumer: stream and PTY passed
+source consumer passed (disposable module snapshot)
+.......................
+----------------------------------------------------------------------
+Ran 23 tests in 1.501s
+
+OK
+No vulnerabilities found.

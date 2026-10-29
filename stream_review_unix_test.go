@@ -3,8 +3,11 @@
 package expect
 
 import (
+	"bytes"
 	"context"
+	"errors"
 	"io"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -20,7 +23,8 @@ func TestOSReadTransfersCompactTinyBuffer(t *testing.T) {
 	if _, e = b.Write([]byte("x")); e != nil {
 		t.Fatal(e)
 	}
-	data, e, ready := access.read(0)
+	var scratch []byte
+	data, e, ready := access.read(0, &scratch)
 	if e != nil || !ready || string(data) != "x" {
 		t.Fatalf("data=%q ready=%v err=%v", data, ready, e)
 	}
@@ -74,5 +78,109 @@ func TestSendAllTinyReadQueueRetainedMemoryAndPoll(t *testing.T) {
 	}
 	if e = <-peer; e != nil {
 		t.Fatal(e)
+	}
+}
+
+// A pump receiving many tiny messages must not allocate one 16 KiB block per
+// message. The returned compact blocks remain independently owned.
+func TestOSSmallReadsReuseScratch(t *testing.T) {
+	a, b := socketTransport(t)
+	access, err := newOSAccess(a)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var before, after runtime.MemStats
+	runtime.ReadMemStats(&before)
+	var first []byte
+	var scratch []byte
+	for range 100 {
+		if _, err = b.Write([]byte("x")); err != nil {
+			t.Fatal(err)
+		}
+		data, err, ready := access.read(0, &scratch)
+		if err != nil || !ready || string(data) != "x" {
+			t.Fatalf("data=%q ready=%v err=%v", data, ready, err)
+		}
+		if first == nil {
+			first = data
+		}
+	}
+	runtime.ReadMemStats(&after)
+	if allocated := after.TotalAlloc - before.TotalAlloc; allocated > 4<<10*100 {
+		t.Fatalf("small reads allocated %d bytes, want under 4 KiB/read", allocated)
+	}
+	if string(first) != "x" {
+		t.Fatalf("transferred block changed: %q", first)
+	}
+}
+
+func TestOSReadScratchTransferOwnership(t *testing.T) {
+	a, b := socketTransport(t)
+	access, err := newOSAccess(a)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var scratch []byte
+	var snapshots [][]byte
+	for _, input := range [][]byte{[]byte("a"), bytes.Repeat([]byte("b"), readChunk/2), []byte("c"), []byte("d")} {
+		if _, err := b.Write(input); err != nil {
+			t.Fatal(err)
+		}
+		data, err, ready := access.read(0, &scratch)
+		if err != nil || !ready || !bytes.Equal(data, input) {
+			t.Fatalf("read length=%d ready=%v err=%v", len(data), ready, err)
+		}
+		snapshots = append(snapshots, data)
+	}
+	for i, want := range []string{"a", strings.Repeat("b", readChunk/2), "c", "d"} {
+		if string(snapshots[i]) != want {
+			t.Fatalf("read %d changed after scratch reuse", i)
+		}
+	}
+	if data, err, ready := access.read(0, &scratch); len(data) != 0 || err != nil || ready {
+		t.Fatalf("idle data=%q err=%v ready=%v", data, err, ready)
+	}
+}
+
+func TestOSPollingPTYEndOfInput(t *testing.T) {
+	c, err := NewConsole(WithRaw(), WithSessionOptions(WithOSPolling()))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+	ctx, cancel := context.WithTimeout(t.Context(), time.Second)
+	defer cancel()
+	if _, err := c.TTY().Write([]byte("last")); err != nil {
+		t.Fatal(err)
+	}
+	if r, err := c.Session().Expect(ctx, []Case{{Pattern: Literal("last")}}); err != nil || r.Match != "last" {
+		t.Fatalf("match=%q err=%v", r.Match, err)
+	}
+	if err := c.TTY().Close(); err != nil {
+		t.Fatal(err)
+	}
+	// A closed PTY slave can surface EIO; the adapter must expose clean EOF.
+	if _, err := c.Session().Expect(ctx, []Case{{Pattern: EOF()}}); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestOSReadClosedRawConn(t *testing.T) {
+	a, _ := socketTransport(t)
+	access, err := newOSAccess(a)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := a.Close(); err != nil {
+		t.Fatal(err)
+	}
+	want := access.raw.Control(func(uintptr) { t.Fatal("closed RawConn called Control callback") })
+	if want == nil {
+		t.Fatal("closed RawConn did not return an error")
+	}
+	var scratch []byte
+	data, err, ready := access.read(0, &scratch)
+	if len(data) != 0 || !ready || !errors.Is(err, want) {
+		t.Fatalf("data=%q ready=%v err=%v", data, ready, err)
 	}
 }

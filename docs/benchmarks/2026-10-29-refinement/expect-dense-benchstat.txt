@@ -1,0 +1,60 @@
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+                                     │ /tmp/connector-refinement-20261029/expect-dense-baseline.txt │ /tmp/connector-refinement-20261029/expect-dense-candidate.txt │
+                                     │                            sec/op                            │                sec/op                 vs base                 │
+PublicRedactorDenseLong/256-4                                                         63.752µ ±  8%                           5.982µ ± 16%   -90.62% (p=0.000 n=10)
+PublicRedactorDenseLong/1024-4                                                       832.359µ ±  9%                           8.739µ ± 12%   -98.95% (p=0.000 n=10)
+PublicRedactorDenseLong/4096-4                                                      12691.80µ ±  8%                           34.05µ ±  7%   -99.73% (p=0.000 n=10)
+PublicRedactorDenseLong/16384-4                                                     199289.0µ ± 19%                           136.7µ ±  5%   -99.93% (p=0.000 n=10)
+PublicRedactorDenseLong/65536-4                                                    3174994.0µ ± 16%                           555.8µ ±  5%   -99.98% (p=0.000 n=10)
+PublicRedactorMixedDenseByte/257-4                                                   2162.00n ± 11%                           17.98n ± 14%   -99.17% (p=0.000 n=10)
+PublicRedactorMixedDenseByte/4096-4                                                 32778.50n ±  7%                           18.07n ± 11%   -99.94% (p=0.000 n=10)
+PublicRedactorMixedDenseByte/65536-4                                               518130.50n ± 10%                           17.69n ± 10%  -100.00% (p=0.000 n=10)
+geomean                                                                                1.410m                                 2.298µ         -99.84%
+
+                                     │ /tmp/connector-refinement-20261029/expect-dense-baseline.txt │ /tmp/connector-refinement-20261029/expect-dense-candidate.txt │
+                                     │                             B/s                              │                B/s                 vs base                    │
+PublicRedactorDenseLong/256-4                                                         15.34Mi ±  7%                      163.29Mi ± 14%     +964.80% (p=0.000 n=10)
+PublicRedactorDenseLong/1024-4                                                        4.697Mi ±  8%                     447.044Mi ± 11%    +9417.97% (p=0.000 n=10)
+PublicRedactorDenseLong/4096-4                                                        1.230Mi ±  8%                     458.941Mi ±  7%   +37205.04% (p=0.000 n=10)
+PublicRedactorDenseLong/16384-4                                                       322.3Ki ± 15%                    468149.4Ki ±  5%  +145168.18% (p=0.000 n=10)
+PublicRedactorDenseLong/65536-4                                                       78.12Ki ± 12%                   460620.12Ki ±  5%  +589493.75% (p=0.000 n=10)
+PublicRedactorMixedDenseByte/257-4                                                    449.2Ki ±  9%                     54409.2Ki ± 13%   +12011.96% (p=0.000 n=10)
+PublicRedactorMixedDenseByte/4096-4                                                   29.30Ki ±  0%                    54042.97Ki ± 10%  +184366.67% (p=0.000 n=10)
+PublicRedactorMixedDenseByte/65536-4                                                                                      53.93Mi ±  9%
+geomean                                                                               610.3Ki                             178.7Mi         +35491.64%
+
+                                     │ /tmp/connector-refinement-20261029/expect-dense-baseline.txt │ /tmp/connector-refinement-20261029/expect-dense-candidate.txt │
+                                     │                             B/op                             │               B/op                vs base                     │
+PublicRedactorDenseLong/256-4                                                          3.375Ki ± 0%                       3.875Ki ± 0%   +14.81% (p=0.000 n=10)
+PublicRedactorDenseLong/1024-4                                                         13.12Ki ± 0%                       15.12Ki ± 0%   +15.24% (p=0.000 n=10)
+PublicRedactorDenseLong/4096-4                                                         53.25Ki ± 0%                       61.25Ki ± 0%   +15.02% (p=0.000 n=10)
+PublicRedactorDenseLong/16384-4                                                        216.0Ki ± 0%                       248.0Ki ± 0%   +14.81% (p=0.000 n=10)
+PublicRedactorDenseLong/65536-4                                                        840.0Ki ± 0%                       968.0Ki ± 0%   +15.24% (p=0.000 n=10)
+PublicRedactorMixedDenseByte/257-4                                                     1.500Ki ± 0%                       0.000Ki ± 0%  -100.00% (p=0.000 n=10)
+PublicRedactorMixedDenseByte/4096-4                                                    8.000Ki ± 0%                       0.000Ki ± 0%  -100.00% (p=0.000 n=10)
+PublicRedactorMixedDenseByte/65536-4                                                   128.0Ki ± 0%                         0.0Ki ± 0%  -100.00% (p=0.000 n=10)
+geomean                                                                                30.01Ki                                          ?                       ¹ ²
+¹ summaries must be >0 to compute geomean
+² ratios must be >0 to compute geomean
+
+                                     │ /tmp/connector-refinement-20261029/expect-dense-baseline.txt │ /tmp/connector-refinement-20261029/expect-dense-candidate.txt │
+                                     │                          allocs/op                           │            allocs/op              vs base                     │
+PublicRedactorDenseLong/256-4                                                           5.000 ±  0%                         5.000 ± 0%         ~ (p=1.000 n=10) ¹
+PublicRedactorDenseLong/1024-4                                                          5.000 ±  0%                         5.000 ± 0%         ~ (p=1.000 n=10) ¹
+PublicRedactorDenseLong/4096-4                                                          5.000 ±  0%                         5.000 ± 0%         ~ (p=1.000 n=10) ¹
+PublicRedactorDenseLong/16384-4                                                         5.000 ± 20%                         5.000 ± 0%         ~ (p=0.474 n=10)
+PublicRedactorDenseLong/65536-4                                                         5.000 ± 20%                         5.000 ± 0%         ~ (p=0.474 n=10)
+PublicRedactorMixedDenseByte/257-4                                                      4.000 ±  0%                         0.000 ± 0%  -100.00% (p=0.000 n=10)
+PublicRedactorMixedDenseByte/4096-4                                                     2.000 ±  0%                         0.000 ± 0%  -100.00% (p=0.000 n=10)
+PublicRedactorMixedDenseByte/65536-4                                                    2.000 ±  0%                         0.000 ± 0%  -100.00% (p=0.000 n=10)
+geomean                                                                                 3.867                                           ?                       ² ³
+¹ all samples are equal
+² summaries must be >0 to compute geomean
+³ ratios must be >0 to compute geomean
+
+                                     │ /tmp/connector-refinement-20261029/expect-dense-baseline.txt │
+                                     │                             MB/s                             │
+PublicRedactorMixedDenseByte/65536-4                                                     0.000 ± 0%

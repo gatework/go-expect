@@ -1,0 +1,110 @@
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkReceiveRemainderRetention/held_false/tail_0-4         	       1	       167.0 ns/op	     19802 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_false/tail_8-4         	       1	        83.00 ns/op	     19335 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_false/tail_4096-4      	       1	       167.0 ns/op	     23722 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_true/tail_0-4          	       1	       209.0 ns/op	   1067901 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_true/tail_8-4          	       1	       125.0 ns/op	   1067791 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_true/tail_4096-4       	       1	       125.0 ns/op	   1072027 retained-B/session	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkReceiveRemainderRetention/held_false/tail_0-4         	       1	       209.0 ns/op	     19815 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_false/tail_8-4         	       1	       208.0 ns/op	     19396 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_false/tail_4096-4      	       1	        84.00 ns/op	     23122 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_true/tail_0-4          	       1	       208.0 ns/op	   1067861 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_true/tail_8-4          	       1	       167.0 ns/op	   1068020 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_true/tail_4096-4       	       1	       167.0 ns/op	   1072065 retained-B/session	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkReceiveRemainderRetention/held_false/tail_0-4         	       1	       125.0 ns/op	     20140 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_false/tail_8-4         	       1	       167.0 ns/op	     19380 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_false/tail_4096-4      	       1	       125.0 ns/op	     23600 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_true/tail_0-4          	       1	       667.0 ns/op	   1067983 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_true/tail_8-4          	       1	        83.00 ns/op	   1067613 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_true/tail_4096-4       	       1	       125.0 ns/op	   1071722 retained-B/session	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkReceiveRemainderRetention/held_false/tail_0-4         	       1	        84.00 ns/op	     19804 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_false/tail_8-4         	       1	       125.0 ns/op	     19796 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_false/tail_4096-4      	       1	       208.0 ns/op	     24186 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_true/tail_0-4          	       1	       167.0 ns/op	   1068014 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_true/tail_8-4          	       1	       125.0 ns/op	   1068049 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_true/tail_4096-4       	       1	        84.00 ns/op	   1072054 retained-B/session	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkReceiveRemainderRetention/held_false/tail_0-4         	       1	       167.0 ns/op	     19809 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_false/tail_8-4         	       1	       208.0 ns/op	     19339 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_false/tail_4096-4      	       1	       208.0 ns/op	     23683 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_true/tail_0-4          	       1	       125.0 ns/op	   1068186 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_true/tail_8-4          	       1	       167.0 ns/op	   1068061 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_true/tail_4096-4       	       1	       125.0 ns/op	   1072141 retained-B/session	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkReceiveRemainderRetention/held_false/tail_0-4         	       1	       125.0 ns/op	     19808 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_false/tail_8-4         	       1	       208.0 ns/op	     19755 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_false/tail_4096-4      	       1	        42.00 ns/op	     23363 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_true/tail_0-4          	       1	       125.0 ns/op	   1067667 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_true/tail_8-4          	       1	       125.0 ns/op	   1067520 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_true/tail_4096-4       	       1	        84.00 ns/op	   1071795 retained-B/session	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkReceiveRemainderRetention/held_false/tail_0-4         	       1	       167.0 ns/op	     19809 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_false/tail_8-4         	       1	       125.0 ns/op	     19223 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_false/tail_4096-4      	       1	        83.00 ns/op	     23363 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_true/tail_0-4          	       1	       167.0 ns/op	   1067949 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_true/tail_8-4          	       1	       166.0 ns/op	   1067980 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_true/tail_4096-4       	       1	       292.0 ns/op	   1072012 retained-B/session	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkReceiveRemainderRetention/held_false/tail_0-4         	       1	       167.0 ns/op	     19815 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_false/tail_8-4         	       1	       125.0 ns/op	     19367 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_false/tail_4096-4      	       1	       208.0 ns/op	     23460 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_true/tail_0-4          	       1	       125.0 ns/op	   1067899 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_true/tail_8-4          	       1	        84.00 ns/op	   1068101 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_true/tail_4096-4       	       1	        42.00 ns/op	   1071743 retained-B/session	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkReceiveRemainderRetention/held_false/tail_0-4         	       1	       167.0 ns/op	     20134 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_false/tail_8-4         	       1	       166.0 ns/op	     19361 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_false/tail_4096-4      	       1	       166.0 ns/op	     23457 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_true/tail_0-4          	       1	       208.0 ns/op	   1068032 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_true/tail_8-4          	       1	       167.0 ns/op	   1067839 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_true/tail_4096-4       	       1	       167.0 ns/op	   1071847 retained-B/session	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkReceiveRemainderRetention/held_false/tail_0-4         	       1	       125.0 ns/op	     19802 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_false/tail_8-4         	       1	       208.0 ns/op	     19768 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_false/tail_4096-4      	       1	       167.0 ns/op	     23769 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_true/tail_0-4          	       1	       250.0 ns/op	   1068114 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_true/tail_8-4          	       1	       166.0 ns/op	   1067755 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_true/tail_4096-4       	       1	       166.0 ns/op	   1071873 retained-B/session	       0 B/op	       0 allocs/op
+PASS

@@ -1,0 +1,46 @@
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkPublicRedactorLongBoundary/32-10 	  518788	       212.9 ns/op	 150.30 MB/s	     224 B/op	       5 allocs/op
+BenchmarkPublicRedactorLongBoundary/32-10 	  887218	       141.8 ns/op	 225.69 MB/s	     224 B/op	       5 allocs/op
+BenchmarkPublicRedactorLongBoundary/32-10 	  884928	       141.7 ns/op	 225.80 MB/s	     224 B/op	       5 allocs/op
+BenchmarkPublicRedactorLongBoundary/32-10 	  895494	       142.4 ns/op	 224.76 MB/s	     224 B/op	       5 allocs/op
+BenchmarkPublicRedactorLongBoundary/32-10 	  885363	       142.3 ns/op	 224.88 MB/s	     224 B/op	       5 allocs/op
+BenchmarkPublicRedactorLongBoundary/32-10 	  879039	       143.1 ns/op	 223.65 MB/s	     224 B/op	       5 allocs/op
+BenchmarkPublicRedactorLongBoundary/32-10 	  864708	       143.0 ns/op	 223.79 MB/s	     224 B/op	       5 allocs/op
+BenchmarkPublicRedactorLongBoundary/32-10 	  886425	       142.9 ns/op	 223.98 MB/s	     224 B/op	       5 allocs/op
+BenchmarkPublicRedactorLongBoundary/32-10 	  876045	       143.7 ns/op	 222.71 MB/s	     224 B/op	       5 allocs/op
+BenchmarkPublicRedactorLongBoundary/32-10 	  862482	       143.9 ns/op	 222.33 MB/s	     224 B/op	       5 allocs/op
+BenchmarkPublicRedactorLongBoundary/256-10         	  114314	      1062 ns/op	 241.08 MB/s	    1984 B/op	       7 allocs/op
+BenchmarkPublicRedactorLongBoundary/256-10         	  113494	      1077 ns/op	 237.71 MB/s	    1984 B/op	       7 allocs/op
+BenchmarkPublicRedactorLongBoundary/256-10         	  113830	      1064 ns/op	 240.57 MB/s	    1984 B/op	       7 allocs/op
+BenchmarkPublicRedactorLongBoundary/256-10         	  113910	      1065 ns/op	 240.35 MB/s	    1984 B/op	       7 allocs/op
+BenchmarkPublicRedactorLongBoundary/256-10         	  112435	      1066 ns/op	 240.16 MB/s	    1984 B/op	       7 allocs/op
+BenchmarkPublicRedactorLongBoundary/256-10         	  112930	      1068 ns/op	 239.80 MB/s	    1984 B/op	       7 allocs/op
+BenchmarkPublicRedactorLongBoundary/256-10         	  113306	      1066 ns/op	 240.11 MB/s	    1984 B/op	       7 allocs/op
+BenchmarkPublicRedactorLongBoundary/256-10         	  113338	      1066 ns/op	 240.08 MB/s	    1984 B/op	       7 allocs/op
+BenchmarkPublicRedactorLongBoundary/256-10         	  113096	      1065 ns/op	 240.32 MB/s	    1984 B/op	       7 allocs/op
+BenchmarkPublicRedactorLongBoundary/256-10         	  113235	      1064 ns/op	 240.55 MB/s	    1984 B/op	       7 allocs/op
+BenchmarkPublicRedactorLongBoundary/4096-10        	    6988	     16958 ns/op	 241.54 MB/s	   39616 B/op	      13 allocs/op
+BenchmarkPublicRedactorLongBoundary/4096-10        	    7132	     16957 ns/op	 241.55 MB/s	   39616 B/op	      13 allocs/op
+BenchmarkPublicRedactorLongBoundary/4096-10        	    7094	     16952 ns/op	 241.62 MB/s	   39616 B/op	      13 allocs/op
+BenchmarkPublicRedactorLongBoundary/4096-10        	    7051	     16916 ns/op	 242.14 MB/s	   39616 B/op	      13 allocs/op
+BenchmarkPublicRedactorLongBoundary/4096-10        	    7022	     16957 ns/op	 241.56 MB/s	   39616 B/op	      13 allocs/op
+BenchmarkPublicRedactorLongBoundary/4096-10        	    7130	     16924 ns/op	 242.03 MB/s	   39616 B/op	      13 allocs/op
+BenchmarkPublicRedactorLongBoundary/4096-10        	    7129	     16980 ns/op	 241.22 MB/s	   39616 B/op	      13 allocs/op
+BenchmarkPublicRedactorLongBoundary/4096-10        	    7170	     16977 ns/op	 241.27 MB/s	   39616 B/op	      13 allocs/op
+BenchmarkPublicRedactorLongBoundary/4096-10        	    7101	     16996 ns/op	 240.99 MB/s	   39616 B/op	      13 allocs/op
+BenchmarkPublicRedactorLongBoundary/4096-10        	    7190	     16919 ns/op	 242.09 MB/s	   39616 B/op	      13 allocs/op
+BenchmarkPublicRedactorLongBoundary/65536-10       	     438	    274161 ns/op	 239.04 MB/s	  744129 B/op	      23 allocs/op
+BenchmarkPublicRedactorLongBoundary/65536-10       	     432	    274733 ns/op	 238.54 MB/s	  744129 B/op	      23 allocs/op
+BenchmarkPublicRedactorLongBoundary/65536-10       	     433	    275384 ns/op	 237.98 MB/s	  744130 B/op	      23 allocs/op
+BenchmarkPublicRedactorLongBoundary/65536-10       	     435	    276039 ns/op	 237.42 MB/s	  744130 B/op	      23 allocs/op
+BenchmarkPublicRedactorLongBoundary/65536-10       	     436	    276165 ns/op	 237.31 MB/s	  744130 B/op	      23 allocs/op
+BenchmarkPublicRedactorLongBoundary/65536-10       	     436	    275254 ns/op	 238.09 MB/s	  744129 B/op	      23 allocs/op
+BenchmarkPublicRedactorLongBoundary/65536-10       	     436	    274963 ns/op	 238.35 MB/s	  744129 B/op	      23 allocs/op
+BenchmarkPublicRedactorLongBoundary/65536-10       	     433	    275192 ns/op	 238.15 MB/s	  744129 B/op	      23 allocs/op
+BenchmarkPublicRedactorLongBoundary/65536-10       	     436	    277892 ns/op	 235.83 MB/s	  744130 B/op	      23 allocs/op
+BenchmarkPublicRedactorLongBoundary/65536-10       	     438	    274798 ns/op	 238.49 MB/s	  744130 B/op	      23 allocs/op
+PASS
+ok  	github.com/gatework/go-expect	5.707s

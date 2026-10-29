@@ -1,0 +1,300 @@
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkPublicRedactor/no_rules/chunk_1-4         	    6399	     15997 ns/op	  64.01 MB/s	    8192 B/op	    1024 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_32-4        	  320737	       377.8 ns/op	2710.15 MB/s	    1024 B/op	      32 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_1024-4      	 1324749	        90.69 ns/op	11291.01 MB/s	    1024 B/op	       1 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1-4             	    3711	     31096 ns/op	  32.93 MB/s	    1056 B/op	    1022 allocs/op
+BenchmarkPublicRedactor/safe/chunk_32-4            	   76398	      1569 ns/op	 652.49 MB/s	    1048 B/op	      35 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1024-4          	  789560	       160.4 ns/op	6383.76 MB/s	    1048 B/op	       4 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1-4          	    5708	     21021 ns/op	  45.67 MB/s	    2080 B/op	     259 allocs/op
+BenchmarkPublicRedactor/matches/chunk_32-4         	   28204	      4214 ns/op	 227.79 MB/s	    6232 B/op	     182 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1024-4       	   51021	      2356 ns/op	 407.49 MB/s	    4520 B/op	       8 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1-4         	    4792	     25730 ns/op	  38.86 MB/s	    3216 B/op	     404 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_32-4        	   14684	      8161 ns/op	 122.54 MB/s	    6144 B/op	     194 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1024-4      	   14317	      8362 ns/op	 119.59 MB/s	    6928 B/op	       8 allocs/op
+BenchmarkRedactorRetainedTail-4                    	    1857	     59431 ns/op	17643.61 MB/s	        10.00 tail-cap-B	 1048625 B/op	       5 allocs/op
+BenchmarkPublicRedactorLongBoundary/32-4           	  902085	       132.1 ns/op	 242.26 MB/s	      32 B/op	       1 allocs/op
+BenchmarkPublicRedactorLongBoundary/256-4          	  205418	       573.5 ns/op	 446.37 MB/s	     256 B/op	       1 allocs/op
+BenchmarkPublicRedactorLongBoundary/4096-4         	   14043	      8448 ns/op	 484.83 MB/s	    4096 B/op	       1 allocs/op
+BenchmarkPublicRedactorLongBoundary/65536-4        	     889	    134311 ns/op	 487.94 MB/s	   65536 B/op	       1 allocs/op
+BenchmarkPublicRedactorDenseLong/256-4             	   20643	      5800 ns/op	 176.54 MB/s	    3456 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/1024-4            	   13624	      8793 ns/op	 465.80 MB/s	   13440 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/4096-4            	    3537	     34200 ns/op	 479.07 MB/s	   54528 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/16384-4           	     886	    135097 ns/op	 485.10 MB/s	  221184 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/65536-4           	     220	    544620 ns/op	 481.33 MB/s	  860162 B/op	       5 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/257-4        	 6937534	        16.92 ns/op	  59.11 MB/s	       0 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/4096-4       	 7227789	        16.70 ns/op	  59.87 MB/s	       0 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/65536-4      	 7260405	        16.61 ns/op	  60.22 MB/s	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkPublicRedactor/no_rules/chunk_1-4         	    9745	     11555 ns/op	  88.62 MB/s	    8192 B/op	    1024 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_32-4        	  284752	       385.0 ns/op	2659.66 MB/s	    1024 B/op	      32 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_1024-4      	 1363124	        88.44 ns/op	11578.66 MB/s	    1024 B/op	       1 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1-4             	    3762	     32062 ns/op	  31.94 MB/s	    1056 B/op	    1022 allocs/op
+BenchmarkPublicRedactor/safe/chunk_32-4            	   72525	      1592 ns/op	 643.01 MB/s	    1048 B/op	      35 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1024-4          	  796459	       159.2 ns/op	6434.13 MB/s	    1048 B/op	       4 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1-4          	    5727	     21026 ns/op	  45.66 MB/s	    2080 B/op	     259 allocs/op
+BenchmarkPublicRedactor/matches/chunk_32-4         	   28514	      4210 ns/op	 228.03 MB/s	    6232 B/op	     182 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1024-4       	   50965	      2358 ns/op	 407.10 MB/s	    4520 B/op	       8 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1-4         	    4604	     25886 ns/op	  38.63 MB/s	    3216 B/op	     404 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_32-4        	   14635	      8176 ns/op	 122.31 MB/s	    6144 B/op	     194 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1024-4      	   14370	      8323 ns/op	 120.15 MB/s	    6928 B/op	       8 allocs/op
+BenchmarkRedactorRetainedTail-4                    	    2047	     57819 ns/op	18135.57 MB/s	        10.00 tail-cap-B	 1048623 B/op	       5 allocs/op
+BenchmarkPublicRedactorLongBoundary/32-4           	  869775	       134.2 ns/op	 238.50 MB/s	      32 B/op	       1 allocs/op
+BenchmarkPublicRedactorLongBoundary/256-4          	  226537	       533.1 ns/op	 480.19 MB/s	     256 B/op	       1 allocs/op
+BenchmarkPublicRedactorLongBoundary/4096-4         	   14826	      8121 ns/op	 504.37 MB/s	    4096 B/op	       1 allocs/op
+BenchmarkPublicRedactorLongBoundary/65536-4        	     904	    131397 ns/op	 498.76 MB/s	   65536 B/op	       1 allocs/op
+BenchmarkPublicRedactorDenseLong/256-4             	   20433	      5889 ns/op	 173.89 MB/s	    3456 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/1024-4            	   13755	      8752 ns/op	 468.01 MB/s	   13440 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/4096-4            	    3546	     34176 ns/op	 479.40 MB/s	   54528 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/16384-4           	     873	    136792 ns/op	 479.09 MB/s	  221184 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/65536-4           	     217	    549619 ns/op	 476.96 MB/s	  860162 B/op	       5 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/257-4        	 6863270	        17.19 ns/op	  58.19 MB/s	       0 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/4096-4       	 6940377	        17.14 ns/op	  58.36 MB/s	       0 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/65536-4      	 7056402	        17.17 ns/op	  58.24 MB/s	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkPublicRedactor/no_rules/chunk_1-4         	    9252	     12891 ns/op	  79.44 MB/s	    8192 B/op	    1024 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_32-4        	  249936	       449.0 ns/op	2280.60 MB/s	    1024 B/op	      32 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_1024-4      	 1219996	        97.76 ns/op	10474.29 MB/s	    1024 B/op	       1 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1-4             	    3328	     34809 ns/op	  29.42 MB/s	    1056 B/op	    1022 allocs/op
+BenchmarkPublicRedactor/safe/chunk_32-4            	   65394	      1772 ns/op	 577.88 MB/s	    1048 B/op	      35 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1024-4          	  698503	       184.0 ns/op	5564.13 MB/s	    1048 B/op	       4 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1-4          	    5299	     23109 ns/op	  41.54 MB/s	    2080 B/op	     259 allocs/op
+BenchmarkPublicRedactor/matches/chunk_32-4         	   26620	      4507 ns/op	 213.02 MB/s	    6232 B/op	     182 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1024-4       	   48589	      2575 ns/op	 372.83 MB/s	    4520 B/op	       8 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1-4         	    4004	     27613 ns/op	  36.21 MB/s	    3216 B/op	     404 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_32-4        	   13864	      8594 ns/op	 116.36 MB/s	    6144 B/op	     194 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1024-4      	   13612	      8771 ns/op	 114.01 MB/s	    6928 B/op	       8 allocs/op
+BenchmarkRedactorRetainedTail-4                    	    1939	     57166 ns/op	18342.66 MB/s	        10.00 tail-cap-B	 1048623 B/op	       5 allocs/op
+BenchmarkPublicRedactorLongBoundary/32-4           	  869380	       142.2 ns/op	 225.08 MB/s	      32 B/op	       1 allocs/op
+BenchmarkPublicRedactorLongBoundary/256-4          	  190987	       591.6 ns/op	 432.74 MB/s	     256 B/op	       1 allocs/op
+BenchmarkPublicRedactorLongBoundary/4096-4         	   14150	      8388 ns/op	 488.30 MB/s	    4096 B/op	       1 allocs/op
+BenchmarkPublicRedactorLongBoundary/65536-4        	     944	    129942 ns/op	 504.35 MB/s	   65536 B/op	       1 allocs/op
+BenchmarkPublicRedactorDenseLong/256-4             	   19873	      6199 ns/op	 165.18 MB/s	    3456 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/1024-4            	   12694	      9423 ns/op	 434.66 MB/s	   13440 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/4096-4            	    3312	     36329 ns/op	 450.98 MB/s	   54528 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/16384-4           	     829	    156084 ns/op	 419.88 MB/s	  221184 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/65536-4           	     201	    577134 ns/op	 454.22 MB/s	  860161 B/op	       5 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/257-4        	 6284778	        19.49 ns/op	  51.32 MB/s	       0 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/4096-4       	 6121459	        18.95 ns/op	  52.77 MB/s	       0 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/65536-4      	 6397923	        18.77 ns/op	  53.28 MB/s	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkPublicRedactor/no_rules/chunk_1-4         	    9012	     12168 ns/op	  84.15 MB/s	    8192 B/op	    1024 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_32-4        	  294876	       405.6 ns/op	2524.61 MB/s	    1024 B/op	      32 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_1024-4      	 1334619	        90.14 ns/op	11360.28 MB/s	    1024 B/op	       1 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1-4             	    3606	     34866 ns/op	  29.37 MB/s	    1056 B/op	    1022 allocs/op
+BenchmarkPublicRedactor/safe/chunk_32-4            	   68180	      1747 ns/op	 586.18 MB/s	    1048 B/op	      35 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1024-4          	  717936	       183.9 ns/op	5568.37 MB/s	    1048 B/op	       4 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1-4          	    5241	     22586 ns/op	  42.50 MB/s	    2080 B/op	     259 allocs/op
+BenchmarkPublicRedactor/matches/chunk_32-4         	   27704	      4302 ns/op	 223.14 MB/s	    6232 B/op	     182 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1024-4       	   46524	      2706 ns/op	 354.82 MB/s	    4520 B/op	       8 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1-4         	    4468	     28030 ns/op	  35.68 MB/s	    3216 B/op	     404 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_32-4        	   14056	      8646 ns/op	 115.67 MB/s	    6144 B/op	     194 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1024-4      	   13598	      8800 ns/op	 113.64 MB/s	    6928 B/op	       8 allocs/op
+BenchmarkRedactorRetainedTail-4                    	    2038	     64013 ns/op	16380.81 MB/s	        10.00 tail-cap-B	 1048623 B/op	       5 allocs/op
+BenchmarkPublicRedactorLongBoundary/32-4           	  855157	       145.1 ns/op	 220.46 MB/s	      32 B/op	       1 allocs/op
+BenchmarkPublicRedactorLongBoundary/256-4          	  183309	       619.9 ns/op	 413.00 MB/s	     256 B/op	       1 allocs/op
+BenchmarkPublicRedactorLongBoundary/4096-4         	   12654	      9479 ns/op	 432.09 MB/s	    4096 B/op	       1 allocs/op
+BenchmarkPublicRedactorLongBoundary/65536-4        	     802	    148518 ns/op	 441.27 MB/s	   65536 B/op	       1 allocs/op
+BenchmarkPublicRedactorDenseLong/256-4             	   18213	      6567 ns/op	 155.94 MB/s	    3456 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/1024-4            	   12037	      9951 ns/op	 411.60 MB/s	   13440 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/4096-4            	    3141	     37599 ns/op	 435.75 MB/s	   54528 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/16384-4           	     817	    148790 ns/op	 440.46 MB/s	  221191 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/65536-4           	     201	    605936 ns/op	 432.63 MB/s	  860163 B/op	       5 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/257-4        	 5471197	        20.51 ns/op	  48.75 MB/s	       0 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/4096-4       	 6146005	        19.33 ns/op	  51.74 MB/s	       0 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/65536-4      	 6273183	        19.46 ns/op	  51.38 MB/s	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkPublicRedactor/no_rules/chunk_1-4         	    9793	     11962 ns/op	  85.61 MB/s	    8192 B/op	    1024 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_32-4        	  311088	       385.5 ns/op	2656.05 MB/s	    1024 B/op	      32 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_1024-4      	 1364599	        87.90 ns/op	11650.24 MB/s	    1024 B/op	       1 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1-4             	    3667	     32045 ns/op	  31.95 MB/s	    1056 B/op	    1022 allocs/op
+BenchmarkPublicRedactor/safe/chunk_32-4            	   76657	      1556 ns/op	 657.93 MB/s	    1048 B/op	      35 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1024-4          	  801111	       160.1 ns/op	6396.89 MB/s	    1048 B/op	       4 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1-4          	    5444	     21459 ns/op	  44.74 MB/s	    2080 B/op	     259 allocs/op
+BenchmarkPublicRedactor/matches/chunk_32-4         	   28898	      4137 ns/op	 232.03 MB/s	    6232 B/op	     182 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1024-4       	   51289	      2408 ns/op	 398.65 MB/s	    4520 B/op	       8 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1-4         	    4532	     28023 ns/op	  35.69 MB/s	    3216 B/op	     404 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_32-4        	   13777	      8691 ns/op	 115.06 MB/s	    6144 B/op	     194 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1024-4      	   14192	      8452 ns/op	 118.32 MB/s	    6928 B/op	       8 allocs/op
+BenchmarkRedactorRetainedTail-4                    	    1863	     60844 ns/op	17234.00 MB/s	        10.00 tail-cap-B	 1048624 B/op	       5 allocs/op
+BenchmarkPublicRedactorLongBoundary/32-4           	  885091	       140.5 ns/op	 227.80 MB/s	      32 B/op	       1 allocs/op
+BenchmarkPublicRedactorLongBoundary/256-4          	  205020	       572.3 ns/op	 447.30 MB/s	     256 B/op	       1 allocs/op
+BenchmarkPublicRedactorLongBoundary/4096-4         	   14366	      8489 ns/op	 482.49 MB/s	    4096 B/op	       1 allocs/op
+BenchmarkPublicRedactorLongBoundary/65536-4        	     842	    137505 ns/op	 476.61 MB/s	   65536 B/op	       1 allocs/op
+BenchmarkPublicRedactorDenseLong/256-4             	   18763	      6367 ns/op	 160.83 MB/s	    3456 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/1024-4            	   13245	      9008 ns/op	 454.71 MB/s	   13440 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/4096-4            	    3495	     34399 ns/op	 476.29 MB/s	   54528 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/16384-4           	     873	    136220 ns/op	 481.11 MB/s	  221184 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/65536-4           	     214	    560136 ns/op	 468.00 MB/s	  860161 B/op	       5 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/257-4        	 6798337	        18.89 ns/op	  52.93 MB/s	       0 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/4096-4       	 6404824	        18.66 ns/op	  53.59 MB/s	       0 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/65536-4      	 6370228	        18.64 ns/op	  53.66 MB/s	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkPublicRedactor/no_rules/chunk_1-4         	    8973	     12307 ns/op	  83.20 MB/s	    8192 B/op	    1024 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_32-4        	  295800	       408.0 ns/op	2509.72 MB/s	    1024 B/op	      32 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_1024-4      	 1291180	        93.58 ns/op	10942.99 MB/s	    1024 B/op	       1 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1-4             	    3579	     33647 ns/op	  30.43 MB/s	    1056 B/op	    1022 allocs/op
+BenchmarkPublicRedactor/safe/chunk_32-4            	   70166	      1637 ns/op	 625.37 MB/s	    1048 B/op	      35 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1024-4          	  783075	       174.8 ns/op	5856.60 MB/s	    1048 B/op	       4 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1-4          	    5290	     22700 ns/op	  42.29 MB/s	    2080 B/op	     259 allocs/op
+BenchmarkPublicRedactor/matches/chunk_32-4         	   26696	      4474 ns/op	 214.56 MB/s	    6232 B/op	     182 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1024-4       	   50067	      2442 ns/op	 393.06 MB/s	    4520 B/op	       8 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1-4         	    4431	     27384 ns/op	  36.52 MB/s	    3216 B/op	     404 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_32-4        	   13683	      8784 ns/op	 113.84 MB/s	    6144 B/op	     194 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1024-4      	   13485	      8880 ns/op	 112.62 MB/s	    6928 B/op	       8 allocs/op
+BenchmarkRedactorRetainedTail-4                    	    1790	     56138 ns/op	18678.56 MB/s	        10.00 tail-cap-B	 1048623 B/op	       5 allocs/op
+BenchmarkPublicRedactorLongBoundary/32-4           	  874156	       142.0 ns/op	 225.33 MB/s	      32 B/op	       1 allocs/op
+BenchmarkPublicRedactorLongBoundary/256-4          	  212706	       571.4 ns/op	 448.01 MB/s	     256 B/op	       1 allocs/op
+BenchmarkPublicRedactorLongBoundary/4096-4         	   13810	      8725 ns/op	 469.43 MB/s	    4096 B/op	       1 allocs/op
+BenchmarkPublicRedactorLongBoundary/65536-4        	     859	    136541 ns/op	 479.97 MB/s	   65536 B/op	       1 allocs/op
+BenchmarkPublicRedactorDenseLong/256-4             	   18752	      6299 ns/op	 162.57 MB/s	    3456 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/1024-4            	   12667	      9437 ns/op	 434.03 MB/s	   13440 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/4096-4            	    3182	     37000 ns/op	 442.81 MB/s	   54528 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/16384-4           	     818	    146579 ns/op	 447.10 MB/s	  221184 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/65536-4           	     204	    579585 ns/op	 452.30 MB/s	  860165 B/op	       5 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/257-4        	 6582856	        19.77 ns/op	  50.59 MB/s	       0 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/4096-4       	 6058539	        19.45 ns/op	  51.42 MB/s	       0 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/65536-4      	 6284668	        19.00 ns/op	  52.62 MB/s	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkPublicRedactor/no_rules/chunk_1-4         	    9710	     11385 ns/op	  89.94 MB/s	    8192 B/op	    1024 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_32-4        	  327499	       381.9 ns/op	2681.26 MB/s	    1024 B/op	      32 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_1024-4      	 1370991	        87.84 ns/op	11657.43 MB/s	    1024 B/op	       1 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1-4             	    3868	     31095 ns/op	  32.93 MB/s	    1056 B/op	    1022 allocs/op
+BenchmarkPublicRedactor/safe/chunk_32-4            	   76044	      1537 ns/op	 666.12 MB/s	    1048 B/op	      35 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1024-4          	  786669	       164.8 ns/op	6213.85 MB/s	    1048 B/op	       4 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1-4          	    5674	     20950 ns/op	  45.82 MB/s	    2080 B/op	     259 allocs/op
+BenchmarkPublicRedactor/matches/chunk_32-4         	   28819	      4122 ns/op	 232.90 MB/s	    6232 B/op	     182 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1024-4       	   50412	      2354 ns/op	 407.75 MB/s	    4520 B/op	       8 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1-4         	    4754	     25612 ns/op	  39.04 MB/s	    3216 B/op	     404 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_32-4        	   14858	      8106 ns/op	 123.36 MB/s	    6144 B/op	     194 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1024-4      	   14427	      8310 ns/op	 120.33 MB/s	    6928 B/op	       8 allocs/op
+BenchmarkRedactorRetainedTail-4                    	    2107	     54910 ns/op	19096.16 MB/s	        10.00 tail-cap-B	 1048624 B/op	       5 allocs/op
+BenchmarkPublicRedactorLongBoundary/32-4           	  889959	       131.8 ns/op	 242.71 MB/s	      32 B/op	       1 allocs/op
+BenchmarkPublicRedactorLongBoundary/256-4          	  191050	       565.7 ns/op	 452.50 MB/s	     256 B/op	       1 allocs/op
+BenchmarkPublicRedactorLongBoundary/4096-4         	   14349	      8358 ns/op	 490.04 MB/s	    4096 B/op	       1 allocs/op
+BenchmarkPublicRedactorLongBoundary/65536-4        	     852	    134750 ns/op	 486.35 MB/s	   65536 B/op	       1 allocs/op
+BenchmarkPublicRedactorDenseLong/256-4             	   20217	      5908 ns/op	 173.32 MB/s	    3456 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/1024-4            	   13791	      8680 ns/op	 471.88 MB/s	   13440 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/4096-4            	    3558	     33878 ns/op	 483.62 MB/s	   54528 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/16384-4           	     885	    136373 ns/op	 480.56 MB/s	  221184 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/65536-4           	     217	    548783 ns/op	 477.68 MB/s	  860162 B/op	       5 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/257-4        	 6862142	        17.34 ns/op	  57.68 MB/s	       0 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/4096-4       	 6252456	        18.78 ns/op	  53.25 MB/s	       0 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/65536-4      	 6731157	        17.87 ns/op	  55.97 MB/s	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkPublicRedactor/no_rules/chunk_1-4         	    9178	     12221 ns/op	  83.79 MB/s	    8192 B/op	    1024 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_32-4        	  316681	       382.1 ns/op	2679.64 MB/s	    1024 B/op	      32 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_1024-4      	 1298256	        90.97 ns/op	11255.85 MB/s	    1024 B/op	       1 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1-4             	    3758	     31063 ns/op	  32.97 MB/s	    1056 B/op	    1022 allocs/op
+BenchmarkPublicRedactor/safe/chunk_32-4            	   75406	      1580 ns/op	 648.06 MB/s	    1048 B/op	      35 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1024-4          	  793737	       160.5 ns/op	6380.92 MB/s	    1048 B/op	       4 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1-4          	    5598	     21145 ns/op	  45.40 MB/s	    2080 B/op	     259 allocs/op
+BenchmarkPublicRedactor/matches/chunk_32-4         	   28852	      4164 ns/op	 230.53 MB/s	    6232 B/op	     182 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1024-4       	   51464	      2346 ns/op	 409.27 MB/s	    4520 B/op	       8 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1-4         	    4774	     26001 ns/op	  38.46 MB/s	    3216 B/op	     404 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_32-4        	   14637	      8185 ns/op	 122.17 MB/s	    6144 B/op	     194 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1024-4      	   14331	      8354 ns/op	 119.70 MB/s	    6928 B/op	       8 allocs/op
+BenchmarkRedactorRetainedTail-4                    	    2058	     59111 ns/op	17739.11 MB/s	        10.00 tail-cap-B	 1048627 B/op	       5 allocs/op
+BenchmarkPublicRedactorLongBoundary/32-4           	  878316	       136.8 ns/op	 233.99 MB/s	      32 B/op	       1 allocs/op
+BenchmarkPublicRedactorLongBoundary/256-4          	  200863	       543.0 ns/op	 471.48 MB/s	     256 B/op	       1 allocs/op
+BenchmarkPublicRedactorLongBoundary/4096-4         	   14618	      8204 ns/op	 499.25 MB/s	    4096 B/op	       1 allocs/op
+BenchmarkPublicRedactorLongBoundary/65536-4        	     910	    132113 ns/op	 496.06 MB/s	   65536 B/op	       1 allocs/op
+BenchmarkPublicRedactorDenseLong/256-4             	   20098	      6063 ns/op	 168.90 MB/s	    3456 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/1024-4            	   13516	      8804 ns/op	 465.22 MB/s	   13440 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/4096-4            	    3715	     33932 ns/op	 482.85 MB/s	   54528 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/16384-4           	     912	    131580 ns/op	 498.07 MB/s	  221184 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/65536-4           	     224	    534674 ns/op	 490.29 MB/s	  860162 B/op	       5 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/257-4        	 6896040	        18.00 ns/op	  55.54 MB/s	       0 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/4096-4       	 6629512	        18.04 ns/op	  55.44 MB/s	       0 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/65536-4      	 6705673	        18.19 ns/op	  54.99 MB/s	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkPublicRedactor/no_rules/chunk_1-4         	   10778	     11050 ns/op	  92.67 MB/s	    8192 B/op	    1024 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_32-4        	  322093	       376.1 ns/op	2722.67 MB/s	    1024 B/op	      32 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_1024-4      	 1333012	        89.25 ns/op	11473.45 MB/s	    1024 B/op	       1 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1-4             	    3782	     30787 ns/op	  33.26 MB/s	    1056 B/op	    1022 allocs/op
+BenchmarkPublicRedactor/safe/chunk_32-4            	   76825	      1557 ns/op	 657.51 MB/s	    1048 B/op	      35 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1024-4          	  813375	       159.2 ns/op	6433.60 MB/s	    1048 B/op	       4 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1-4          	    4921	     21969 ns/op	  43.70 MB/s	    2080 B/op	     259 allocs/op
+BenchmarkPublicRedactor/matches/chunk_32-4         	   27922	      4221 ns/op	 227.45 MB/s	    6232 B/op	     182 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1024-4       	   51273	      2399 ns/op	 400.17 MB/s	    4520 B/op	       8 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1-4         	    4675	     25573 ns/op	  39.10 MB/s	    3216 B/op	     404 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_32-4        	   14758	      8171 ns/op	 122.38 MB/s	    6144 B/op	     194 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1024-4      	   13975	      8575 ns/op	 116.62 MB/s	    6928 B/op	       8 allocs/op
+BenchmarkRedactorRetainedTail-4                    	    2114	     55789 ns/op	18795.27 MB/s	        10.00 tail-cap-B	 1048623 B/op	       5 allocs/op
+BenchmarkPublicRedactorLongBoundary/32-4           	  826944	       132.8 ns/op	 240.91 MB/s	      32 B/op	       1 allocs/op
+BenchmarkPublicRedactorLongBoundary/256-4          	  206572	       544.8 ns/op	 469.86 MB/s	     256 B/op	       1 allocs/op
+BenchmarkPublicRedactorLongBoundary/4096-4         	   14655	      8197 ns/op	 499.71 MB/s	    4096 B/op	       1 allocs/op
+BenchmarkPublicRedactorLongBoundary/65536-4        	     913	    132301 ns/op	 495.35 MB/s	   65536 B/op	       1 allocs/op
+BenchmarkPublicRedactorDenseLong/256-4             	   20383	      5897 ns/op	 173.63 MB/s	    3456 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/1024-4            	   13698	      8753 ns/op	 467.96 MB/s	   13440 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/4096-4            	    3558	     34370 ns/op	 476.70 MB/s	   54528 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/16384-4           	     860	    136889 ns/op	 478.75 MB/s	  221184 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/65536-4           	     225	    526865 ns/op	 497.55 MB/s	  860161 B/op	       5 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/257-4        	 7011068	        17.88 ns/op	  55.93 MB/s	       0 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/4096-4       	 6800841	        17.52 ns/op	  57.08 MB/s	       0 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/65536-4      	 7059324	        17.55 ns/op	  56.97 MB/s	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkPublicRedactor/no_rules/chunk_1-4         	    9400	     11930 ns/op	  85.83 MB/s	    8192 B/op	    1024 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_32-4        	  308770	       397.1 ns/op	2578.60 MB/s	    1024 B/op	      32 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_1024-4      	 1000000	       129.1 ns/op	7933.60 MB/s	    1024 B/op	       1 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1-4             	    3872	     32624 ns/op	  31.39 MB/s	    1056 B/op	    1022 allocs/op
+BenchmarkPublicRedactor/safe/chunk_32-4            	   71829	      1623 ns/op	 631.01 MB/s	    1048 B/op	      35 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1024-4          	  804019	       159.1 ns/op	6435.45 MB/s	    1048 B/op	       4 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1-4          	    5670	     20925 ns/op	  45.88 MB/s	    2080 B/op	     259 allocs/op
+BenchmarkPublicRedactor/matches/chunk_32-4         	   28533	      4138 ns/op	 231.98 MB/s	    6232 B/op	     182 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1024-4       	   51711	      2329 ns/op	 412.28 MB/s	    4520 B/op	       8 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1-4         	    4758	     25096 ns/op	  39.85 MB/s	    3216 B/op	     404 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_32-4        	   14877	      8066 ns/op	 123.98 MB/s	    6144 B/op	     194 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1024-4      	   14427	      8353 ns/op	 119.72 MB/s	    6928 B/op	       8 allocs/op
+BenchmarkRedactorRetainedTail-4                    	    2018	     57263 ns/op	18311.59 MB/s	        10.00 tail-cap-B	 1048624 B/op	       5 allocs/op
+BenchmarkPublicRedactorLongBoundary/32-4           	  893743	       132.1 ns/op	 242.27 MB/s	      32 B/op	       1 allocs/op
+BenchmarkPublicRedactorLongBoundary/256-4          	  226219	       532.9 ns/op	 480.37 MB/s	     256 B/op	       1 allocs/op
+BenchmarkPublicRedactorLongBoundary/4096-4         	   12348	      9341 ns/op	 438.48 MB/s	    4096 B/op	       1 allocs/op
+BenchmarkPublicRedactorLongBoundary/65536-4        	     932	    128686 ns/op	 509.27 MB/s	   65536 B/op	       1 allocs/op
+BenchmarkPublicRedactorDenseLong/256-4             	   20330	      5905 ns/op	 173.40 MB/s	    3456 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/1024-4            	   13911	      8686 ns/op	 471.56 MB/s	   13440 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/4096-4            	    3477	     34112 ns/op	 480.31 MB/s	   54528 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/16384-4           	     884	    135440 ns/op	 483.87 MB/s	  221184 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/65536-4           	     220	    547088 ns/op	 479.16 MB/s	  860161 B/op	       5 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/257-4        	 7036437	        19.23 ns/op	  52.00 MB/s	       0 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/4096-4       	 6732715	        17.24 ns/op	  58.00 MB/s	       0 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/65536-4      	 6941296	        17.11 ns/op	  58.45 MB/s	       0 B/op	       0 allocs/op
+PASS

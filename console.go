@@ -132,10 +132,7 @@ type ptyTransport struct {
 
 func (p *ptyTransport) Read(b []byte) (int, error) {
 	n, err := p.master.Read(b)
-	if errors.Is(err, unix.EIO) {
-		err = io.EOF
-	}
-	return n, err
+	return n, p.NormalizeReadError(err)
 }
 func (p *ptyTransport) Write(b []byte) (int, error) { return p.master.Write(b) }
 func (p *ptyTransport) Close() error {
@@ -154,7 +151,10 @@ func (p *ptyTransport) Close() error {
 }
 
 func (p *ptyTransport) SyscallConn() (syscall.RawConn, error) { return p.master.SyscallConn() }
-func (p *ptyTransport) normalizeReadError(err error) error {
+func (p *ptyTransport) SetReadDeadline(deadline time.Time) error {
+	return p.master.SetReadDeadline(deadline)
+}
+func (p *ptyTransport) NormalizeReadError(err error) error {
 	if errors.Is(err, unix.EIO) {
 		return io.EOF
 	}

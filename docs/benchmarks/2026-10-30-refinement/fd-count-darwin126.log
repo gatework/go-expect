@@ -1,0 +1,22 @@
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkOSIdlePopulation/1-10  	       1	  50463208 ns/op	     34625 close-p50-ns	     34625 close-p95-ns	      4269 cpu-ns/session-ms	         2.000 fd-delta	    264459 poll-p50-ns	    264459 poll-p95-ns	      2168 retained-B/session	         0 thread-delta	        10.00 threads
+BenchmarkOSIdlePopulation/1-10  	       1	  51047500 ns/op	     33042 close-p50-ns	     33042 close-p95-ns	      4996 cpu-ns/session-ms	         2.000 fd-delta	    125959 poll-p50-ns	    125959 poll-p95-ns	      1672 retained-B/session	         0 thread-delta	        10.00 threads
+BenchmarkOSIdlePopulation/64-10 	       1	  51021791 ns/op	      4042 close-p50-ns	      6125 close-p95-ns	        47.36 cpu-ns/session-ms	       128.0 fd-delta	     29167 poll-p50-ns	     56459 poll-p95-ns	      2166 retained-B/session	         1.000 thread-delta	        11.00 threads
+BenchmarkOSIdlePopulation/64-10 	       1	  51055875 ns/op	      5375 close-p50-ns	      7625 close-p95-ns	       106.2 cpu-ns/session-ms	       128.0 fd-delta	     37042 poll-p50-ns	     47625 poll-p95-ns	      1958 retained-B/session	         0 thread-delta	        11.00 threads
+BenchmarkOSIdlePopulation/256-10         	       1	  51073958 ns/op	      7042 close-p50-ns	     14500 close-p95-ns	        30.08 cpu-ns/session-ms	       512.0 fd-delta	     51750 poll-p50-ns	     85958 poll-p95-ns	      2076 retained-B/session	         1.000 thread-delta	        12.00 threads
+BenchmarkOSIdlePopulation/256-10         	       1	  50884333 ns/op	      6542 close-p50-ns	      9084 close-p95-ns	        37.24 cpu-ns/session-ms	       512.0 fd-delta	     49958 poll-p50-ns	     79584 poll-p95-ns	      1691 retained-B/session	         0 thread-delta	        12.00 threads
+BenchmarkOSIdlePopulation/1024-10        	       1	  51058041 ns/op	      3875 close-p50-ns	      6750 close-p95-ns	         5.944 cpu-ns/session-ms	      2048 fd-delta	     43458 poll-p50-ns	    112000 poll-p95-ns	      1940 retained-B/session	         0 thread-delta	        12.00 threads
+BenchmarkOSIdlePopulation/1024-10        	       1	  51047417 ns/op	      2416 close-p50-ns	      4375 close-p95-ns	         3.436 cpu-ns/session-ms	      2048 fd-delta	     31750 poll-p50-ns	     41708 poll-p95-ns	      1732 retained-B/session	         0 thread-delta	        12.00 threads
+BenchmarkOSIdleHeap/1-10                 	       1	  51039167 ns/op	      2719 cpu-ns/session-ms	         2.000 fd-delta	      1672 retained-B/session	         1.000 thread-delta	        13.00 threads
+BenchmarkOSIdleHeap/1-10                 	       1	  51056000 ns/op	      3906 cpu-ns/session-ms	         2.000 fd-delta	      1672 retained-B/session	         0 thread-delta	        13.00 threads
+BenchmarkOSIdleHeap/64-10                	       1	  51054750 ns/op	        74.15 cpu-ns/session-ms	       128.0 fd-delta	      1587 retained-B/session	         0 thread-delta	        13.00 threads
+BenchmarkOSIdleHeap/64-10                	       1	  51044500 ns/op	       140.7 cpu-ns/session-ms	       128.0 fd-delta	      1587 retained-B/session	         0 thread-delta	        13.00 threads
+BenchmarkOSIdleHeap/256-10               	       1	  51028208 ns/op	        38.69 cpu-ns/session-ms	       512.0 fd-delta	      1588 retained-B/session	         0 thread-delta	        13.00 threads
+BenchmarkOSIdleHeap/256-10               	       1	  51042333 ns/op	        37.38 cpu-ns/session-ms	       512.0 fd-delta	      1588 retained-B/session	         0 thread-delta	        13.00 threads
+BenchmarkOSIdleHeap/1024-10              	       1	  50595958 ns/op	         7.781 cpu-ns/session-ms	      2048 fd-delta	      1588 retained-B/session	         0 thread-delta	        15.00 threads
+BenchmarkOSIdleHeap/1024-10              	       1	  51063917 ns/op	         6.758 cpu-ns/session-ms	      2048 fd-delta	      1588 retained-B/session	         0 thread-delta	        16.00 threads
+PASS
+ok  	github.com/gatework/go-expect	2.767s

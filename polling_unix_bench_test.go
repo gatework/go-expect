@@ -137,11 +137,18 @@ func benchmarkFDs(b *testing.B) int {
 	if runtime.GOOS == "linux" {
 		path = "/proc/self/fd"
 	}
-	entries, err := os.ReadDir(path)
+	directory, err := os.Open(path)
 	if err != nil {
 		b.Fatal(err)
 	}
-	return len(entries)
+	defer directory.Close()
+	// Descriptor entries may disappear during enumeration. Count names without
+	// statting them, which can fail with EBADF on Darwin's /dev/fd.
+	names, err := directory.Readdirnames(-1)
+	if err != nil {
+		b.Fatal(err)
+	}
+	return len(names)
 }
 
 func benchmarkThreads(b *testing.B) int {

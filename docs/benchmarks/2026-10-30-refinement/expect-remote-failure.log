@@ -1,0 +1,256 @@
+test (macos-15-intel, 1.26.x)	Run bash script/ci	﻿2026-10-30T11:47:44.5340700Z ##[group]Run bash script/ci
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:47:44.5342300Z ^[[36;1mbash script/ci^[[0m
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:47:44.5517270Z shell: /bin/bash -e {0}
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:47:44.5518260Z env:
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:47:44.5519440Z   GOTOOLCHAIN: local
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:47:44.5520780Z ##[endgroup]
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:47:45.2006280Z all modules verified
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:47:45.3017260Z go: downloading github.com/creack/pty v1.1.24
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:47:45.3100660Z go: downloading golang.org/x/sys v0.49.0
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:47:45.3138480Z go: downloading golang.org/x/term v0.47.0
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:47:45.3566890Z go: downloading go.uber.org/goleak v1.3.0
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:47:45.9526070Z go: downloading github.com/stretchr/testify v1.8.0
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:47:46.6095530Z go: downloading github.com/davecgh/go-spew v1.1.1
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:47:46.7434080Z go: downloading github.com/pmezard/go-difflib v1.0.0
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:47:46.9203420Z go: downloading gopkg.in/yaml.v3 v3.0.1
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:49:03.3863480Z ok  	github.com/gatework/go-expect	11.234s
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:49:03.3914800Z ?   	github.com/gatework/go-expect/examples/dialogue	[no test files]
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:49:03.3953410Z ok  	github.com/gatework/go-expect/expecttest	1.102s
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:49:37.9111970Z fuzz: elapsed: 0s, gathering baseline coverage: 0/1 completed
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:49:37.9682040Z fuzz: elapsed: 0s, gathering baseline coverage: 1/1 completed, now fuzzing with 2 workers
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:49:40.9628970Z fuzz: elapsed: 3s, execs: 9451 (3149/sec), new interesting: 19 (total: 20)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:49:42.4571250Z fuzz: elapsed: 5s, execs: 100000 (57571/sec), new interesting: 21 (total: 22)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:49:42.4790400Z PASS
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:49:42.4897870Z ok  	github.com/gatework/go-expect	4.595s
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:49:43.5204600Z fuzz: elapsed: 0s, gathering baseline coverage: 0/4 completed
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:49:43.6219000Z fuzz: elapsed: 0s, gathering baseline coverage: 4/4 completed, now fuzzing with 2 workers
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:49:46.5191240Z fuzz: elapsed: 3s, execs: 490 (163/sec), new interesting: 2 (total: 6)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:49:49.5029810Z fuzz: elapsed: 6s, execs: 50161 (16556/sec), new interesting: 4 (total: 8)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:49:52.5032160Z fuzz: elapsed: 9s, execs: 50161 (0/sec), new interesting: 4 (total: 8)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:49:55.5056240Z fuzz: elapsed: 12s, execs: 50161 (0/sec), new interesting: 4 (total: 8)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:49:58.5143350Z fuzz: elapsed: 15s, execs: 50161 (0/sec), new interesting: 4 (total: 8)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:50:01.6015840Z fuzz: elapsed: 18s, execs: 50161 (0/sec), new interesting: 4 (total: 8)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:50:04.5095270Z fuzz: elapsed: 21s, execs: 50161 (0/sec), new interesting: 4 (total: 8)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:50:07.1963950Z fuzz: elapsed: 24s, execs: 100000 (18558/sec), new interesting: 5 (total: 9)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:50:07.1990060Z PASS
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:50:07.2012930Z ok  	github.com/gatework/go-expect	23.707s
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:50:08.7178570Z fuzz: elapsed: 0s, gathering baseline coverage: 0/3 completed
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:50:08.7861890Z fuzz: elapsed: 0s, gathering baseline coverage: 3/3 completed, now fuzzing with 2 workers
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:50:11.7253450Z fuzz: elapsed: 3s, execs: 3959 (1319/sec), new interesting: 9 (total: 12)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:50:14.7448600Z fuzz: elapsed: 6s, execs: 3959 (0/sec), new interesting: 9 (total: 12)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:50:17.7656730Z fuzz: elapsed: 9s, execs: 3959 (0/sec), new interesting: 9 (total: 12)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:50:20.7625090Z fuzz: elapsed: 12s, execs: 3959 (0/sec), new interesting: 9 (total: 12)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:50:23.7277490Z fuzz: elapsed: 15s, execs: 50006 (15346/sec), new interesting: 10 (total: 13)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:50:26.7383770Z fuzz: elapsed: 18s, execs: 50006 (0/sec), new interesting: 10 (total: 13)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:50:29.7341970Z fuzz: elapsed: 21s, execs: 50006 (0/sec), new interesting: 10 (total: 13)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:50:32.4821200Z fuzz: elapsed: 24s, execs: 100000 (18206/sec), new interesting: 11 (total: 14)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:50:32.4905110Z PASS
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:50:32.4977350Z ok  	github.com/gatework/go-expect	23.793s
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:50:33.6325990Z fuzz: elapsed: 0s, gathering baseline coverage: 0/5 completed
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:50:33.6694450Z fuzz: elapsed: 0s, gathering baseline coverage: 5/5 completed, now fuzzing with 2 workers
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:50:36.6366830Z fuzz: elapsed: 3s, execs: 1142 (380/sec), new interesting: 3 (total: 8)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:50:39.6406630Z fuzz: elapsed: 6s, execs: 1142 (0/sec), new interesting: 3 (total: 8)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:50:42.6387820Z fuzz: elapsed: 9s, execs: 1142 (0/sec), new interesting: 3 (total: 8)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:50:45.6410140Z fuzz: elapsed: 12s, execs: 1142 (0/sec), new interesting: 3 (total: 8)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:50:48.6431910Z fuzz: elapsed: 15s, execs: 1142 (0/sec), new interesting: 3 (total: 8)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:50:51.6586930Z fuzz: elapsed: 18s, execs: 1142 (0/sec), new interesting: 3 (total: 8)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:50:54.6435660Z fuzz: elapsed: 21s, execs: 1142 (0/sec), new interesting: 3 (total: 8)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:50:57.6971030Z fuzz: elapsed: 24s, execs: 46154 (14995/sec), new interesting: 7 (total: 12)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:51:00.6468200Z fuzz: elapsed: 27s, execs: 46407 (84/sec), new interesting: 9 (total: 14)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:51:03.6466040Z fuzz: elapsed: 30s, execs: 46407 (0/sec), new interesting: 9 (total: 14)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:51:06.6688810Z fuzz: elapsed: 33s, execs: 46407 (0/sec), new interesting: 9 (total: 14)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:51:09.6656180Z fuzz: elapsed: 36s, execs: 50310 (1302/sec), new interesting: 10 (total: 15)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:51:12.6505450Z fuzz: elapsed: 39s, execs: 50310 (0/sec), new interesting: 10 (total: 15)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:51:15.7321310Z fuzz: elapsed: 42s, execs: 50310 (0/sec), new interesting: 10 (total: 15)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:51:18.6538450Z fuzz: elapsed: 45s, execs: 50310 (0/sec), new interesting: 10 (total: 15)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:51:21.6559450Z fuzz: elapsed: 48s, execs: 50310 (0/sec), new interesting: 10 (total: 15)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:51:24.6737690Z fuzz: elapsed: 51s, execs: 50310 (0/sec), new interesting: 10 (total: 15)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:51:27.6626840Z fuzz: elapsed: 54s, execs: 50310 (0/sec), new interesting: 10 (total: 15)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:51:30.6829700Z fuzz: elapsed: 57s, execs: 50310 (0/sec), new interesting: 10 (total: 15)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:51:33.6613310Z fuzz: elapsed: 1m0s, execs: 50310 (0/sec), new interesting: 10 (total: 15)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:51:36.6624860Z fuzz: elapsed: 1m3s, execs: 50311 (0/sec), new interesting: 11 (total: 16)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:51:39.7595800Z fuzz: elapsed: 1m6s, execs: 50311 (0/sec), new interesting: 11 (total: 16)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:51:42.6658970Z fuzz: elapsed: 1m9s, execs: 50311 (0/sec), new interesting: 11 (total: 16)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:51:45.6670600Z fuzz: elapsed: 1m12s, execs: 50311 (0/sec), new interesting: 11 (total: 16)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:51:48.6709440Z fuzz: elapsed: 1m15s, execs: 50311 (0/sec), new interesting: 11 (total: 16)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:51:51.6999040Z fuzz: elapsed: 1m18s, execs: 50311 (0/sec), new interesting: 11 (total: 16)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:51:54.6759570Z fuzz: elapsed: 1m21s, execs: 50311 (0/sec), new interesting: 11 (total: 16)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:51:57.6759140Z fuzz: elapsed: 1m24s, execs: 50311 (0/sec), new interesting: 11 (total: 16)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:52:00.6766180Z fuzz: elapsed: 1m27s, execs: 50311 (0/sec), new interesting: 11 (total: 16)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:52:03.7133170Z fuzz: elapsed: 1m30s, execs: 50311 (0/sec), new interesting: 11 (total: 16)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:52:06.6786200Z fuzz: elapsed: 1m33s, execs: 50311 (0/sec), new interesting: 11 (total: 16)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:52:09.6789590Z fuzz: elapsed: 1m36s, execs: 50311 (0/sec), new interesting: 11 (total: 16)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:52:12.6819840Z fuzz: elapsed: 1m39s, execs: 50311 (0/sec), new interesting: 11 (total: 16)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:52:14.2931620Z fuzz: elapsed: 1m41s, execs: 100000 (30847/sec), new interesting: 12 (total: 17)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:52:14.2954170Z PASS
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:52:14.2990360Z ok  	github.com/gatework/go-expect	100.648s
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:52:15.3710710Z fuzz: elapsed: 0s, gathering baseline coverage: 0/2 completed
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:52:15.4057040Z fuzz: elapsed: 0s, gathering baseline coverage: 2/2 completed, now fuzzing with 2 workers
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:52:18.4435110Z fuzz: elapsed: 3s, execs: 16378 (5456/sec), new interesting: 27 (total: 29)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:52:20.6595850Z fuzz: elapsed: 5s, execs: 100000 (36620/sec), new interesting: 29 (total: 31)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:52:20.6646130Z PASS
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:52:20.6710460Z ok  	github.com/gatework/go-expect	5.319s
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:52:21.5030330Z fuzz: elapsed: 0s, gathering baseline coverage: 0/2 completed
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:52:21.5687730Z fuzz: elapsed: 0s, gathering baseline coverage: 2/2 completed, now fuzzing with 2 workers
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:52:24.5819330Z fuzz: elapsed: 3s, execs: 9475 (3157/sec), new interesting: 19 (total: 21)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:52:27.5101030Z fuzz: elapsed: 6s, execs: 9475 (0/sec), new interesting: 19 (total: 21)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:52:30.5351200Z fuzz: elapsed: 9s, execs: 9475 (0/sec), new interesting: 19 (total: 21)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:52:33.5181800Z fuzz: elapsed: 12s, execs: 9475 (0/sec), new interesting: 19 (total: 21)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:52:36.5591530Z fuzz: elapsed: 15s, execs: 9475 (0/sec), new interesting: 19 (total: 21)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:52:39.5398500Z fuzz: elapsed: 18s, execs: 9475 (0/sec), new interesting: 19 (total: 21)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:52:42.5174920Z fuzz: elapsed: 21s, execs: 9475 (0/sec), new interesting: 19 (total: 21)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:52:45.5852810Z fuzz: elapsed: 24s, execs: 9475 (0/sec), new interesting: 19 (total: 21)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:52:48.5658750Z fuzz: elapsed: 27s, execs: 9475 (0/sec), new interesting: 19 (total: 21)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:52:51.5992490Z fuzz: elapsed: 30s, execs: 9475 (0/sec), new interesting: 19 (total: 21)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:52:54.5223530Z fuzz: elapsed: 33s, execs: 9475 (0/sec), new interesting: 19 (total: 21)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:52:57.5256590Z fuzz: elapsed: 36s, execs: 9475 (0/sec), new interesting: 19 (total: 21)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:53:00.5366010Z fuzz: elapsed: 39s, execs: 9475 (0/sec), new interesting: 19 (total: 21)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:53:03.5344700Z fuzz: elapsed: 42s, execs: 9475 (0/sec), new interesting: 19 (total: 21)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:53:06.5378900Z fuzz: elapsed: 45s, execs: 9475 (0/sec), new interesting: 19 (total: 21)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:53:09.5306130Z fuzz: elapsed: 48s, execs: 55372 (15301/sec), new interesting: 20 (total: 22)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:53:12.5809990Z fuzz: elapsed: 51s, execs: 55372 (0/sec), new interesting: 20 (total: 22)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:53:15.5465250Z fuzz: elapsed: 54s, execs: 55372 (0/sec), new interesting: 20 (total: 22)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:53:18.5336880Z fuzz: elapsed: 57s, execs: 55372 (0/sec), new interesting: 20 (total: 22)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:53:21.5335140Z fuzz: elapsed: 1m0s, execs: 55372 (0/sec), new interesting: 20 (total: 22)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:53:24.5387030Z fuzz: elapsed: 1m3s, execs: 57412 (680/sec), new interesting: 22 (total: 24)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:53:27.5383340Z fuzz: elapsed: 1m6s, execs: 57412 (0/sec), new interesting: 22 (total: 24)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:53:30.5422960Z fuzz: elapsed: 1m9s, execs: 57412 (0/sec), new interesting: 22 (total: 24)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:53:33.5396700Z fuzz: elapsed: 1m12s, execs: 57412 (0/sec), new interesting: 22 (total: 24)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:53:36.5424010Z fuzz: elapsed: 1m15s, execs: 57412 (0/sec), new interesting: 22 (total: 24)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:53:39.5464410Z fuzz: elapsed: 1m18s, execs: 57412 (0/sec), new interesting: 22 (total: 24)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:53:42.5473620Z fuzz: elapsed: 1m21s, execs: 57412 (0/sec), new interesting: 22 (total: 24)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:53:45.5489580Z fuzz: elapsed: 1m24s, execs: 57412 (0/sec), new interesting: 22 (total: 24)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:53:48.5488530Z fuzz: elapsed: 1m27s, execs: 90580 (11053/sec), new interesting: 23 (total: 25)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:53:51.5486090Z fuzz: elapsed: 1m30s, execs: 93744 (1055/sec), new interesting: 24 (total: 26)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:53:54.5504110Z fuzz: elapsed: 1m33s, execs: 93744 (0/sec), new interesting: 24 (total: 26)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:53:56.6604980Z fuzz: elapsed: 1m35s, execs: 100000 (3112/sec), new interesting: 25 (total: 27)
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:53:56.7046820Z PASS
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:53:56.7734580Z ok  	github.com/gatework/go-expect	95.033s
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:06.7037940Z goos: darwin
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:06.7133210Z goarch: amd64
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:06.7138620Z pkg: github.com/gatework/go-expect
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:06.7144520Z cpu: Intel(R) Core(TM) i7-8700B CPU @ 3.20GHz
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:06.7149650Z BenchmarkContinuedBurst/128-4             	       3	    320249 ns/op	   0.40 MB/s	   18640 B/op	      21 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:06.7156730Z BenchmarkContinuedBurst/4096-4            	       3	   2402803 ns/op	   1.70 MB/s	   22336 B/op	      19 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:06.7632600Z BenchmarkReceiveRemainderRetention/held_false/tail_0-4         	       3	       279.7 ns/op	     19816 retained-B/session	       0 B/op	       0 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:06.8042970Z BenchmarkReceiveRemainderRetention/held_false/tail_8-4         	       3	       197.0 ns/op	     19407 retained-B/session	       0 B/op	       0 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:06.8413440Z BenchmarkReceiveRemainderRetention/held_false/tail_4096-4      	       3	       210.7 ns/op	     23433 retained-B/session	       0 B/op	       0 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:06.8798800Z BenchmarkReceiveRemainderRetention/held_true/tail_0-4          	       3	       249.0 ns/op	   1067963 retained-B/session	       0 B/op	       0 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:06.9132270Z BenchmarkReceiveRemainderRetention/held_true/tail_8-4          	       3	       254.7 ns/op	   1067955 retained-B/session	       0 B/op	       0 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:06.9420240Z BenchmarkReceiveRemainderRetention/held_true/tail_4096-4       	       3	       238.0 ns/op	   1071837 retained-B/session	       0 B/op	       0 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:06.9482310Z BenchmarkPTYReceive/1-4                                        	       3	     42497 ns/op	   0.02 MB/s	    6133 B/op	      13 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:06.9524850Z BenchmarkPTYReceive/32-4                                       	       3	    159734 ns/op	   0.20 MB/s	    6240 B/op	      16 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:06.9573670Z BenchmarkPTYReceive/1024-4                                     	       3	    110944 ns/op	   9.23 MB/s	   11296 B/op	      19 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:06.9641540Z --- FAIL: BenchmarkOSIdlePopulation/1
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:06.9644570Z     polling_unix_bench_test.go:61: fstatat /dev/fd: bad file descriptor
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:06.9672310Z --- FAIL: BenchmarkOSIdlePopulation/64
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:06.9677940Z     polling_unix_bench_test.go:61: fstatat /dev/fd: bad file descriptor
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:06.9700560Z --- FAIL: BenchmarkOSIdlePopulation/256
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:06.9702790Z     polling_unix_bench_test.go:61: fstatat /dev/fd: bad file descriptor
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:06.9719500Z --- FAIL: BenchmarkOSIdlePopulation/1024
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:06.9721670Z     polling_unix_bench_test.go:61: fstatat /dev/fd: bad file descriptor
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:06.9724880Z --- FAIL: BenchmarkOSIdlePopulation
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:06.9783000Z --- FAIL: BenchmarkOSIdleHeap/1
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:06.9789280Z     polling_unix_bench_test.go:61: fstatat /dev/fd: bad file descriptor
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:06.9799800Z --- FAIL: BenchmarkOSIdleHeap/64
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:06.9801950Z     polling_unix_bench_test.go:61: fstatat /dev/fd: bad file descriptor
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:06.9827230Z --- FAIL: BenchmarkOSIdleHeap/256
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:06.9829630Z     polling_unix_bench_test.go:61: fstatat /dev/fd: bad file descriptor
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:06.9847600Z --- FAIL: BenchmarkOSIdleHeap/1024
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:06.9849860Z     polling_unix_bench_test.go:61: fstatat /dev/fd: bad file descriptor
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:06.9852630Z --- FAIL: BenchmarkOSIdleHeap
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:06.9995680Z BenchmarkReceivePatterns/literal/chunk_32-4                    	       3	   2979386 ns/op	  11.00 MB/s	  246274 B/op	    1063 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.0043340Z BenchmarkReceivePatterns/literal/chunk_1024-4                  	       3	    316715 ns/op	 103.49 MB/s	  236856 B/op	      63 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.0150120Z BenchmarkReceivePatterns/all_literals/chunk_32-4               	       3	   2903058 ns/op	  11.29 MB/s	  246592 B/op	    1064 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.0177210Z BenchmarkReceivePatterns/all_literals/chunk_1024-4             	       3	    159202 ns/op	 205.88 MB/s	  237184 B/op	      64 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.0310100Z BenchmarkReceivePatterns/nested_all/chunk_32-4                 	       3	   3653361 ns/op	   8.97 MB/s	  246522 B/op	    1064 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.0339780Z BenchmarkReceivePatterns/nested_all/chunk_1024-4               	       3	    176127 ns/op	 186.10 MB/s	  237104 B/op	      64 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.0573910Z BenchmarkReceivePatterns/regexp/chunk_32-4                     	       3	   6872182 ns/op	   4.77 MB/s	  287874 B/op	    1082 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.0607030Z BenchmarkReceivePatterns/regexp/chunk_1024-4                   	       3	    303747 ns/op	 107.91 MB/s	  239312 B/op	      72 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.0836110Z BenchmarkReceivePatterns/mixed_all/chunk_32-4                  	       3	   6922623 ns/op	   4.73 MB/s	  273362 B/op	    1071 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.0871540Z BenchmarkReceivePatterns/mixed_all/chunk_1024-4                	       3	    303231 ns/op	 108.09 MB/s	  239240 B/op	      68 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.0935250Z BenchmarkPublicRedactor/no_rules/chunk_1-4                     	       3	    221626 ns/op	   4.62 MB/s	    8192 B/op	    1024 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.0958760Z BenchmarkPublicRedactor/no_rules/chunk_32-4                    	       3	      8241 ns/op	 124.26 MB/s	    1024 B/op	      32 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.0979490Z BenchmarkPublicRedactor/no_rules/chunk_1024-4                  	       3	      5910 ns/op	 173.28 MB/s	    1024 B/op	       1 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.1008000Z BenchmarkPublicRedactor/safe/chunk_1-4                         	       3	    200730 ns/op	   5.10 MB/s	    1056 B/op	    1022 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.1039870Z BenchmarkPublicRedactor/safe/chunk_32-4                        	       3	     20635 ns/op	  49.62 MB/s	    1050 B/op	      35 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.1063490Z BenchmarkPublicRedactor/safe/chunk_1024-4                      	       3	      8090 ns/op	 126.58 MB/s	    1050 B/op	       4 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.1092290Z BenchmarkPublicRedactor/matches/chunk_1-4                      	       3	    169988 ns/op	   5.65 MB/s	    2080 B/op	     259 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.1116140Z BenchmarkPublicRedactor/matches/chunk_32-4                     	       3	     51521 ns/op	  18.63 MB/s	    6234 B/op	     182 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.1141950Z BenchmarkPublicRedactor/matches/chunk_1024-4                   	       3	     22507 ns/op	  42.65 MB/s	    4522 B/op	       8 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.1169470Z BenchmarkPublicRedactor/overlaps/chunk_1-4                     	       3	    221701 ns/op	   4.51 MB/s	    3216 B/op	     404 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.1193680Z BenchmarkPublicRedactor/overlaps/chunk_32-4                    	       3	     40057 ns/op	  24.96 MB/s	    6149 B/op	     194 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.1218120Z BenchmarkPublicRedactor/overlaps/chunk_1024-4                  	       3	     40658 ns/op	  24.60 MB/s	    6928 B/op	       8 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.1275900Z BenchmarkRedactorRetainedTail-4                                	       3	    722617 ns/op	1451.08 MB/s	        10.00 tail-cap-B	 1048618 B/op	       5 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.1321200Z BenchmarkPublicRedactorLongBoundary/32-4                       	       3	      2338 ns/op	  13.68 MB/s	      32 B/op	       1 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.1343550Z BenchmarkPublicRedactorLongBoundary/256-4                      	       3	      4105 ns/op	  62.36 MB/s	     256 B/op	       1 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.1366830Z BenchmarkPublicRedactorLongBoundary/4096-4                     	       3	     57629 ns/op	  71.07 MB/s	    4096 B/op	       1 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.1418240Z BenchmarkPublicRedactorLongBoundary/65536-4                    	       3	    700220 ns/op	  93.59 MB/s	   65536 B/op	       1 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.1463110Z BenchmarkOSReceive/1-4                                         	       3	     99457 ns/op	   0.01 MB/s	    6048 B/op	      14 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.1492890Z BenchmarkOSReceive/32-4                                        	       3	    168644 ns/op	   0.19 MB/s	    6122 B/op	      15 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.1522970Z BenchmarkOSReceive/1024-4                                      	       3	    185979 ns/op	   5.51 MB/s	   11173 B/op	      18 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.1564030Z BenchmarkOSReceive/16384-4                                     	       3	    569486 ns/op	  28.77 MB/s	  150184 B/op	      25 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.2479270Z BenchmarkIdleSessions/os_false/count_1-4                       	       3	  20562688 ns/op	     22703 cpu-ns/session-ms	     19040 retained-B/session	       0 B/op	       0 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.5032730Z BenchmarkIdleSessions/os_false/count_64-4                      	       3	  44301003 ns/op	       186.8 cpu-ns/session-ms	     19447 retained-B/session	       0 B/op	       0 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.5785840Z BenchmarkIdleSessions/os_true/count_1-4                        	       3	  21507878 ns/op	     67553 cpu-ns/session-ms	      1872 retained-B/session	       0 B/op	       0 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.6793380Z BenchmarkIdleSessions/os_true/count_64-4                       	       3	  22182063 ns/op	       540.7 cpu-ns/session-ms	      1818 retained-B/session	       0 B/op	       0 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.7165580Z BenchmarkSessionFilter/rule=8/chunk=1/safe-4                   	       3	      2022 ns/op	   0.49 MB/s	      21 B/op	       1 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.7171000Z BenchmarkSessionFilter/rule=8/chunk=1/dense-4                  	       3	      2233 ns/op	   0.45 MB/s	      21 B/op	       1 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.7182790Z BenchmarkSessionFilter/rule=8/chunk=1/mixed-4                  	       3	      1388 ns/op	   0.72 MB/s	      21 B/op	       1 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.7194950Z BenchmarkSessionFilter/rule=8/chunk=32/safe-4                  	       3	      1839 ns/op	  17.40 MB/s	      69 B/op	       1 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.7211910Z BenchmarkSessionFilter/rule=8/chunk=32/dense-4                 	       3	      2699 ns/op	  11.86 MB/s	      64 B/op	       1 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.7218360Z BenchmarkSessionFilter/rule=8/chunk=32/mixed-4                 	       3	      3123 ns/op	  10.25 MB/s	      64 B/op	       1 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.7224500Z BenchmarkSessionFilter/rule=8/chunk=16384/safe-4               	       3	     23223 ns/op	 705.52 MB/s	   29354 B/op	       1 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.7231830Z BenchmarkSessionFilter/rule=8/chunk=16384/dense-4              	       3	    368750 ns/op	  44.43 MB/s	   28672 B/op	       1 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.7249670Z BenchmarkSessionFilter/rule=8/chunk=16384/mixed-4              	       3	    911805 ns/op	  17.97 MB/s	   28672 B/op	       1 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.7261470Z BenchmarkSessionFilter/rule=4096/chunk=1/safe-4                	       3	     13683 ns/op	   0.07 MB/s	    6832 B/op	       1 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.7272500Z BenchmarkSessionFilter/rule=4096/chunk=1/dense-4               	       3	      7880 ns/op	   0.13 MB/s	    5472 B/op	       1 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.7285670Z BenchmarkSessionFilter/rule=4096/chunk=1/mixed-4               	       3	      6942 ns/op	   0.14 MB/s	    5472 B/op	       1 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.7301780Z BenchmarkSessionFilter/rule=4096/chunk=32/safe-4               	       3	    223691 ns/op	   0.14 MB/s	    7104 B/op	       1 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.7310420Z BenchmarkSessionFilter/rule=4096/chunk=32/dense-4              	       3	      7463 ns/op	   4.29 MB/s	    5493 B/op	       1 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.7317160Z BenchmarkSessionFilter/rule=4096/chunk=32/mixed-4              	       3	      5639 ns/op	   5.68 MB/s	    5493 B/op	       1 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.7326270Z BenchmarkSessionFilter/rule=4096/chunk=16384/safe-4            	       3	     44982 ns/op	 364.24 MB/s	   31402 B/op	       1 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.8338410Z BenchmarkSessionFilter/rule=4096/chunk=16384/dense-4           	       3	    229861 ns/op	  71.28 MB/s	   30037 B/op	       1 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.9348630Z BenchmarkSessionFilter/rule=4096/chunk=16384/mixed-4           	       3	   1184739 ns/op	  13.83 MB/s	   30037 B/op	       1 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.9835430Z BenchmarkSessionFilter/rule=16384/chunk=1/safe-4               	       3	    107667 ns/op	   0.01 MB/s	   27312 B/op	       1 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.9886310Z BenchmarkSessionFilter/rule=16384/chunk=1/dense-4              	       3	     16151 ns/op	   0.06 MB/s	   21856 B/op	       1 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.9914590Z BenchmarkSessionFilter/rule=16384/chunk=1/mixed-4              	       3	     25655 ns/op	   0.04 MB/s	   21856 B/op	       1 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.9937510Z BenchmarkSessionFilter/rule=16384/chunk=32/safe-4              	       3	     36907 ns/op	   0.87 MB/s	   28010 B/op	       1 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.9942740Z BenchmarkSessionFilter/rule=16384/chunk=32/dense-4             	       3	     28356 ns/op	   1.13 MB/s	   21877 B/op	       1 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.9947140Z BenchmarkSessionFilter/rule=16384/chunk=32/mixed-4             	       3	     14489 ns/op	   2.21 MB/s	   21877 B/op	       1 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.9953160Z BenchmarkSessionFilter/rule=16384/chunk=16384/safe-4           	       3	     69815 ns/op	 234.68 MB/s	   43690 B/op	       1 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.9958790Z BenchmarkSessionFilter/rule=16384/chunk=16384/dense-4          	       3	    171325 ns/op	  95.63 MB/s	   38229 B/op	       1 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.9964590Z BenchmarkSessionFilter/rule=16384/chunk=16384/mixed-4          	       3	    492757 ns/op	  33.25 MB/s	   38229 B/op	       1 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.9970980Z BenchmarkSessionFilter/rule=65536/chunk=1/safe-4               	       3	    165371 ns/op	   0.01 MB/s	  109232 B/op	       1 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.9976520Z BenchmarkSessionFilter/rule=65536/chunk=1/dense-4              	       3	     56499 ns/op	   0.02 MB/s	   87392 B/op	       1 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.9983190Z BenchmarkSessionFilter/rule=65536/chunk=1/mixed-4              	       3	    178770 ns/op	   0.01 MB/s	   87392 B/op	       1 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.9990020Z BenchmarkSessionFilter/rule=65536/chunk=32/safe-4              	       3	    121880 ns/op	   0.26 MB/s	  111978 B/op	       1 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:07.9997340Z BenchmarkSessionFilter/rule=65536/chunk=32/dense-4             	       3	     36744 ns/op	   0.87 MB/s	   87413 B/op	       1 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:08.0005180Z BenchmarkSessionFilter/rule=65536/chunk=32/mixed-4             	       3	     57064 ns/op	   0.56 MB/s	   87413 B/op	       1 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:08.0013230Z BenchmarkSessionFilter/rule=65536/chunk=16384/safe-4           	       3	    150767 ns/op	 108.67 MB/s	  125610 B/op	       1 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:08.0018430Z BenchmarkSessionFilter/rule=65536/chunk=16384/dense-4          	       3	    230020 ns/op	  71.23 MB/s	  103765 B/op	       1 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:08.0021570Z BenchmarkSessionFilter/rule=65536/chunk=16384/mixed-4          	       3	   1712388 ns/op	   9.57 MB/s	  103765 B/op	       1 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:08.0294470Z BenchmarkSessionFilterRetention/sink=false-4                   	       3	       250.7 ns/op	     19150 retained-B/session	       0 B/op	       0 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:08.1975380Z BenchmarkSessionFilterRetention/sink=true-4                    	       3	       252.3 ns/op	     19218 retained-B/session	       0 B/op	       0 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:08.2982410Z BenchmarkCompetingCaptures/cases=1/all=false-4                 	       3	  13400327 ns/op	  139608 B/op	      19 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:08.3143380Z BenchmarkCompetingCaptures/cases=1/all=true-4                  	       3	  23808340 ns/op	   73960 B/op	      18 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:08.6818420Z BenchmarkCompetingCaptures/cases=8/all=false-4                 	       3	 135533291 ns/op	  140568 B/op	      27 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:09.3447910Z BenchmarkCompetingCaptures/cases=8/all=true-4                  	       3	 212260718 ns/op	   72629 B/op	      28 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:09.5357240Z BenchmarkFragmentedReceive/1-4                                 	       3	  53173121 ns/op	   0.31 MB/s	  135741 B/op	   16427 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:09.5945720Z BenchmarkFragmentedReceive/32-4                                	       3	   1479641 ns/op	  11.08 MB/s	  135741 B/op	     549 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:09.6956450Z BenchmarkFragmentedReceive/1024-4                              	       3	     86043 ns/op	 190.46 MB/s	  126258 B/op	      45 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:09.7951570Z BenchmarkFragmentedReceive/16384-4                             	       3	     38925 ns/op	 421.01 MB/s	   72952 B/op	      26 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:09.7984740Z BenchmarkLiteral16K-4                                          	       3	   1241808 ns/op	  156912 B/op	      59 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:09.8223540Z BenchmarkPublicRedactorDenseLong/256-4                         	       3	     32210 ns/op	  31.79 MB/s	    3456 B/op	       5 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:09.8264590Z BenchmarkPublicRedactorDenseLong/1024-4                        	       3	     47585 ns/op	  86.08 MB/s	   13440 B/op	       5 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:09.8270220Z BenchmarkPublicRedactorDenseLong/4096-4                        	       3	    188213 ns/op	  87.05 MB/s	   54528 B/op	       5 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:09.8278420Z BenchmarkPublicRedactorDenseLong/16384-4                       	       3	    871862 ns/op	  75.17 MB/s	  221184 B/op	       5 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:09.8300330Z BenchmarkPublicRedactorDenseLong/65536-4                       	       3	   2646609 ns/op	  99.05 MB/s	  860160 B/op	       5 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:09.8310960Z BenchmarkPublicRedactorMixedDenseByte/257-4                    	       3	      4160 ns/op	   0.24 MB/s	     341 B/op	       0 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:09.8332750Z BenchmarkPublicRedactorMixedDenseByte/4096-4                   	       3	      2181 ns/op	   0.46 MB/s	    5461 B/op	       0 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:09.8340870Z BenchmarkPublicRedactorMixedDenseByte/65536-4                  	       3	     11214 ns/op	   0.09 MB/s	   87381 B/op	       0 allocs/op
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:09.8344470Z FAIL
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:09.8349360Z exit status 1
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:09.8368190Z FAIL	github.com/gatework/go-expect	2.932s
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:09.8369200Z FAIL
+test (macos-15-intel, 1.26.x)	Run bash script/ci	2026-10-30T11:54:09.8406340Z ##[error]Process completed with exit code 1.

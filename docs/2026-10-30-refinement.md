@@ -40,3 +40,9 @@ golangci-lint reported zero issues and govulncheck found no vulnerabilities.
 Full race/shuffle and vet passed on Darwin Go 1.26.0 and Linux arm64 Go 1.26.0
 and 1.27.3. Release automation tests and paired connector source contracts passed.
 Linux uses disposable sources, no network and a read-only module cache.
+
+Initial remote CI caught a benchmark-only macOS Intel Go1.26 compatibility
+issue: os.ReadDir(/dev/fd) tried to stat transient descriptor entries and returned
+EBADF. The FD probe now counts directory names without statting entries. Its
+regression benchmarks pass locally on Darwin Go1.26/1.27 and Linux Go1.27;
+independent review passed. The initial remote failure is retained as evidence.

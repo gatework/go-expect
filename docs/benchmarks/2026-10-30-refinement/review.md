@@ -17,3 +17,9 @@ storage after sink failure without retries; the safe empty-pending shortcut
 clones output and preserves rule state; 64KiB scratch retention is bounded.
 Authentication, partial owner, cancellation/join/removal and full error trees
 were rechecked. Read-only pass; no tests or measurements ran in this pass.
+
+Release CI follow-up: macOS Intel Go1.26 failed only the FD-count benchmark
+probe, because os.ReadDir attempted fstatat on transient /dev/fd descriptors.
+Read-only review accepts Open + Readdirnames(-1): no per-entry metadata lookup,
+deferred Close, and the probe descriptor appears in both sides of the delta.
+Targeted benchmarks passed on Darwin Go1.26/1.27 and Linux Go1.27.

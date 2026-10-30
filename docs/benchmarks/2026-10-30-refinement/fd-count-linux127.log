@@ -1,0 +1,13 @@
+goos: linux
+goarch: arm64
+pkg: github.com/gatework/go-expect
+BenchmarkOSIdlePopulation/1-10  	       1	  53829529 ns/op	     18292 close-p50-ns	     18292 close-p95-ns	      2877 cpu-ns/session-ms	         2.000 fd-delta	     49500 poll-p50-ns	     49500 poll-p95-ns	     -7480 retained-B/session	         0 thread-delta	         9.000 threads
+BenchmarkOSIdlePopulation/64-10 	       1	  54294903 ns/op	      4292 close-p50-ns	      7542 close-p95-ns	        71.85 cpu-ns/session-ms	       128.0 fd-delta	      5875 poll-p50-ns	     15458 poll-p95-ns	      1924 retained-B/session	         0 thread-delta	         9.000 threads
+BenchmarkOSIdlePopulation/256-10         	       1	  54145321 ns/op	      5500 close-p50-ns	     12250 close-p95-ns	        19.37 cpu-ns/session-ms	       512.0 fd-delta	      5792 poll-p50-ns	     16208 poll-p95-ns	      1982 retained-B/session	         0 thread-delta	         9.000 threads
+BenchmarkOSIdlePopulation/1024-10        	       1	  54261195 ns/op	      5458 close-p50-ns	     12250 close-p95-ns	         6.376 cpu-ns/session-ms	      2048 fd-delta	      9125 poll-p50-ns	     20084 poll-p95-ns	      1975 retained-B/session	         3.000 thread-delta	        12.00 threads
+BenchmarkOSIdleHeap/1-10                 	       1	  50102324 ns/op	      6468 cpu-ns/session-ms	         2.000 fd-delta	     -7960 retained-B/session	         0 thread-delta	        12.00 threads
+BenchmarkOSIdleHeap/64-10                	       1	  52101739 ns/op	       140.8 cpu-ns/session-ms	       128.0 fd-delta	      1437 retained-B/session	         0 thread-delta	        12.00 threads
+BenchmarkOSIdleHeap/256-10               	       1	  54230320 ns/op	        20.91 cpu-ns/session-ms	       512.0 fd-delta	      1550 retained-B/session	         0 thread-delta	        12.00 threads
+BenchmarkOSIdleHeap/1024-10              	       1	  54273903 ns/op	         5.831 cpu-ns/session-ms	      2048 fd-delta	      1720 retained-B/session	         0 thread-delta	        13.00 threads
+PASS
+ok  	github.com/gatework/go-expect	1.010s

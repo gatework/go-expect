@@ -1,0 +1,12 @@
+{
+  "expect": {
+    "repo": "/Users/crate/Works/go/.worktrees/connector-unification/go-expect",
+    "sha": "6e4e2dc054b1cd400801381d57b35f08f89a398f",
+    "baseline": "/tmp/connector-round3-20261030/expect-baseline"
+  },
+  "connector": {
+    "repo": "/Users/crate/Works/go/.worktrees/connector-quality/go-net-connector",
+    "sha": "59c1af1f9df9d6d0000d5e51d05b818f38616feb",
+    "baseline": "/tmp/connector-round3-20261030/connector-baseline"
+  }
+}

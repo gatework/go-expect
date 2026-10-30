@@ -1,0 +1,27 @@
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+                                      │ /private/tmp/connector-round3-20261030/capture-before.txt │ /private/tmp/connector-round3-20261030/capture-after.txt │
+                                      │                          sec/op                           │              sec/op               vs base                │
+CompetingCaptures/cases=1/all=false-4                                                 2.272m ± 1%                        2.278m ± 1%        ~ (p=0.393 n=10)
+CompetingCaptures/cases=1/all=true-4                                                  4.523m ± 1%                        3.684m ± 2%  -18.55% (p=0.000 n=10)
+CompetingCaptures/cases=8/all=false-4                                                 18.19m ± 1%                        18.08m ± 0%        ~ (p=0.063 n=10)
+CompetingCaptures/cases=8/all=true-4                                                  36.28m ± 2%                        29.38m ± 2%  -19.01% (p=0.000 n=10)
+geomean                                                                               9.074m                             8.171m        -9.95%
+
+                                      │ /private/tmp/connector-round3-20261030/capture-before.txt │ /private/tmp/connector-round3-20261030/capture-after.txt │
+                                      │                           B/op                            │               B/op                vs base                │
+CompetingCaptures/cases=1/all=false-4                                                129.1Ki ± 0%                       129.1Ki ± 0%   -0.06% (p=0.001 n=10)
+CompetingCaptures/cases=1/all=true-4                                                193.84Ki ± 0%                       65.24Ki ± 0%  -66.34% (p=0.000 n=10)
+CompetingCaptures/cases=8/all=false-4                                                582.7Ki ± 0%                       133.5Ki ± 0%  -77.09% (p=0.000 n=10)
+CompetingCaptures/cases=8/all=true-4                                               1100.32Ki ± 0%                       71.05Ki ± 2%  -93.54% (p=0.000 n=10)
+geomean                                                                              355.9Ki                            94.53Ki       -73.44%
+
+                                      │ /private/tmp/connector-round3-20261030/capture-before.txt │ /private/tmp/connector-round3-20261030/capture-after.txt │
+                                      │                         allocs/op                         │            allocs/op              vs base                │
+CompetingCaptures/cases=1/all=false-4                                                  13.00 ± 0%                        11.00 ±  0%  -15.38% (p=0.000 n=10)
+CompetingCaptures/cases=1/all=true-4                                                   19.00 ± 5%                        10.50 ±  5%  -44.74% (p=0.000 n=10)
+CompetingCaptures/cases=8/all=false-4                                                  53.00 ± 2%                        24.00 ±  4%  -54.72% (p=0.000 n=10)
+CompetingCaptures/cases=8/all=true-4                                                   97.00 ± 5%                        31.50 ± 14%  -67.53% (p=0.000 n=10)
+geomean                                                                                33.57                             17.19        -48.79%

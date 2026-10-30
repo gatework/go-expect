@@ -195,10 +195,16 @@ func (s *Session) emit(data []byte, finish bool) error {
 	s.diagMu.Lock()
 	defer s.diagMu.Unlock()
 	if s.outputErr != nil {
+		if finish {
+			s.redactor.resetStream()
+		}
 		return s.outputErr
 	}
 	if !finish && s.isClosed() {
 		return ErrClosed
+	}
+	if len(s.opts.outputs) == 0 {
+		return nil
 	}
 	filtered := s.redactor.append(data, finish)
 	if len(filtered) == 0 {

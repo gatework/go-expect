@@ -1,0 +1,5 @@
+--- FAIL: TestSessionCloseReleasesFilterAfterSinkFailure (0.00s)
+    redactor_refinement_test.go:122: Close retained filter storage after sink failure
+FAIL
+exit status 1
+FAIL	github.com/gatework/go-expect	0.631s

@@ -1,0 +1,410 @@
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkSessionFilter/rule=8/chunk=1/safe-4         	 7197949	        16.51 ns/op	  60.58 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=1/dense-4        	 5604769	        21.34 ns/op	  46.87 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=1/mixed-4        	 1486864	        80.29 ns/op	  12.46 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=32/safe-4        	 2885028	        40.74 ns/op	 785.47 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=32/dense-4       	  594684	       197.1 ns/op	 162.34 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=32/mixed-4       	  238106	       499.5 ns/op	  64.06 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=16384/safe-4     	   14253	      8413 ns/op	1947.38 MB/s	   16386 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=16384/dense-4    	    1305	     92180 ns/op	 177.74 MB/s	   16412 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=16384/mixed-4    	     565	    213521 ns/op	  76.73 MB/s	   16449 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=1/safe-4      	 7145461	        16.98 ns/op	  58.89 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=1/dense-4     	  107493	      1109 ns/op	   0.90 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=1/mixed-4     	    3852	     31335 ns/op	   0.03 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=32/safe-4     	 1603594	        73.88 ns/op	 433.11 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=32/dense-4    	    3668	     32855 ns/op	   0.97 MB/s	      34 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=32/mixed-4    	    1945	     63251 ns/op	   0.51 MB/s	      37 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=16384/safe-4  	    7590	     14635 ns/op	1119.47 MB/s	   16389 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=16384/dense-4 	       7	  16273286 ns/op	   1.01 MB/s	   22235 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=16384/mixed-4 	       7	  16455512 ns/op	   1.00 MB/s	   22235 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=1/safe-4     	 7233258	        16.68 ns/op	  59.95 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=1/dense-4    	   27109	      4389 ns/op	   0.23 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=1/mixed-4    	     960	    124808 ns/op	   0.01 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=32/safe-4    	 1552434	        73.68 ns/op	 434.31 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=32/dense-4   	     920	    128879 ns/op	   0.25 MB/s	      79 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=32/mixed-4   	     484	    246704 ns/op	   0.13 MB/s	     121 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=16384/safe-4 	    3403	     35266 ns/op	 464.59 MB/s	   16417 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=16384/dense-4         	       2	  64254334 ns/op	   0.25 MB/s	   65536 B/op	       2 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=16384/mixed-4         	       2	  64411417 ns/op	   0.25 MB/s	   65536 B/op	       2 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=1/safe-4              	 4946280	        21.55 ns/op	  46.41 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=1/dense-4             	    6478	     18530 ns/op	   0.05 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=1/mixed-4             	     238	    500554 ns/op	   0.00 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=32/safe-4             	 1206828	        93.59 ns/op	 341.92 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=32/dense-4            	     237	    503470 ns/op	   0.06 MB/s	     792 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=32/mixed-4            	     121	    986668 ns/op	   0.03 MB/s	    1521 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=16384/safe-4          	    2865	     39091 ns/op	 419.12 MB/s	   16469 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=16384/dense-4         	       1	 257767375 ns/op	   0.06 MB/s	  196608 B/op	       3 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=16384/mixed-4         	       1	 259966084 ns/op	   0.06 MB/s	  196608 B/op	       3 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkSessionFilter/rule=8/chunk=1/safe-4         	 6957596	        16.85 ns/op	  59.35 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=1/dense-4        	 5364966	        22.03 ns/op	  45.39 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=1/mixed-4        	 1475542	        81.45 ns/op	  12.28 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=32/safe-4        	 2676049	        44.78 ns/op	 714.66 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=32/dense-4       	  592531	       201.1 ns/op	 159.16 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=32/mixed-4       	  248376	       487.6 ns/op	  65.63 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=16384/safe-4     	   14119	      8479 ns/op	1932.37 MB/s	   16386 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=16384/dense-4    	    1296	     94219 ns/op	 173.89 MB/s	   16412 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=16384/mixed-4    	     544	    217987 ns/op	  75.16 MB/s	   16451 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=1/safe-4      	 6841552	        17.16 ns/op	  58.26 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=1/dense-4     	  106189	      1128 ns/op	   0.89 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=1/mixed-4     	    3415	     31717 ns/op	   0.03 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=32/safe-4     	 1633701	        73.35 ns/op	 436.28 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=32/dense-4    	    3741	     32246 ns/op	   0.99 MB/s	      34 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=32/mixed-4    	    1917	     63576 ns/op	   0.50 MB/s	      37 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=16384/safe-4  	    7704	     14988 ns/op	1093.11 MB/s	   16389 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=16384/dense-4 	       7	  16731452 ns/op	   0.98 MB/s	   22235 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=16384/mixed-4 	       7	  16659315 ns/op	   0.98 MB/s	   22235 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=1/safe-4     	 6957254	        17.18 ns/op	  58.20 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=1/dense-4    	   26868	      4457 ns/op	   0.22 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=1/mixed-4    	     946	    127146 ns/op	   0.01 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=32/safe-4    	 1499848	        75.32 ns/op	 424.84 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=32/dense-4   	     934	    127534 ns/op	   0.25 MB/s	      78 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=32/mixed-4   	     475	    251911 ns/op	   0.13 MB/s	     123 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=16384/safe-4 	    3378	     34145 ns/op	 479.84 MB/s	   16417 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=16384/dense-4         	       2	  65774042 ns/op	   0.25 MB/s	   65536 B/op	       2 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=16384/mixed-4         	       2	  65296896 ns/op	   0.25 MB/s	   65536 B/op	       2 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=1/safe-4              	 4805428	        21.97 ns/op	  45.51 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=1/dense-4             	    6376	     18874 ns/op	   0.05 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=1/mixed-4             	     235	    509804 ns/op	   0.00 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=32/safe-4             	 1042771	        97.15 ns/op	 329.37 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=32/dense-4            	     232	    516826 ns/op	   0.06 MB/s	     808 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=32/mixed-4            	     100	   1020439 ns/op	   0.03 MB/s	    1834 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=16384/safe-4          	    2854	     39857 ns/op	 411.07 MB/s	   16470 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=16384/dense-4         	       1	 261301125 ns/op	   0.06 MB/s	  196608 B/op	       3 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=16384/mixed-4         	       1	 261356541 ns/op	   0.06 MB/s	  196608 B/op	       3 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkSessionFilter/rule=8/chunk=1/safe-4         	 7002016	        16.12 ns/op	  62.02 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=1/dense-4        	 5381859	        22.06 ns/op	  45.32 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=1/mixed-4        	 1468621	        81.69 ns/op	  12.24 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=32/safe-4        	 2677052	        44.60 ns/op	 717.50 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=32/dense-4       	  615699	       200.1 ns/op	 159.96 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=32/mixed-4       	  229191	       488.1 ns/op	  65.56 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=16384/safe-4     	   14109	      8476 ns/op	1932.90 MB/s	   16386 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=16384/dense-4    	    1288	     93902 ns/op	 174.48 MB/s	   16412 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=16384/mixed-4    	     556	    216170 ns/op	  75.79 MB/s	   16450 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=1/safe-4      	 6805244	        16.72 ns/op	  59.80 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=1/dense-4     	  104022	      1140 ns/op	   0.88 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=1/mixed-4     	    3848	     31927 ns/op	   0.03 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=32/safe-4     	 1640481	        73.22 ns/op	 437.03 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=32/dense-4    	    3728	     32295 ns/op	   0.99 MB/s	      34 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=32/mixed-4    	    1897	     63479 ns/op	   0.50 MB/s	      37 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=16384/safe-4  	    7844	     14578 ns/op	1123.86 MB/s	   16389 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=16384/dense-4 	       7	  16582631 ns/op	   0.99 MB/s	   22235 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=16384/mixed-4 	       6	  16773389 ns/op	   0.98 MB/s	   23210 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=1/safe-4     	 7057458	        17.01 ns/op	  58.78 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=1/dense-4    	   26878	      4452 ns/op	   0.22 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=1/mixed-4    	     939	    126600 ns/op	   0.01 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=32/safe-4    	 1540626	        73.14 ns/op	 437.52 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=32/dense-4   	     944	    127513 ns/op	   0.25 MB/s	      78 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=32/mixed-4   	     481	    249328 ns/op	   0.13 MB/s	     122 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=16384/safe-4 	    3350	     35565 ns/op	 460.68 MB/s	   16418 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=16384/dense-4         	       2	  65011542 ns/op	   0.25 MB/s	   65536 B/op	       2 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=16384/mixed-4         	       2	  65142708 ns/op	   0.25 MB/s	   65536 B/op	       2 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=1/safe-4              	 4658074	        22.87 ns/op	  43.73 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=1/dense-4             	    6363	     18768 ns/op	   0.05 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=1/mixed-4             	     235	    508101 ns/op	   0.00 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=32/safe-4             	 1104318	        94.63 ns/op	 338.16 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=32/dense-4            	     235	    511151 ns/op	   0.06 MB/s	     798 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=32/mixed-4            	     120	    997072 ns/op	   0.03 MB/s	    1533 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=16384/safe-4          	    2778	     40992 ns/op	 399.69 MB/s	   16472 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=16384/dense-4         	       1	 262867625 ns/op	   0.06 MB/s	  196608 B/op	       3 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=16384/mixed-4         	       1	 261779000 ns/op	   0.06 MB/s	  196608 B/op	       3 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkSessionFilter/rule=8/chunk=1/safe-4         	 6682226	        16.48 ns/op	  60.69 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=1/dense-4        	 5260071	        22.78 ns/op	  43.90 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=1/mixed-4        	 1490478	        80.48 ns/op	  12.43 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=32/safe-4        	 2661771	        45.05 ns/op	 710.26 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=32/dense-4       	  574952	       199.9 ns/op	 160.10 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=32/mixed-4       	  237931	       509.4 ns/op	  62.82 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=16384/safe-4     	   14113	      8503 ns/op	1926.76 MB/s	   16386 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=16384/dense-4    	    1278	     95508 ns/op	 171.55 MB/s	   16412 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=16384/mixed-4    	     548	    218556 ns/op	  74.96 MB/s	   16451 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=1/safe-4      	 6967797	        17.32 ns/op	  57.75 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=1/dense-4     	   99994	      1152 ns/op	   0.87 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=1/mixed-4     	    3741	     31948 ns/op	   0.03 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=32/safe-4     	 1647684	        73.00 ns/op	 438.37 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=32/dense-4    	    3664	     32418 ns/op	   0.99 MB/s	      34 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=32/mixed-4    	    1890	     63273 ns/op	   0.51 MB/s	      37 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=16384/safe-4  	    7352	     15215 ns/op	1076.83 MB/s	   16390 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=16384/dense-4 	       7	  16519685 ns/op	   0.99 MB/s	   22235 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=16384/mixed-4 	       7	  16661149 ns/op	   0.98 MB/s	   22235 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=1/safe-4     	 6903009	        17.35 ns/op	  57.65 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=1/dense-4    	   26911	      4469 ns/op	   0.22 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=1/mixed-4    	     949	    127021 ns/op	   0.01 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=32/safe-4    	 1512261	        74.22 ns/op	 431.17 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=32/dense-4   	     933	    127985 ns/op	   0.25 MB/s	      78 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=32/mixed-4   	     478	    252189 ns/op	   0.13 MB/s	     123 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=16384/safe-4 	    3321	     35589 ns/op	 460.37 MB/s	   16418 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=16384/dense-4         	       2	  65322916 ns/op	   0.25 MB/s	   65536 B/op	       2 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=16384/mixed-4         	       2	  65548396 ns/op	   0.25 MB/s	   65536 B/op	       2 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=1/safe-4              	 4758841	        22.27 ns/op	  44.91 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=1/dense-4             	    6352	     18731 ns/op	   0.05 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=1/mixed-4             	     234	    510027 ns/op	   0.00 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=32/safe-4             	 1069618	        96.42 ns/op	 331.89 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=32/dense-4            	     232	    515641 ns/op	   0.06 MB/s	     808 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=32/mixed-4            	     100	   1004713 ns/op	   0.03 MB/s	    1834 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=16384/safe-4          	    2778	     40683 ns/op	 402.72 MB/s	   16472 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=16384/dense-4         	       1	 261968208 ns/op	   0.06 MB/s	  196608 B/op	       3 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=16384/mixed-4         	       1	 262196958 ns/op	   0.06 MB/s	  196608 B/op	       3 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkSessionFilter/rule=8/chunk=1/safe-4         	 7389314	        16.07 ns/op	  62.24 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=1/dense-4        	 5395693	        22.39 ns/op	  44.67 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=1/mixed-4        	 1486663	        80.94 ns/op	  12.35 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=32/safe-4        	 2665526	        44.82 ns/op	 713.99 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=32/dense-4       	  613378	       194.1 ns/op	 164.83 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=32/mixed-4       	  248084	       480.0 ns/op	  66.66 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=16384/safe-4     	   14022	      8554 ns/op	1915.28 MB/s	   16386 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=16384/dense-4    	    1335	     94387 ns/op	 173.58 MB/s	   16411 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=16384/mixed-4    	     536	    218581 ns/op	  74.96 MB/s	   16452 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=1/safe-4      	 6943707	        17.19 ns/op	  58.18 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=1/dense-4     	   99794	      1156 ns/op	   0.86 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=1/mixed-4     	    3592	     32363 ns/op	   0.03 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=32/safe-4     	 1714728	        69.27 ns/op	 461.98 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=32/dense-4    	    3696	     32399 ns/op	   0.99 MB/s	      34 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=32/mixed-4    	    1882	     63446 ns/op	   0.50 MB/s	      37 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=16384/safe-4  	    7828	     15201 ns/op	1077.81 MB/s	   16389 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=16384/dense-4 	       7	  16523179 ns/op	   0.99 MB/s	   22235 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=16384/mixed-4 	       7	  16657179 ns/op	   0.98 MB/s	   22235 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=1/safe-4     	 6972210	        17.10 ns/op	  58.49 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=1/dense-4    	   27064	      4442 ns/op	   0.23 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=1/mixed-4    	     946	    127156 ns/op	   0.01 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=32/safe-4    	 1521206	        73.84 ns/op	 433.35 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=32/dense-4   	     934	    127866 ns/op	   0.25 MB/s	      78 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=32/mixed-4   	     476	    250568 ns/op	   0.13 MB/s	     123 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=16384/safe-4 	    3387	     35126 ns/op	 466.43 MB/s	   16417 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=16384/dense-4         	       2	  65213479 ns/op	   0.25 MB/s	   65536 B/op	       2 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=16384/mixed-4         	       2	  65443042 ns/op	   0.25 MB/s	   65536 B/op	       2 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=1/safe-4              	 4979890	        21.44 ns/op	  46.64 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=1/dense-4             	    6435	     18753 ns/op	   0.05 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=1/mixed-4             	     232	    511416 ns/op	   0.00 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=32/safe-4             	 1063708	        96.01 ns/op	 333.31 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=32/dense-4            	     234	    512392 ns/op	   0.06 MB/s	     802 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=32/mixed-4            	     100	   1002787 ns/op	   0.03 MB/s	    1834 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=16384/safe-4          	    2797	     40636 ns/op	 403.18 MB/s	   16471 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=16384/dense-4         	       1	 261399542 ns/op	   0.06 MB/s	  196608 B/op	       3 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=16384/mixed-4         	       1	 261696125 ns/op	   0.06 MB/s	  196608 B/op	       3 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkSessionFilter/rule=8/chunk=1/safe-4         	 6559258	        17.15 ns/op	  58.30 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=1/dense-4        	 5487438	        22.02 ns/op	  45.42 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=1/mixed-4        	 1461744	        81.62 ns/op	  12.25 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=32/safe-4        	 2638974	        45.45 ns/op	 704.06 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=32/dense-4       	  616899	       193.9 ns/op	 165.01 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=32/mixed-4       	  248414	       482.1 ns/op	  66.38 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=16384/safe-4     	   13996	      8554 ns/op	1915.35 MB/s	   16387 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=16384/dense-4    	    1341	     91654 ns/op	 178.76 MB/s	   16411 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=16384/mixed-4    	     552	    215684 ns/op	  75.96 MB/s	   16450 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=1/safe-4      	 6971862	        17.09 ns/op	  58.50 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=1/dense-4     	  105888	      1133 ns/op	   0.88 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=1/mixed-4     	    3807	     31847 ns/op	   0.03 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=32/safe-4     	 1631488	        73.35 ns/op	 436.29 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=32/dense-4    	    3715	     32415 ns/op	   0.99 MB/s	      34 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=32/mixed-4    	    1910	     63383 ns/op	   0.50 MB/s	      37 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=16384/safe-4  	    7772	     15118 ns/op	1083.75 MB/s	   16389 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=16384/dense-4 	       7	  16496631 ns/op	   0.99 MB/s	   22235 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=16384/mixed-4 	       7	  16638315 ns/op	   0.98 MB/s	   22235 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=1/safe-4     	 6906037	        17.32 ns/op	  57.75 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=1/dense-4    	   26904	      4468 ns/op	   0.22 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=1/mixed-4    	     938	    127519 ns/op	   0.01 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=32/safe-4    	 1482421	        75.26 ns/op	 425.20 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=32/dense-4   	     938	    127918 ns/op	   0.25 MB/s	      78 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=32/mixed-4   	     474	    251273 ns/op	   0.13 MB/s	     123 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=16384/safe-4 	    3320	     35661 ns/op	 459.44 MB/s	   16418 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=16384/dense-4         	       2	  65319229 ns/op	   0.25 MB/s	   65536 B/op	       2 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=16384/mixed-4         	       2	  65485916 ns/op	   0.25 MB/s	   65536 B/op	       2 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=1/safe-4              	 4843012	        21.98 ns/op	  45.49 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=1/dense-4             	    6369	     18765 ns/op	   0.05 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=1/mixed-4             	     234	    509311 ns/op	   0.00 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=32/safe-4             	 1176910	        95.24 ns/op	 336.00 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=32/dense-4            	     232	    516216 ns/op	   0.06 MB/s	     808 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=32/mixed-4            	     100	   1006072 ns/op	   0.03 MB/s	    1834 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=16384/safe-4          	    2811	     40079 ns/op	 408.79 MB/s	   16471 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=16384/dense-4         	       1	 261346250 ns/op	   0.06 MB/s	  196608 B/op	       3 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=16384/mixed-4         	       1	 262038916 ns/op	   0.06 MB/s	  196608 B/op	       3 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkSessionFilter/rule=8/chunk=1/safe-4         	 6973399	        16.65 ns/op	  60.05 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=1/dense-4        	 5407424	        22.30 ns/op	  44.85 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=1/mixed-4        	 1482076	        81.13 ns/op	  12.33 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=32/safe-4        	 2710924	        42.78 ns/op	 748.05 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=32/dense-4       	  613052	       204.5 ns/op	 156.48 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=32/mixed-4       	  245061	       495.8 ns/op	  64.54 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=16384/safe-4     	   14046	      8558 ns/op	1914.56 MB/s	   16386 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=16384/dense-4    	    1194	    101653 ns/op	 161.18 MB/s	   16415 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=16384/mixed-4    	     546	    221456 ns/op	  73.98 MB/s	   16451 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=1/safe-4      	 7019767	        16.88 ns/op	  59.24 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=1/dense-4     	  105645	      1132 ns/op	   0.88 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=1/mixed-4     	    3736	     31883 ns/op	   0.03 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=32/safe-4     	 1640724	        72.91 ns/op	 438.88 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=32/dense-4    	    3688	     32388 ns/op	   0.99 MB/s	      34 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=32/mixed-4    	    1904	     63258 ns/op	   0.51 MB/s	      37 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=16384/safe-4  	    7910	     15167 ns/op	1080.23 MB/s	   16389 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=16384/dense-4 	       7	  16633565 ns/op	   0.98 MB/s	   22235 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=16384/mixed-4 	       6	  16667576 ns/op	   0.98 MB/s	   23210 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=1/safe-4     	 6934741	        17.20 ns/op	  58.14 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=1/dense-4    	   26892	      4469 ns/op	   0.22 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=1/mixed-4    	     943	    127580 ns/op	   0.01 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=32/safe-4    	 1531009	        73.99 ns/op	 432.47 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=32/dense-4   	     937	    127916 ns/op	   0.25 MB/s	      78 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=32/mixed-4   	     477	    251068 ns/op	   0.13 MB/s	     123 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=16384/safe-4 	    3338	     35133 ns/op	 466.34 MB/s	   16418 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=16384/dense-4         	       2	  65372625 ns/op	   0.25 MB/s	   65536 B/op	       2 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=16384/mixed-4         	       2	  65528396 ns/op	   0.25 MB/s	   65536 B/op	       2 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=1/safe-4              	 4847118	        22.03 ns/op	  45.39 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=1/dense-4             	    6416	     18773 ns/op	   0.05 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=1/mixed-4             	     234	    510386 ns/op	   0.00 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=32/safe-4             	 1087920	        95.52 ns/op	 335.01 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=32/dense-4            	     234	    511736 ns/op	   0.06 MB/s	     802 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=32/mixed-4            	     100	   1004009 ns/op	   0.03 MB/s	    1834 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=16384/safe-4          	    2812	     40067 ns/op	 408.92 MB/s	   16471 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=16384/dense-4         	       1	 261476458 ns/op	   0.06 MB/s	  196608 B/op	       3 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=16384/mixed-4         	       1	 261638667 ns/op	   0.06 MB/s	  196608 B/op	       3 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkSessionFilter/rule=8/chunk=1/safe-4         	 6974547	        17.14 ns/op	  58.34 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=1/dense-4        	 5348486	        22.55 ns/op	  44.34 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=1/mixed-4        	 1469764	        81.59 ns/op	  12.26 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=32/safe-4        	 2653863	        45.00 ns/op	 711.07 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=32/dense-4       	  607800	       199.2 ns/op	 160.61 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=32/mixed-4       	  238962	       510.2 ns/op	  62.72 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=16384/safe-4     	   13998	      8578 ns/op	1910.06 MB/s	   16387 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=16384/dense-4    	    1284	     93671 ns/op	 174.91 MB/s	   16412 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=16384/mixed-4    	     553	    217836 ns/op	  75.21 MB/s	   16450 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=1/safe-4      	 6720429	        17.51 ns/op	  57.11 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=1/dense-4     	  105850	      1137 ns/op	   0.88 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=1/mixed-4     	    3729	     32038 ns/op	   0.03 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=32/safe-4     	 1643366	        72.86 ns/op	 439.21 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=32/dense-4    	    3688	     32455 ns/op	   0.99 MB/s	      34 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=32/mixed-4    	    1894	     63488 ns/op	   0.50 MB/s	      37 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=16384/safe-4  	    7585	     15231 ns/op	1075.73 MB/s	   16389 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=16384/dense-4 	       7	  16559208 ns/op	   0.99 MB/s	   22235 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=16384/mixed-4 	       6	  16778201 ns/op	   0.98 MB/s	   23210 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=1/safe-4     	 6735748	        17.71 ns/op	  56.47 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=1/dense-4    	   26804	      4472 ns/op	   0.22 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=1/mixed-4    	     938	    127477 ns/op	   0.01 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=32/safe-4    	 1510513	        74.26 ns/op	 430.93 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=32/dense-4   	     934	    128149 ns/op	   0.25 MB/s	      78 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=32/mixed-4   	     475	    253157 ns/op	   0.13 MB/s	     123 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=16384/safe-4 	    3278	     36189 ns/op	 452.73 MB/s	   16419 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=16384/dense-4         	       2	  65473416 ns/op	   0.25 MB/s	   65536 B/op	       2 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=16384/mixed-4         	       2	  65854166 ns/op	   0.25 MB/s	   65536 B/op	       2 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=1/safe-4              	 4631307	        22.61 ns/op	  44.23 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=1/dense-4             	    6355	     18791 ns/op	   0.05 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=1/mixed-4             	     234	    510920 ns/op	   0.00 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=32/safe-4             	 1043199	        97.43 ns/op	 328.46 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=32/dense-4            	     232	    513696 ns/op	   0.06 MB/s	     808 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=32/mixed-4            	     100	   1043718 ns/op	   0.03 MB/s	    1834 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=16384/safe-4          	    2794	     40596 ns/op	 403.59 MB/s	   16472 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=16384/dense-4         	       1	 261733500 ns/op	   0.06 MB/s	  196608 B/op	       3 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=16384/mixed-4         	       1	 262472625 ns/op	   0.06 MB/s	  196608 B/op	       3 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkSessionFilter/rule=8/chunk=1/safe-4         	 6755187	        17.19 ns/op	  58.18 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=1/dense-4        	 5269339	        22.92 ns/op	  43.64 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=1/mixed-4        	 1465000	        81.68 ns/op	  12.24 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=32/safe-4        	 2652142	        43.90 ns/op	 728.88 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=32/dense-4       	  623781	       194.7 ns/op	 164.39 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=32/mixed-4       	  232696	       504.9 ns/op	  63.38 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=16384/safe-4     	   13972	      8569 ns/op	1912.08 MB/s	   16386 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=16384/dense-4    	    1346	     92278 ns/op	 177.55 MB/s	   16411 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=16384/mixed-4    	     554	    216747 ns/op	  75.59 MB/s	   16450 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=1/safe-4      	 6960708	        17.26 ns/op	  57.93 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=1/dense-4     	  105694	      1135 ns/op	   0.88 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=1/mixed-4     	    3794	     31987 ns/op	   0.03 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=32/safe-4     	 1645864	        73.48 ns/op	 435.50 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=32/dense-4    	    3632	     33291 ns/op	   0.96 MB/s	      34 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=32/mixed-4    	    1873	     63631 ns/op	   0.50 MB/s	      37 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=16384/safe-4  	    7556	     15241 ns/op	1075.03 MB/s	   16389 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=16384/dense-4 	       7	  16613155 ns/op	   0.99 MB/s	   22235 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=16384/mixed-4 	       7	  16682381 ns/op	   0.98 MB/s	   22235 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=1/safe-4     	 6952723	        17.24 ns/op	  58.00 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=1/dense-4    	   26920	      4459 ns/op	   0.22 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=1/mixed-4    	     939	    127642 ns/op	   0.01 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=32/safe-4    	 1478299	        74.22 ns/op	 431.15 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=32/dense-4   	     934	    128183 ns/op	   0.25 MB/s	      78 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=32/mixed-4   	     476	    251291 ns/op	   0.13 MB/s	     123 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=16384/safe-4 	    3290	     35851 ns/op	 457.01 MB/s	   16418 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=16384/dense-4         	       2	  65513416 ns/op	   0.25 MB/s	   65536 B/op	       2 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=16384/mixed-4         	       2	  65664146 ns/op	   0.25 MB/s	   65536 B/op	       2 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=1/safe-4              	 4816370	        22.08 ns/op	  45.30 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=1/dense-4             	    6386	     18825 ns/op	   0.05 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=1/mixed-4             	     234	    510699 ns/op	   0.00 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=32/safe-4             	 1095572	        95.12 ns/op	 336.41 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=32/dense-4            	     232	    513028 ns/op	   0.06 MB/s	     808 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=32/mixed-4            	     100	   1010043 ns/op	   0.03 MB/s	    1834 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=16384/safe-4          	    2799	     40574 ns/op	 403.81 MB/s	   16471 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=16384/dense-4         	       1	 262426250 ns/op	   0.06 MB/s	  196608 B/op	       3 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=16384/mixed-4         	       1	 262498125 ns/op	   0.06 MB/s	  196608 B/op	       3 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkSessionFilter/rule=8/chunk=1/safe-4         	 6958588	        16.45 ns/op	  60.79 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=1/dense-4        	 5398534	        22.51 ns/op	  44.43 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=1/mixed-4        	 1487150	        81.13 ns/op	  12.33 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=32/safe-4        	 2662627	        45.07 ns/op	 709.95 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=32/dense-4       	  607594	       195.3 ns/op	 163.85 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=32/mixed-4       	  247653	       486.4 ns/op	  65.78 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=16384/safe-4     	   13958	      8593 ns/op	1906.71 MB/s	   16386 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=16384/dense-4    	    1290	     92470 ns/op	 177.18 MB/s	   16412 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=16384/mixed-4    	     553	    215501 ns/op	  76.03 MB/s	   16450 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=1/safe-4      	 7044234	        17.07 ns/op	  58.57 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=1/dense-4     	  105342	      1136 ns/op	   0.88 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=1/mixed-4     	    3798	     32003 ns/op	   0.03 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=32/safe-4     	 1631446	        73.28 ns/op	 436.66 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=32/dense-4    	    3705	     32500 ns/op	   0.98 MB/s	      34 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=32/mixed-4    	    1882	     63851 ns/op	   0.50 MB/s	      37 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=16384/safe-4  	    7537	     15256 ns/op	1073.96 MB/s	   16389 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=16384/dense-4 	       7	  16547155 ns/op	   0.99 MB/s	   22235 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=16384/mixed-4 	       6	  16692201 ns/op	   0.98 MB/s	   23210 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=1/safe-4     	 6810346	        17.49 ns/op	  57.18 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=1/dense-4    	   27030	      4450 ns/op	   0.22 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=1/mixed-4    	     936	    127653 ns/op	   0.01 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=32/safe-4    	 1493715	        74.50 ns/op	 429.53 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=32/dense-4   	     937	    128394 ns/op	   0.25 MB/s	      78 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=32/mixed-4   	     476	    251762 ns/op	   0.13 MB/s	     123 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=16384/safe-4 	    3306	     35240 ns/op	 464.93 MB/s	   16418 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=16384/dense-4         	       2	  65547000 ns/op	   0.25 MB/s	   65536 B/op	       2 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=16384/mixed-4         	       2	  65900042 ns/op	   0.25 MB/s	   65536 B/op	       2 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=1/safe-4              	 4874896	        21.83 ns/op	  45.81 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=1/dense-4             	    6337	     18782 ns/op	   0.05 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=1/mixed-4             	     234	    512160 ns/op	   0.00 MB/s	       8 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=32/safe-4             	 1188508	        94.70 ns/op	 337.91 MB/s	      32 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=32/dense-4            	     232	    513369 ns/op	   0.06 MB/s	     808 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=32/mixed-4            	     100	   1007930 ns/op	   0.03 MB/s	    1834 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=16384/safe-4          	    2793	     40258 ns/op	 406.97 MB/s	   16472 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=16384/dense-4         	       1	 261912292 ns/op	   0.06 MB/s	  196608 B/op	       3 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=16384/mixed-4         	       1	 262465000 ns/op	   0.06 MB/s	  196608 B/op	       3 allocs/op
+PASS

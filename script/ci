@@ -13,6 +13,7 @@ go test -race -shuffle=on -count=1 -timeout=90s ./...
 # Every real fuzz failure remains fatal; no timeout result is ignored.
 go test -run '^$' -fuzz '^FuzzMatchChunks$' -fuzztime=100000x -parallel=2 .
 go test -run '^$' -fuzz '^FuzzRedactorChunks$' -fuzztime=100000x -parallel=2 .
+go test -run '^$' -fuzz '^FuzzSessionRedactorAdditiveRules$' -fuzztime=100000x -parallel=2 .
 go test -run '^$' -fuzz '^FuzzPublicRedactorChunks$' -fuzztime=100000x -parallel=2 .
 go test -run '^$' -fuzz '^FuzzLiteralAllChunks$' -fuzztime=100000x -parallel=2 .
 go test -run '^$' -fuzz '^FuzzSessionContinuations$' -fuzztime=100000x -parallel=2 .

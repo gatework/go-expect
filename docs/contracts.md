@@ -69,6 +69,11 @@ Result fields are detached snapshots with raw input. Formatting (`%v`, `%+v`,
 `%#v`) omits contents. Explicit field access or serialization is raw by design.
 Result describes only the final segment, not all the intermediate replies.
 
+Regexp candidates keep capture offsets until a winning case is selected. Its
+capture strings detach before guard evaluation or input consumption; losing
+cases and `All` children do not materialize capture strings. Selection order,
+empty/unmatched group semantics and copied POSIX/Longest modes are unchanged.
+
 Input arriving together with an error is processed before that error. Buffered
 text matches precede EOF. An explicit EOF case returns success with remaining
 input in Before; otherwise Expect returns `io.EOF`. A continuing EOF handler runs
@@ -147,6 +152,14 @@ unfinished prefixes conservatively. Added rules also apply to pending un-emitted
 bytes. Masked output is not necessarily immediate or suitable as a transparent
 protocol relay. Raw matching input and Result fields are unaffected.
 
+The private Session filter uses incremental prefix state for rules longer than
+256 bytes and bounded boundary scans for short rules. It retains only an
+ambiguous suffix, detaches oversized input storage, and releases pending storage
+at EOF/Close. Adding a rule scans the un-emitted suffix once; previously hidden
+bytes stay hidden. Without output/transcript sinks, receive filtering is skipped;
+rule validation and session state checks still apply. This resource policy does
+not change the standalone `Redactor` replacement or rule-scope contracts.
+
 Logs and Observer Events contain operation, case index, byte count and error
 classification only. All registered observers receive each completion, including
 failed/rejected waits. They do not receive raw error messages or payloads.
@@ -179,7 +192,8 @@ their original meaning.
 to prevent duplex backpressure deadlock, and retires on any subsequent failure.
 Its parent context owns the deadline; WithWriteTimeout applies to Send only.
 `NewRedactor` supports a chosen replacement and scoped secret changes without
-allowing previously hidden bytes to reappear. The Session filter is unchanged.
+allowing previously hidden bytes to reappear. Session filtering keeps per-byte
+`*` masking independently of this custom replacement API.
 Public redaction compiles rules longer than 256 bytes once per rule scope and
 maintains their incremental KMP state. It merges ordered covered intervals,
 reuses a bounded retained suffix, and detaches oversized transient storage.

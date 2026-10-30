@@ -184,7 +184,7 @@ func (s *Session) expect(ctx context.Context, cases []Case, guards []func(Result
 			if streaming {
 				index = -1
 			}
-			result = Result{CaseIndex: index, Before: string(s.pending[:loc.start]), Match: string(s.pending[loc.start:loc.end]), Captures: loc.captures}
+			result = Result{CaseIndex: index, Before: string(s.pending[:loc.start]), Match: string(s.pending[loc.start:loc.end]), Captures: loc.materializeCaptures(s.pending)}
 			if !streaming && guards != nil && guards[chosen] != nil {
 				if err = guards[chosen](result); err != nil {
 					return result, err

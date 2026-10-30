@@ -1,0 +1,169 @@
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+                                             │ /private/tmp/connector-round3-20261030/filter-before.txt │ /private/tmp/connector-round3-20261030/filter-after.txt │
+                                             │                          sec/op                          │             sec/op              vs base                 │
+SessionFilter/rule=8/chunk=1/safe-4                                                         16.58n ± 3%                      10.70n ± 3%   -35.46% (p=0.000 n=10)
+SessionFilter/rule=8/chunk=1/dense-4                                                        22.34n ± 2%                      22.16n ± 2%         ~ (p=0.123 n=10)
+SessionFilter/rule=8/chunk=1/mixed-4                                                        81.29n ± 1%                      26.77n ± 2%   -67.06% (p=0.000 n=10)
+SessionFilter/rule=8/chunk=32/safe-4                                                        44.80n ± 5%                      11.44n ± 4%   -74.46% (p=0.000 n=10)
+SessionFilter/rule=8/chunk=32/dense-4                                                       198.2n ± 2%                      141.4n ± 3%   -28.64% (p=0.000 n=10)
+SessionFilter/rule=8/chunk=32/mixed-4                                                       491.9n ± 4%                      385.9n ± 2%   -21.55% (p=0.000 n=10)
+SessionFilter/rule=8/chunk=16384/safe-4                                                     8.554µ ± 1%                      1.079µ ± 2%   -87.39% (p=0.000 n=10)
+SessionFilter/rule=8/chunk=16384/dense-4                                                    93.79µ ± 2%                      64.06µ ± 4%   -31.70% (p=0.000 n=10)
+SessionFilter/rule=8/chunk=16384/mixed-4                                                    217.3µ ± 1%                      187.2µ ± 1%   -13.84% (p=0.000 n=10)
+SessionFilter/rule=4096/chunk=1/safe-4                                                      17.12n ± 1%                      11.13n ± 2%   -35.01% (p=0.000 n=10)
+SessionFilter/rule=4096/chunk=1/dense-4                                                   1135.50n ± 1%                      17.91n ± 3%   -98.42% (p=0.000 n=10)
+SessionFilter/rule=4096/chunk=1/mixed-4                                                  31937.50n ± 1%                      23.06n ± 1%   -99.93% (p=0.000 n=10)
+SessionFilter/rule=4096/chunk=32/safe-4                                                     73.25n ± 1%                      11.57n ± 2%   -84.20% (p=0.000 n=10)
+SessionFilter/rule=4096/chunk=32/dense-4                                                 32416.50n ± 1%                      70.42n ± 2%   -99.78% (p=0.000 n=10)
+SessionFilter/rule=4096/chunk=32/mixed-4                                                  63462.5n ± 0%                      327.2n ± 1%   -99.48% (p=0.000 n=10)
+SessionFilter/rule=4096/chunk=16384/safe-4                                                 15.184µ ± 4%                      1.089µ ± 3%   -92.83% (p=0.000 n=10)
+SessionFilter/rule=4096/chunk=16384/dense-4                                              16553.18µ ± 0%                      26.54µ ± 1%   -99.84% (p=0.000 n=10)
+SessionFilter/rule=4096/chunk=16384/mixed-4                                               16664.4µ ± 1%                      153.3µ ± 1%   -99.08% (p=0.000 n=10)
+SessionFilter/rule=16384/chunk=1/safe-4                                                     17.22n ± 2%                      11.14n ± 1%   -35.28% (p=0.000 n=10)
+SessionFilter/rule=16384/chunk=1/dense-4                                                  4458.00n ± 0%                      18.03n ± 3%   -99.60% (p=0.000 n=10)
+SessionFilter/rule=16384/chunk=1/mixed-4                                                127316.50n ± 1%                      23.25n ± 2%   -99.98% (p=0.000 n=10)
+SessionFilter/rule=16384/chunk=32/safe-4                                                    74.22n ± 1%                      11.45n ± 3%   -84.57% (p=0.000 n=10)
+SessionFilter/rule=16384/chunk=32/dense-4                                               127951.50n ± 0%                      70.58n ± 1%   -99.94% (p=0.000 n=10)
+SessionFilter/rule=16384/chunk=32/mixed-4                                                251282.0n ± 1%                      327.7n ± 1%   -99.87% (p=0.000 n=10)
+SessionFilter/rule=16384/chunk=16384/safe-4                                                35.416µ ± 1%                      1.115µ ± 3%   -96.85% (p=0.000 n=10)
+SessionFilter/rule=16384/chunk=16384/dense-4                                             65347.77µ ± 1%                      26.88µ ± 1%   -99.96% (p=0.000 n=10)
+SessionFilter/rule=16384/chunk=16384/mixed-4                                              65507.2µ ± 1%                      153.7µ ± 1%   -99.77% (p=0.000 n=10)
+SessionFilter/rule=65536/chunk=1/safe-4                                                     22.01n ± 3%                      11.13n ± 2%   -49.42% (p=0.000 n=10)
+SessionFilter/rule=65536/chunk=1/dense-4                                                 18770.50n ± 0%                      17.87n ± 2%   -99.90% (p=0.000 n=10)
+SessionFilter/rule=65536/chunk=1/mixed-4                                                510206.50n ± 0%                      23.06n ± 2%  -100.00% (p=0.000 n=10)
+SessionFilter/rule=65536/chunk=32/safe-4                                                    95.38n ± 2%                      11.65n ± 3%   -87.79% (p=0.000 n=10)
+SessionFilter/rule=65536/chunk=32/dense-4                                               513198.50n ± 1%                      71.22n ± 2%   -99.99% (p=0.000 n=10)
+SessionFilter/rule=65536/chunk=32/mixed-4                                               1005392.5n ± 1%                      328.4n ± 0%   -99.97% (p=0.000 n=10)
+SessionFilter/rule=65536/chunk=16384/safe-4                                                40.416µ ± 1%                      1.207µ ± 2%   -97.01% (p=0.000 n=10)
+SessionFilter/rule=65536/chunk=16384/dense-4                                            261604.98µ ± 0%                      27.50µ ± 1%   -99.99% (p=0.000 n=10)
+SessionFilter/rule=65536/chunk=16384/mixed-4                                             261909.0µ ± 0%                      151.5µ ± 1%   -99.94% (p=0.000 n=10)
+geomean                                                                                     17.74µ                           278.2n        -98.43%
+
+                                             │ /private/tmp/connector-round3-20261030/filter-before.txt │ /private/tmp/connector-round3-20261030/filter-after.txt │
+                                             │                           B/s                            │             B/s              vs base                    │
+SessionFilter/rule=8/chunk=1/safe-4                                                        57.52Mi ± 3%                  89.13Mi ± 3%      +54.95% (p=0.000 n=10)
+SessionFilter/rule=8/chunk=1/dense-4                                                       42.69Mi ± 2%                  43.02Mi ± 2%            ~ (p=0.123 n=10)
+SessionFilter/rule=8/chunk=1/mixed-4                                                       11.73Mi ± 1%                  35.61Mi ± 2%     +203.45% (p=0.000 n=10)
+SessionFilter/rule=8/chunk=32/safe-4                                                       681.2Mi ± 5%                 2667.6Mi ± 4%     +291.59% (p=0.000 n=10)
+SessionFilter/rule=8/chunk=32/dense-4                                                      154.0Mi ± 2%                  215.9Mi ± 3%      +40.17% (p=0.000 n=10)
+SessionFilter/rule=8/chunk=32/mixed-4                                                      62.04Mi ± 3%                  79.07Mi ± 2%      +27.46% (p=0.000 n=10)
+SessionFilter/rule=8/chunk=16384/safe-4                                                    1.784Gi ± 1%                 14.143Gi ± 2%     +692.85% (p=0.000 n=10)
+SessionFilter/rule=8/chunk=16384/dense-4                                                   166.6Mi ± 2%                  243.9Mi ± 3%      +46.41% (p=0.000 n=10)
+SessionFilter/rule=8/chunk=16384/mixed-4                                                   71.91Mi ± 1%                  83.46Mi ± 1%      +16.07% (p=0.000 n=10)
+SessionFilter/rule=4096/chunk=1/safe-4                                                     55.68Mi ± 1%                  85.72Mi ± 2%      +53.97% (p=0.000 n=10)
+SessionFilter/rule=4096/chunk=1/dense-4                                                    859.4Ki ± 1%                54531.2Ki ± 3%    +6245.45% (p=0.000 n=10)
+SessionFilter/rule=4096/chunk=1/mixed-4                                                    29.30Ki ± 0%               42348.63Ki ± 1%  +144450.00% (p=0.000 n=10)
+SessionFilter/rule=4096/chunk=32/safe-4                                                    416.6Mi ± 1%                 2636.3Mi ± 2%     +532.80% (p=0.000 n=10)
+SessionFilter/rule=4096/chunk=32/dense-4                                                   966.8Ki ± 2%               443818.4Ki ± 2%   +45806.06% (p=0.000 n=10)
+SessionFilter/rule=4096/chunk=32/mixed-4                                                   488.3Ki ± 2%                95483.4Ki ± 1%   +19455.00% (p=0.000 n=10)
+SessionFilter/rule=4096/chunk=16384/safe-4                                                 1.005Gi ± 4%                 14.010Gi ± 3%    +1294.13% (p=0.000 n=10)
+SessionFilter/rule=4096/chunk=16384/dense-4                                                966.8Ki ± 1%               602895.5Ki ± 1%   +62260.10% (p=0.000 n=10)
+SessionFilter/rule=4096/chunk=16384/mixed-4                                                957.0Ki ± 0%               104345.7Ki ± 1%   +10803.06% (p=0.000 n=10)
+SessionFilter/rule=16384/chunk=1/safe-4                                                    55.38Mi ± 2%                  85.57Mi ± 1%      +54.51% (p=0.000 n=10)
+SessionFilter/rule=16384/chunk=1/dense-4                                                   214.8Ki ± 5%                54165.0Ki ± 3%   +25111.36% (p=0.000 n=10)
+SessionFilter/rule=16384/chunk=1/mixed-4                                                   9.766Ki ± 0%              42016.602Ki ± 2%  +430150.00% (p=0.000 n=10)
+SessionFilter/rule=16384/chunk=32/safe-4                                                   411.2Mi ± 1%                 2664.9Mi ± 3%     +548.11% (p=0.000 n=10)
+SessionFilter/rule=16384/chunk=32/dense-4                                                  244.1Ki ± 0%               442807.6Ki ± 1%  +181274.00% (p=0.000 n=10)
+SessionFilter/rule=16384/chunk=32/mixed-4                                                  127.0Ki ± 0%                95361.3Ki ± 1%   +75015.38% (p=0.000 n=10)
+SessionFilter/rule=16384/chunk=16384/safe-4                                                441.2Mi ± 1%                14022.6Mi ± 3%    +3078.27% (p=0.000 n=10)
+SessionFilter/rule=16384/chunk=16384/dense-4                                               244.1Ki ± 0%               595312.5Ki ± 1%  +243740.00% (p=0.000 n=10)
+SessionFilter/rule=16384/chunk=16384/mixed-4                                               244.1Ki ± 0%               104072.3Ki ± 1%   +42528.00% (p=0.000 n=10)
+SessionFilter/rule=65536/chunk=1/safe-4                                                    43.33Mi ± 3%                  85.69Mi ± 2%      +97.73% (p=0.000 n=10)
+SessionFilter/rule=65536/chunk=1/dense-4                                                   48.83Ki ± 0%               54663.09Ki ± 2%  +111850.00% (p=0.000 n=10)
+SessionFilter/rule=65536/chunk=1/mixed-4                                                                                 41.35Mi ± 2%
+SessionFilter/rule=65536/chunk=32/safe-4                                                   320.0Mi ± 2%                 2619.5Mi ± 3%     +718.68% (p=0.000 n=10)
+SessionFilter/rule=65536/chunk=32/dense-4                                                  58.59Ki ± 0%              438789.06Ki ± 1%  +748766.67% (p=0.000 n=10)
+SessionFilter/rule=65536/chunk=32/mixed-4                                                  29.30Ki ± 0%               95146.48Ki ± 0%  +324666.67% (p=0.000 n=10)
+SessionFilter/rule=65536/chunk=16384/safe-4                                                386.6Mi ± 1%                12949.2Mi ± 2%    +3249.43% (p=0.000 n=10)
+SessionFilter/rule=65536/chunk=16384/dense-4                                               58.59Ki ± 0%              581806.64Ki ± 1%  +992850.00% (p=0.000 n=10)
+SessionFilter/rule=65536/chunk=16384/mixed-4                                               58.59Ki ± 0%              105625.00Ki ± 1%  +180166.67% (p=0.000 n=10)
+geomean                                                                                    5.401Mi                       276.4Mi         +5303.03%
+
+                                             │ /private/tmp/connector-round3-20261030/filter-before.txt │ /private/tmp/connector-round3-20261030/filter-after.txt │
+                                             │                           B/op                           │             B/op               vs base                  │
+SessionFilter/rule=8/chunk=1/safe-4                                                         8.000 ±  0%                      8.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=8/chunk=1/dense-4                                                        8.000 ±  0%                      8.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=8/chunk=1/mixed-4                                                        8.000 ±  0%                      8.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=8/chunk=32/safe-4                                                        32.00 ±  0%                      32.00 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=8/chunk=32/dense-4                                                       32.00 ±  0%                      32.00 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=8/chunk=32/mixed-4                                                       32.00 ±  0%                      32.00 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=8/chunk=16384/safe-4                                                   16.00Ki ±  0%                    16.00Ki ± 0%   -0.01% (p=0.000 n=10)
+SessionFilter/rule=8/chunk=16384/dense-4                                                  16.03Ki ±  0%                    16.02Ki ± 0%   -0.05% (p=0.000 n=10)
+SessionFilter/rule=8/chunk=16384/mixed-4                                                  16.06Ki ±  0%                    16.06Ki ± 0%   -0.05% (p=0.000 n=10)
+SessionFilter/rule=4096/chunk=1/safe-4                                                      8.000 ±  0%                      8.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=4096/chunk=1/dense-4                                                     8.000 ±  0%                      8.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=4096/chunk=1/mixed-4                                                     8.000 ±  0%                      8.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=4096/chunk=32/safe-4                                                     32.00 ±  0%                      32.00 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=4096/chunk=32/dense-4                                                    34.00 ±  0%                      32.00 ± 0%   -5.88% (p=0.000 n=10)
+SessionFilter/rule=4096/chunk=32/mixed-4                                                    37.00 ±  0%                      32.00 ± 0%  -13.51% (p=0.000 n=10)
+SessionFilter/rule=4096/chunk=16384/safe-4                                                16.00Ki ±  0%                    16.00Ki ± 0%   -0.03% (p=0.000 n=10)
+SessionFilter/rule=4096/chunk=16384/dense-4                                               21.71Ki ±  0%                    16.01Ki ± 0%  -26.27% (p=0.000 n=10)
+SessionFilter/rule=4096/chunk=16384/mixed-4                                               21.71Ki ±  4%                    16.05Ki ± 0%  -26.08% (p=0.000 n=10)
+SessionFilter/rule=16384/chunk=1/safe-4                                                     8.000 ±  0%                      8.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=16384/chunk=1/dense-4                                                    8.000 ±  0%                      8.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=16384/chunk=1/mixed-4                                                    8.000 ±  0%                      8.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=16384/chunk=32/safe-4                                                    32.00 ±  0%                      32.00 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=16384/chunk=32/dense-4                                                   78.00 ±  0%                      32.00 ± 0%  -58.97% (p=0.000 n=10)
+SessionFilter/rule=16384/chunk=32/mixed-4                                                  123.00 ±  1%                      32.00 ± 0%  -73.98% (p=0.000 n=10)
+SessionFilter/rule=16384/chunk=16384/safe-4                                               16.03Ki ±  0%                    16.00Ki ± 0%   -0.21% (p=0.000 n=10)
+SessionFilter/rule=16384/chunk=16384/dense-4                                              64.00Ki ±  0%                    16.01Ki ± 0%  -74.98% (p=0.000 n=10)
+SessionFilter/rule=16384/chunk=16384/mixed-4                                              64.00Ki ±  0%                    16.08Ki ± 0%  -74.87% (p=0.000 n=10)
+SessionFilter/rule=65536/chunk=1/safe-4                                                     8.000 ±  0%                      8.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=65536/chunk=1/dense-4                                                    8.000 ±  0%                      8.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=65536/chunk=1/mixed-4                                                    8.000 ±  0%                      8.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=65536/chunk=32/safe-4                                                    32.00 ±  0%                      32.00 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=65536/chunk=32/dense-4                                                  808.00 ±  1%                      32.00 ± 0%  -96.04% (p=0.000 n=10)
+SessionFilter/rule=65536/chunk=32/mixed-4                                                 1834.00 ± 16%                      32.00 ± 0%  -98.26% (p=0.000 n=10)
+SessionFilter/rule=65536/chunk=16384/safe-4                                               16.08Ki ±  0%                    16.00Ki ± 0%   -0.51% (p=0.000 n=10)
+SessionFilter/rule=65536/chunk=16384/dense-4                                             192.00Ki ±  0%                    16.06Ki ± 0%  -91.64% (p=0.000 n=10)
+SessionFilter/rule=65536/chunk=16384/mixed-4                                             192.00Ki ±  0%                    16.32Ki ± 0%  -91.50% (p=0.000 n=10)
+geomean                                                                                     266.5                            161.4       -39.43%
+¹ all samples are equal
+
+                                             │ /private/tmp/connector-round3-20261030/filter-before.txt │ /private/tmp/connector-round3-20261030/filter-after.txt │
+                                             │                        allocs/op                         │           allocs/op            vs base                  │
+SessionFilter/rule=8/chunk=1/safe-4                                                          1.000 ± 0%                      1.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=8/chunk=1/dense-4                                                         1.000 ± 0%                      1.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=8/chunk=1/mixed-4                                                         1.000 ± 0%                      1.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=8/chunk=32/safe-4                                                         1.000 ± 0%                      1.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=8/chunk=32/dense-4                                                        1.000 ± 0%                      1.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=8/chunk=32/mixed-4                                                        1.000 ± 0%                      1.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=8/chunk=16384/safe-4                                                      1.000 ± 0%                      1.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=8/chunk=16384/dense-4                                                     1.000 ± 0%                      1.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=8/chunk=16384/mixed-4                                                     1.000 ± 0%                      1.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=4096/chunk=1/safe-4                                                       1.000 ± 0%                      1.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=4096/chunk=1/dense-4                                                      1.000 ± 0%                      1.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=4096/chunk=1/mixed-4                                                      1.000 ± 0%                      1.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=4096/chunk=32/safe-4                                                      1.000 ± 0%                      1.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=4096/chunk=32/dense-4                                                     1.000 ± 0%                      1.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=4096/chunk=32/mixed-4                                                     1.000 ± 0%                      1.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=4096/chunk=16384/safe-4                                                   1.000 ± 0%                      1.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=4096/chunk=16384/dense-4                                                  1.000 ± 0%                      1.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=4096/chunk=16384/mixed-4                                                  1.000 ± 0%                      1.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=16384/chunk=1/safe-4                                                      1.000 ± 0%                      1.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=16384/chunk=1/dense-4                                                     1.000 ± 0%                      1.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=16384/chunk=1/mixed-4                                                     1.000 ± 0%                      1.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=16384/chunk=32/safe-4                                                     1.000 ± 0%                      1.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=16384/chunk=32/dense-4                                                    1.000 ± 0%                      1.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=16384/chunk=32/mixed-4                                                    1.000 ± 0%                      1.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=16384/chunk=16384/safe-4                                                  1.000 ± 0%                      1.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=16384/chunk=16384/dense-4                                                 2.000 ± 0%                      1.000 ± 0%  -50.00% (p=0.000 n=10)
+SessionFilter/rule=16384/chunk=16384/mixed-4                                                 2.000 ± 0%                      1.000 ± 0%  -50.00% (p=0.000 n=10)
+SessionFilter/rule=65536/chunk=1/safe-4                                                      1.000 ± 0%                      1.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=65536/chunk=1/dense-4                                                     1.000 ± 0%                      1.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=65536/chunk=1/mixed-4                                                     1.000 ± 0%                      1.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=65536/chunk=32/safe-4                                                     1.000 ± 0%                      1.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=65536/chunk=32/dense-4                                                    1.000 ± 0%                      1.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=65536/chunk=32/mixed-4                                                    1.000 ± 0%                      1.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=65536/chunk=16384/safe-4                                                  1.000 ± 0%                      1.000 ± 0%        ~ (p=1.000 n=10) ¹
+SessionFilter/rule=65536/chunk=16384/dense-4                                                 3.000 ± 0%                      1.000 ± 0%  -66.67% (p=0.000 n=10)
+SessionFilter/rule=65536/chunk=16384/mixed-4                                                 3.000 ± 0%                      1.000 ± 0%  -66.67% (p=0.000 n=10)
+geomean                                                                                      1.105                           1.000        -9.47%
+¹ all samples are equal
+
+                                         │ /private/tmp/connector-round3-20261030/filter-before.txt │
+                                         │                           MB/s                           │
+SessionFilter/rule=65536/chunk=1/mixed-4                                                 0.000 ± 0%

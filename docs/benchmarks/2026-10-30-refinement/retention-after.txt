@@ -1,0 +1,70 @@
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkSessionFilterRetention/sink=false-4         	       1	       292.0 ns/op	     19976 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkSessionFilterRetention/sink=true-4          	       1	       208.0 ns/op	     20453 retained-B/session	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkSessionFilterRetention/sink=false-4         	       1	       167.0 ns/op	     20615 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkSessionFilterRetention/sink=true-4          	       1	       250.0 ns/op	     19596 retained-B/session	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkSessionFilterRetention/sink=false-4         	       1	       208.0 ns/op	     19980 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkSessionFilterRetention/sink=true-4          	       1	       333.0 ns/op	     20449 retained-B/session	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkSessionFilterRetention/sink=false-4         	       1	       292.0 ns/op	     19964 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkSessionFilterRetention/sink=true-4          	       1	       209.0 ns/op	     19826 retained-B/session	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkSessionFilterRetention/sink=false-4         	       1	       209.0 ns/op	     19958 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkSessionFilterRetention/sink=true-4          	       1	       250.0 ns/op	     19620 retained-B/session	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkSessionFilterRetention/sink=false-4         	       1	       375.0 ns/op	     19976 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkSessionFilterRetention/sink=true-4          	       1	       250.0 ns/op	     19738 retained-B/session	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkSessionFilterRetention/sink=false-4         	       1	       333.0 ns/op	     19956 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkSessionFilterRetention/sink=true-4          	       1	       209.0 ns/op	     20533 retained-B/session	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkSessionFilterRetention/sink=false-4         	       1	       250.0 ns/op	     19982 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkSessionFilterRetention/sink=true-4          	       1	       125.0 ns/op	     20603 retained-B/session	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkSessionFilterRetention/sink=false-4         	       1	       125.0 ns/op	     19982 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkSessionFilterRetention/sink=true-4          	       1	       209.0 ns/op	     19722 retained-B/session	       0 B/op	       0 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkSessionFilterRetention/sink=false-4         	       1	       208.0 ns/op	     19994 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkSessionFilterRetention/sink=true-4          	       1	       292.0 ns/op	     20521 retained-B/session	       0 B/op	       0 allocs/op
+PASS

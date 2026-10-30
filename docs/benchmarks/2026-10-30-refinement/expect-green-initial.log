@@ -1,0 +1,122 @@
+=== RUN   TestExpectContinueAndCaptures
+--- PASS: TestExpectContinueAndCaptures (0.00s)
+=== RUN   TestExpectZeroWidthKeepsBuffer
+--- PASS: TestExpectZeroWidthKeepsBuffer (0.00s)
+=== RUN   TestRegexpWinnerCapturesBeforeGuardAndDetached
+=== RUN   TestRegexpWinnerCapturesBeforeGuardAndDetached/earliest
+=== RUN   TestRegexpWinnerCapturesBeforeGuardAndDetached/declaration
+--- PASS: TestRegexpWinnerCapturesBeforeGuardAndDetached (0.00s)
+    --- PASS: TestRegexpWinnerCapturesBeforeGuardAndDetached/earliest (0.00s)
+    --- PASS: TestRegexpWinnerCapturesBeforeGuardAndDetached/declaration (0.00s)
+=== RUN   TestRegexpCaptureSelectionAndAll
+=== RUN   TestRegexpCaptureSelectionAndAll/ordinary
+=== RUN   TestRegexpCaptureSelectionAndAll/longest
+=== RUN   TestRegexpCaptureSelectionAndAll/posix
+--- PASS: TestRegexpCaptureSelectionAndAll (0.00s)
+    --- PASS: TestRegexpCaptureSelectionAndAll/ordinary (0.00s)
+    --- PASS: TestRegexpCaptureSelectionAndAll/longest (0.00s)
+    --- PASS: TestRegexpCaptureSelectionAndAll/posix (0.00s)
+=== RUN   TestPublicRedactorDetachedOutput
+--- PASS: TestPublicRedactorDetachedOutput (0.00s)
+=== RUN   TestPublicRedactorSafeChunkAllocations
+=== RUN   TestPublicRedactorSafeChunkAllocations/no_rules
+=== RUN   TestPublicRedactorSafeChunkAllocations/with_rule
+--- PASS: TestPublicRedactorSafeChunkAllocations (0.00s)
+    --- PASS: TestPublicRedactorSafeChunkAllocations/no_rules (0.00s)
+    --- PASS: TestPublicRedactorSafeChunkAllocations/with_rule (0.00s)
+=== RUN   TestPublicRedactorRetainedWindow
+--- PASS: TestPublicRedactorRetainedWindow (0.00s)
+=== RUN   TestPublicRedactorMaskedByteAllocations
+=== RUN   TestPublicRedactorMaskedByteAllocations/matches
+=== RUN   TestPublicRedactorMaskedByteAllocations/overlaps
+--- PASS: TestPublicRedactorMaskedByteAllocations (0.00s)
+    --- PASS: TestPublicRedactorMaskedByteAllocations/matches (0.00s)
+    --- PASS: TestPublicRedactorMaskedByteAllocations/overlaps (0.00s)
+=== RUN   TestPublicRedactorLongSecretBoundaryFallback
+--- PASS: TestPublicRedactorLongSecretBoundaryFallback (0.00s)
+=== RUN   TestSessionRedactorReleasesLargeStorage
+=== RUN   TestSessionRedactorReleasesLargeStorage/empty
+=== RUN   TestSessionRedactorReleasesLargeStorage/prefix
+--- PASS: TestSessionRedactorReleasesLargeStorage (0.03s)
+    --- PASS: TestSessionRedactorReleasesLargeStorage/empty (0.01s)
+    --- PASS: TestSessionRedactorReleasesLargeStorage/prefix (0.01s)
+=== RUN   TestSessionRedactorLongMixedAdditiveRules
+=== RUN   TestSessionRedactorLongMixedAdditiveRules/256
+=== RUN   TestSessionRedactorLongMixedAdditiveRules/257
+=== RUN   TestSessionRedactorLongMixedAdditiveRules/4096
+--- PASS: TestSessionRedactorLongMixedAdditiveRules (0.00s)
+    --- PASS: TestSessionRedactorLongMixedAdditiveRules/256 (0.00s)
+    --- PASS: TestSessionRedactorLongMixedAdditiveRules/257 (0.00s)
+    --- PASS: TestSessionRedactorLongMixedAdditiveRules/4096 (0.00s)
+=== RUN   TestSessionEmitWithoutSinkSkipsFilter
+--- PASS: TestSessionEmitWithoutSinkSkipsFilter (0.00s)
+=== RUN   TestRedactorBoundaries
+=== RUN   TestRedactorBoundaries/overlap
+=== RUN   TestRedactorBoundaries/unfinished
+=== RUN   TestRedactorBoundaries/diverging_suffix
+=== RUN   TestRedactorBoundaries/binary
+=== RUN   TestRedactorBoundaries/no_secrets
+--- PASS: TestRedactorBoundaries (0.00s)
+    --- PASS: TestRedactorBoundaries/overlap (0.00s)
+    --- PASS: TestRedactorBoundaries/unfinished (0.00s)
+    --- PASS: TestRedactorBoundaries/diverging_suffix (0.00s)
+    --- PASS: TestRedactorBoundaries/binary (0.00s)
+    --- PASS: TestRedactorBoundaries/no_secrets (0.00s)
+=== RUN   TestRedactorRuleAdditionPreservesHiddenBytes
+--- PASS: TestRedactorRuleAdditionPreservesHiddenBytes (0.00s)
+=== RUN   TestRedactorCloseMasksPendingPrefix
+--- PASS: TestRedactorCloseMasksPendingPrefix (0.00s)
+=== RUN   TestStandaloneRedactorScopedSwitch
+--- PASS: TestStandaloneRedactorScopedSwitch (0.00s)
+=== RUN   TestStreamingRedactorChunkOverlap
+=== RUN   TestStreamingRedactorChunkOverlap/b
+=== RUN   TestStreamingRedactorChunkOverlap/c
+=== RUN   TestStreamingRedactorChunkOverlap/d
+=== RUN   TestStreamingRedactorChunkOverlap/h
+=== RUN   TestStreamingRedactorChunkOverlap/Å
+--- PASS: TestStreamingRedactorChunkOverlap (0.00s)
+    --- PASS: TestStreamingRedactorChunkOverlap/b (0.00s)
+    --- PASS: TestStreamingRedactorChunkOverlap/c (0.00s)
+    --- PASS: TestStreamingRedactorChunkOverlap/d (0.00s)
+    --- PASS: TestStreamingRedactorChunkOverlap/h (0.00s)
+    --- PASS: TestStreamingRedactorChunkOverlap/Å (0.00s)
+=== RUN   TestPublicRedactorDenseWarmSuffixReuse
+--- PASS: TestPublicRedactorDenseWarmSuffixReuse (0.00s)
+=== RUN   TestPublicRedactorLongDenseDifferential
+--- PASS: TestPublicRedactorLongDenseDifferential (0.08s)
+=== RUN   TestPublicRedactorShortRulesAcrossLongRetainedSuffix
+--- PASS: TestPublicRedactorShortRulesAcrossLongRetainedSuffix (0.00s)
+=== RUN   TestFromRegexpPreservesLongestAndIsolation
+--- PASS: TestFromRegexpPreservesLongestAndIsolation (0.00s)
+=== RUN   FuzzPublicRedactorChunks
+=== RUN   FuzzPublicRedactorChunks/seed#0
+=== RUN   FuzzPublicRedactorChunks/seed#1
+=== RUN   FuzzPublicRedactorChunks/seed#2
+=== RUN   FuzzPublicRedactorChunks/seed#3
+=== RUN   FuzzPublicRedactorChunks/seed#4
+--- PASS: FuzzPublicRedactorChunks (0.00s)
+    --- PASS: FuzzPublicRedactorChunks/seed#0 (0.00s)
+    --- PASS: FuzzPublicRedactorChunks/seed#1 (0.00s)
+    --- PASS: FuzzPublicRedactorChunks/seed#2 (0.00s)
+    --- PASS: FuzzPublicRedactorChunks/seed#3 (0.00s)
+    --- PASS: FuzzPublicRedactorChunks/seed#4 (0.00s)
+=== RUN   FuzzSessionRedactorAdditiveRules
+=== RUN   FuzzSessionRedactorAdditiveRules/seed#0
+=== RUN   FuzzSessionRedactorAdditiveRules/seed#1
+=== RUN   FuzzSessionRedactorAdditiveRules/seed#2
+--- PASS: FuzzSessionRedactorAdditiveRules (0.00s)
+    --- PASS: FuzzSessionRedactorAdditiveRules/seed#0 (0.00s)
+    --- PASS: FuzzSessionRedactorAdditiveRules/seed#1 (0.00s)
+    --- PASS: FuzzSessionRedactorAdditiveRules/seed#2 (0.00s)
+=== RUN   FuzzRedactorChunks
+=== RUN   FuzzRedactorChunks/seed#0
+=== RUN   FuzzRedactorChunks/seed#1
+=== RUN   FuzzRedactorChunks/seed#2
+=== RUN   FuzzRedactorChunks/seed#3
+--- PASS: FuzzRedactorChunks (0.00s)
+    --- PASS: FuzzRedactorChunks/seed#0 (0.00s)
+    --- PASS: FuzzRedactorChunks/seed#1 (0.00s)
+    --- PASS: FuzzRedactorChunks/seed#2 (0.00s)
+    --- PASS: FuzzRedactorChunks/seed#3 (0.00s)
+PASS
+ok  	github.com/gatework/go-expect	0.528s

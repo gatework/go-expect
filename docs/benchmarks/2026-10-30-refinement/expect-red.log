@@ -1,0 +1,36 @@
+=== RUN   TestRegexpWinnerCapturesBeforeGuardAndDetached
+=== RUN   TestRegexpWinnerCapturesBeforeGuardAndDetached/earliest
+=== RUN   TestRegexpWinnerCapturesBeforeGuardAndDetached/declaration
+--- PASS: TestRegexpWinnerCapturesBeforeGuardAndDetached (0.00s)
+    --- PASS: TestRegexpWinnerCapturesBeforeGuardAndDetached/earliest (0.00s)
+    --- PASS: TestRegexpWinnerCapturesBeforeGuardAndDetached/declaration (0.00s)
+=== RUN   TestRegexpCaptureSelectionAndAll
+=== RUN   TestRegexpCaptureSelectionAndAll/ordinary
+=== RUN   TestRegexpCaptureSelectionAndAll/longest
+=== RUN   TestRegexpCaptureSelectionAndAll/posix
+--- PASS: TestRegexpCaptureSelectionAndAll (0.00s)
+    --- PASS: TestRegexpCaptureSelectionAndAll/ordinary (0.00s)
+    --- PASS: TestRegexpCaptureSelectionAndAll/longest (0.00s)
+    --- PASS: TestRegexpCaptureSelectionAndAll/posix (0.00s)
+=== RUN   TestSessionRedactorReleasesLargeStorage
+=== RUN   TestSessionRedactorReleasesLargeStorage/empty
+    redactor_refinement_test.go:22: tiny suffix retains burst: pending cap=8388608 hidden cap=8388608
+=== RUN   TestSessionRedactorReleasesLargeStorage/prefix
+    redactor_refinement_test.go:22: tiny suffix retains burst: pending cap=8396800 hidden cap=8396800
+--- FAIL: TestSessionRedactorReleasesLargeStorage (0.03s)
+    --- FAIL: TestSessionRedactorReleasesLargeStorage/empty (0.02s)
+    --- FAIL: TestSessionRedactorReleasesLargeStorage/prefix (0.01s)
+=== RUN   TestSessionRedactorLongMixedAdditiveRules
+=== RUN   TestSessionRedactorLongMixedAdditiveRules/256
+=== RUN   TestSessionRedactorLongMixedAdditiveRules/257
+=== RUN   TestSessionRedactorLongMixedAdditiveRules/4096
+--- PASS: TestSessionRedactorLongMixedAdditiveRules (0.13s)
+    --- PASS: TestSessionRedactorLongMixedAdditiveRules/256 (0.00s)
+    --- PASS: TestSessionRedactorLongMixedAdditiveRules/257 (0.00s)
+    --- PASS: TestSessionRedactorLongMixedAdditiveRules/4096 (0.12s)
+=== RUN   TestSessionEmitWithoutSinkSkipsFilter
+    redactor_refinement_test.go:57: no-sink session retained diagnostic bytes
+--- FAIL: TestSessionEmitWithoutSinkSkipsFilter (0.00s)
+FAIL
+FAIL	github.com/gatework/go-expect	0.564s
+FAIL

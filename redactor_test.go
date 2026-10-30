@@ -95,8 +95,10 @@ func referenceRedaction(input []byte, secrets []string) []byte {
 func FuzzRedactorChunks(f *testing.F) {
 	f.Add([]byte("abab password pass"), "aba", "password", uint8(1))
 	f.Add([]byte("ababa"), "aba", "bab", uint8(3))
+	f.Add([]byte(strings.Repeat("a", 900)+"b"), strings.Repeat("a", 300)+"b", "aaa", uint8(1))
+	f.Add(bytes.Repeat([]byte{0xff, 0}, 400), string(bytes.Repeat([]byte{0xff, 0}, 160)), "\x00\xff", uint8(32))
 	f.Fuzz(func(t *testing.T, data []byte, a, b string, size uint8) {
-		if len(data) > 4096 || len(a) > 64 || len(b) > 64 {
+		if len(data) > 4096 || len(a) > 1024 || len(b) > 1024 {
 			return
 		}
 		var secrets []string

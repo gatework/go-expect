@@ -1,0 +1,28 @@
+test_api_failure_is_not_release_absence (test_release.ArtifactTests.test_api_failure_is_not_release_absence) ... ok
+test_bad_remote_bytes_never_publish (test_release.ArtifactTests.test_bad_remote_bytes_never_publish) ... ok
+test_changed_tree_with_correct_commit_header_is_rejected (test_release.ArtifactTests.test_changed_tree_with_correct_commit_header_is_rejected) ... ok
+test_foreign_archive_with_recomputed_manifest_rejected (test_release.ArtifactTests.test_foreign_archive_with_recomputed_manifest_rejected) ... ok
+test_foreign_prerelease_draft_is_not_published (test_release.ArtifactTests.test_foreign_prerelease_draft_is_not_published) ... ok
+test_incomplete_draft_resumes_without_overwrite (test_release.ArtifactTests.test_incomplete_draft_resumes_without_overwrite) ... ok
+test_interrupted_starter_upload_can_resume (test_release.ArtifactTests.test_interrupted_starter_upload_can_resume) ... ok
+test_invalid_archive_inventory_and_modes_are_rejected (test_release.ArtifactTests.test_invalid_archive_inventory_and_modes_are_rejected) ... ok
+test_publish_then_rerun_is_read_only (test_release.ArtifactTests.test_publish_then_rerun_is_read_only) ... ok
+test_published_missing_asset_is_not_repaired (test_release.ArtifactTests.test_published_missing_asset_is_not_repaired) ... ok
+test_repeatable_package_and_tampering (test_release.ArtifactTests.test_repeatable_package_and_tampering) ... ok
+test_tag_moved_during_upload_is_caught_before_publication (test_release.ArtifactTests.test_tag_moved_during_upload_is_caught_before_publication) ... ok
+test_tracked_symlink_and_executable_are_preserved (test_release.ArtifactTests.test_tracked_symlink_and_executable_are_preserved) ... ok
+test_unusable_directory_permissions_are_rejected (test_release.ArtifactTests.test_unusable_directory_permissions_are_rejected) ... ok
+test_wrong_tag_never_uploads_or_publishes (test_release.ArtifactTests.test_wrong_tag_never_uploads_or_publishes) ... ok
+test_divergent_history_and_unsupported_major_fail (test_release.VersionTests.test_divergent_history_and_unsupported_major_fail) ... ok
+test_draft_target_cannot_override_an_existing_tag (test_release.VersionTests.test_draft_target_cannot_override_an_existing_tag) ... ok
+test_first_and_numeric_patch (test_release.VersionTests.test_first_and_numeric_patch) ... ok
+test_old_ci_does_not_publish_newer_version (test_release.VersionTests.test_old_ci_does_not_publish_newer_version) ... ok
+test_old_tag_or_draft_cannot_replace_latest (test_release.VersionTests.test_old_tag_or_draft_cannot_replace_latest) ... ok
+test_repository_lookup_has_no_trailing_slash (test_release.VersionTests.test_repository_lookup_has_no_trailing_slash) ... ok
+test_rerun_reuses_published_or_partial_draft (test_release.VersionTests.test_rerun_reuses_published_or_partial_draft) ... ok
+test_unknown_draft_blocks_new_version (test_release.VersionTests.test_unknown_draft_blocks_new_version) ... ok
+
+----------------------------------------------------------------------
+Ran 23 tests in 0.941s
+
+OK

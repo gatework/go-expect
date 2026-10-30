@@ -1,0 +1,90 @@
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkCompetingCaptures/cases=1/all=false-4         	      50	   2277148 ns/op	  132167 B/op	      11 allocs/op
+BenchmarkCompetingCaptures/cases=1/all=true-4          	      31	   3663091 ns/op	   66806 B/op	      11 allocs/op
+BenchmarkCompetingCaptures/cases=8/all=false-4         	       6	  18049743 ns/op	  136600 B/op	      23 allocs/op
+BenchmarkCompetingCaptures/cases=8/all=true-4          	       4	  29841667 ns/op	   72800 B/op	      32 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkCompetingCaptures/cases=1/all=false-4         	      51	   2281625 ns/op	  132157 B/op	      11 allocs/op
+BenchmarkCompetingCaptures/cases=1/all=true-4          	      30	   3752951 ns/op	   66833 B/op	      11 allocs/op
+BenchmarkCompetingCaptures/cases=8/all=false-4         	       6	  18132021 ns/op	  136674 B/op	      24 allocs/op
+BenchmarkCompetingCaptures/cases=8/all=true-4          	       4	  29627010 ns/op	   72828 B/op	      32 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkCompetingCaptures/cases=1/all=false-4         	      48	   2469667 ns/op	  132188 B/op	      11 allocs/op
+BenchmarkCompetingCaptures/cases=1/all=true-4          	      32	   3664124 ns/op	   66578 B/op	      10 allocs/op
+BenchmarkCompetingCaptures/cases=8/all=false-4         	       6	  18084243 ns/op	  135585 B/op	      20 allocs/op
+BenchmarkCompetingCaptures/cases=8/all=true-4          	       4	  28698333 ns/op	   72716 B/op	      31 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkCompetingCaptures/cases=1/all=false-4         	      51	   2262060 ns/op	  132157 B/op	      11 allocs/op
+BenchmarkCompetingCaptures/cases=1/all=true-4          	      31	   3650336 ns/op	   66806 B/op	      10 allocs/op
+BenchmarkCompetingCaptures/cases=8/all=false-4         	       6	  18018486 ns/op	  136602 B/op	      23 allocs/op
+BenchmarkCompetingCaptures/cases=8/all=true-4          	       4	  29301760 ns/op	   71166 B/op	      27 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkCompetingCaptures/cases=1/all=false-4         	      49	   2309327 ns/op	  132179 B/op	      11 allocs/op
+BenchmarkCompetingCaptures/cases=1/all=true-4          	      31	   3638833 ns/op	   66595 B/op	      10 allocs/op
+BenchmarkCompetingCaptures/cases=8/all=false-4         	       6	  18120278 ns/op	  136674 B/op	      24 allocs/op
+BenchmarkCompetingCaptures/cases=8/all=true-4          	       4	  28905719 ns/op	   72824 B/op	      32 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkCompetingCaptures/cases=1/all=false-4         	      51	   2277108 ns/op	  132160 B/op	      11 allocs/op
+BenchmarkCompetingCaptures/cases=1/all=true-4          	      32	   3653365 ns/op	   66778 B/op	      10 allocs/op
+BenchmarkCompetingCaptures/cases=8/all=false-4         	       6	  18131347 ns/op	  136677 B/op	      24 allocs/op
+BenchmarkCompetingCaptures/cases=8/all=true-4          	       4	  29022344 ns/op	   71190 B/op	      27 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkCompetingCaptures/cases=1/all=false-4         	      51	   2293152 ns/op	  132262 B/op	      11 allocs/op
+BenchmarkCompetingCaptures/cases=1/all=true-4          	      31	   3743347 ns/op	   66596 B/op	      10 allocs/op
+BenchmarkCompetingCaptures/cases=8/all=false-4         	       6	  18115660 ns/op	  136674 B/op	      24 allocs/op
+BenchmarkCompetingCaptures/cases=8/all=true-4          	       4	  29339302 ns/op	   71194 B/op	      27 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkCompetingCaptures/cases=1/all=false-4         	      51	   2270252 ns/op	  132157 B/op	      11 allocs/op
+BenchmarkCompetingCaptures/cases=1/all=true-4          	      30	   3730871 ns/op	   66833 B/op	      11 allocs/op
+BenchmarkCompetingCaptures/cases=8/all=false-4         	       6	  18049368 ns/op	  136674 B/op	      24 allocs/op
+BenchmarkCompetingCaptures/cases=8/all=true-4          	       4	  29473292 ns/op	   72828 B/op	      32 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkCompetingCaptures/cases=1/all=false-4         	      51	   2263694 ns/op	  132157 B/op	      11 allocs/op
+BenchmarkCompetingCaptures/cases=1/all=true-4          	      30	   3711232 ns/op	   66832 B/op	      11 allocs/op
+BenchmarkCompetingCaptures/cases=8/all=false-4         	       6	  18020632 ns/op	  136677 B/op	      24 allocs/op
+BenchmarkCompetingCaptures/cases=8/all=true-4          	       4	  29425886 ns/op	   72824 B/op	      32 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkCompetingCaptures/cases=1/all=false-4         	      50	   2279630 ns/op	  132167 B/op	      11 allocs/op
+BenchmarkCompetingCaptures/cases=1/all=true-4          	      31	   3704577 ns/op	   66806 B/op	      11 allocs/op
+BenchmarkCompetingCaptures/cases=8/all=false-4         	       6	  18067722 ns/op	  136600 B/op	      23 allocs/op
+BenchmarkCompetingCaptures/cases=8/all=true-4          	       4	  29643271 ns/op	   72712 B/op	      31 allocs/op
+PASS

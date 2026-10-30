@@ -1,0 +1,31 @@
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+                                    │ /private/tmp/connector-round3-20261030/retention-before.txt │ /private/tmp/connector-round3-20261030/retention-after.txt │
+                                    │                           sec/op                            │               sec/op                 vs base               │
+SessionFilterRetention/sink=false-4                                                  250.0n ± 33%                          229.5n ± 45%       ~ (p=0.534 n=10)
+SessionFilterRetention/sink=true-4                                                   208.5n ± 40%                          229.5n ± 27%       ~ (p=0.423 n=10)
+geomean                                                                              228.3n                                229.5n        +0.52%
+
+                                    │ /private/tmp/connector-round3-20261030/retention-before.txt │ /private/tmp/connector-round3-20261030/retention-after.txt │
+                                    │                     retained-B/session                      │         retained-B/session          vs base                │
+SessionFilterRetention/sink=false-4                                               16419.37Ki ± 0%                         19.51Ki ± 0%  -99.88% (p=0.000 n=10)
+SessionFilterRetention/sink=true-4                                                16419.12Ki ± 0%                         19.67Ki ± 3%  -99.88% (p=0.000 n=10)
+geomean                                                                              16.03Mi                              19.59Ki       -99.88%
+
+                                    │ /private/tmp/connector-round3-20261030/retention-before.txt │ /private/tmp/connector-round3-20261030/retention-after.txt │
+                                    │                            B/op                             │               B/op                 vs base                 │
+SessionFilterRetention/sink=false-4                                                  0.000 ± 0%                            0.000 ± 0%       ~ (p=1.000 n=10) ¹
+SessionFilterRetention/sink=true-4                                                   0.000 ± 0%                            0.000 ± 0%       ~ (p=1.000 n=10) ¹
+geomean                                                                                         ²                                      +0.00%                ²
+¹ all samples are equal
+² summaries must be >0 to compute geomean
+
+                                    │ /private/tmp/connector-round3-20261030/retention-before.txt │ /private/tmp/connector-round3-20261030/retention-after.txt │
+                                    │                          allocs/op                          │             allocs/op              vs base                 │
+SessionFilterRetention/sink=false-4                                                  0.000 ± 0%                            0.000 ± 0%       ~ (p=1.000 n=10) ¹
+SessionFilterRetention/sink=true-4                                                   0.000 ± 0%                            0.000 ± 0%       ~ (p=1.000 n=10) ¹
+geomean                                                                                         ²                                      +0.00%                ²
+¹ all samples are equal
+² summaries must be >0 to compute geomean

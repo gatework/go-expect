@@ -134,10 +134,16 @@ func (c Case) GoString() string { return c.String() }
 
 type location struct {
 	start, end int
-	captures   []Capture
+	submatches []int
 }
 
 func (p Pattern) find(data []byte, terminal bool, scanFrom int) (location, bool, error) {
+	return p.findLocation(data, terminal, scanFrom, true)
+}
+
+// All children only need their extent; ordinary candidates retain capture
+// offsets until Expect chooses its final winner. No candidate copies payloads.
+func (p Pattern) findLocation(data []byte, terminal bool, scanFrom int, captures bool) (location, bool, error) {
 	switch p.kind {
 	case literalPattern:
 		i := bytes.Index(data[scanFrom:], []byte(p.text))
@@ -151,27 +157,23 @@ func (p Pattern) find(data []byte, terminal bool, scanFrom int) (location, bool,
 		if !terminal {
 			view = data[:completeUTF8(data)]
 		}
-		idx := p.re.FindSubmatchIndex(view)
+		var idx []int
+		if captures {
+			idx = p.re.FindSubmatchIndex(view)
+		} else {
+			idx = p.re.FindIndex(view)
+		}
 		if idx == nil {
 			return location{}, false, nil
 		}
 		if idx[0] == idx[1] {
 			return location{}, false, ErrEmptyMatch
 		}
-		loc := location{start: idx[0], end: idx[1]}
-		for i := 2; i < len(idx); i += 2 {
-			c := Capture{}
-			if idx[i] >= 0 {
-				c.Text = string(data[idx[i]:idx[i+1]])
-				c.Matched = true
-			}
-			loc.captures = append(loc.captures, c)
-		}
-		return loc, true, nil
+		return location{start: idx[0], end: idx[1], submatches: idx[2:]}, true, nil
 	case allPattern:
 		loc := location{start: len(data)}
 		for _, child := range p.all {
-			hit, ok, err := child.find(data, terminal, 0)
+			hit, ok, err := child.findLocation(data, terminal, 0, false)
 			if err != nil || !ok {
 				return location{}, false, err
 			}
@@ -185,6 +187,22 @@ func (p Pattern) find(data []byte, terminal bool, scanFrom int) (location, bool,
 		return loc, true, nil
 	}
 	return location{}, false, nil
+}
+
+// materializeCaptures runs once for the winner before guards or consumption.
+// Each string owns its bytes independently of the session receive storage.
+func (loc location) materializeCaptures(data []byte) []Capture {
+	if len(loc.submatches) == 0 {
+		return nil
+	}
+	captures := make([]Capture, len(loc.submatches)/2)
+	for i := range captures {
+		start, end := loc.submatches[2*i], loc.submatches[2*i+1]
+		if start >= 0 {
+			captures[i] = Capture{Text: string(data[start:end]), Matched: true}
+		}
+	}
+	return captures
 }
 
 // Retain only a trailing incomplete encoding, never rewrite invalid bytes.

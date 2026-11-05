@@ -1,0 +1,378 @@
+{
+  "toolchain": "go version go1.27.3 linux/amd64",
+  "gomaxprocs": 4,
+  "samples": 10,
+  "benchtime": "100ms",
+  "baseline": "supplied go-expect.zip; digest in sha256.json",
+  "columns": [
+    "ns/op",
+    "B/op",
+    "allocs/op"
+  ],
+  "results": {
+    "BenchmarkReceivePatterns/literal/chunk_32-4": {
+      "before_median_ns_bytes_allocs": [
+        1966118.0,
+        246412.0,
+        1063.0
+      ],
+      "after_median_ns_bytes_allocs": [
+        1938161.5,
+        246546.5,
+        1062.0
+      ],
+      "median_time_change_percent": -1.4219136389575837,
+      "paired_log_ratio_sign_flip_p": 0.5
+    },
+    "BenchmarkReceivePatterns/literal/chunk_1024-4": {
+      "before_median_ns_bytes_allocs": [
+        418025.5,
+        236901.5,
+        63.0
+      ],
+      "after_median_ns_bytes_allocs": [
+        383877.5,
+        237016.5,
+        62.0
+      ],
+      "median_time_change_percent": -8.168879649686446,
+      "paired_log_ratio_sign_flip_p": 0.24609375
+    },
+    "BenchmarkReceivePatterns/all_literals/chunk_32-4": {
+      "before_median_ns_bytes_allocs": [
+        2069351.0,
+        246543.5,
+        1064.0
+      ],
+      "after_median_ns_bytes_allocs": [
+        2021602.5,
+        246630.0,
+        1062.0
+      ],
+      "median_time_change_percent": -2.307414256933693,
+      "paired_log_ratio_sign_flip_p": 0.736328125
+    },
+    "BenchmarkReceivePatterns/all_literals/chunk_1024-4": {
+      "before_median_ns_bytes_allocs": [
+        435530.0,
+        237127.5,
+        64.0
+      ],
+      "after_median_ns_bytes_allocs": [
+        437201.0,
+        237213.0,
+        62.0
+      ],
+      "median_time_change_percent": 0.38367047046128366,
+      "paired_log_ratio_sign_flip_p": 0.64453125
+    },
+    "BenchmarkReceivePatterns/nested_all/chunk_32-4": {
+      "before_median_ns_bytes_allocs": [
+        2203694.5,
+        246659.0,
+        1064.0
+      ],
+      "after_median_ns_bytes_allocs": [
+        2107437.0,
+        246736.0,
+        1062.0
+      ],
+      "median_time_change_percent": -4.368005637805061,
+      "paired_log_ratio_sign_flip_p": 0.099609375
+    },
+    "BenchmarkReceivePatterns/nested_all/chunk_1024-4": {
+      "before_median_ns_bytes_allocs": [
+        392956.5,
+        237238.0,
+        64.0
+      ],
+      "after_median_ns_bytes_allocs": [
+        391259.5,
+        237325.5,
+        62.0
+      ],
+      "median_time_change_percent": -0.43185441645576805,
+      "paired_log_ratio_sign_flip_p": 0.4296875
+    },
+    "BenchmarkReceivePatterns/regexp/chunk_32-4": {
+      "before_median_ns_bytes_allocs": [
+        3959536.5,
+        256966.0,
+        1071.0
+      ],
+      "after_median_ns_bytes_allocs": [
+        3984180.5,
+        255608.0,
+        1069.5
+      ],
+      "median_time_change_percent": 0.6223960809554452,
+      "paired_log_ratio_sign_flip_p": 0.767578125
+    },
+    "BenchmarkReceivePatterns/regexp/chunk_1024-4": {
+      "before_median_ns_bytes_allocs": [
+        463484.0,
+        241166.0,
+        68.0
+      ],
+      "after_median_ns_bytes_allocs": [
+        458152.0,
+        241812.5,
+        67.0
+      ],
+      "median_time_change_percent": -1.1504172743827201,
+      "paired_log_ratio_sign_flip_p": 0.609375
+    },
+    "BenchmarkReceivePatterns/mixed_all/chunk_32-4": {
+      "before_median_ns_bytes_allocs": [
+        3961638.5,
+        256998.0,
+        1067.0
+      ],
+      "after_median_ns_bytes_allocs": [
+        3973511.0,
+        256900.0,
+        1068.0
+      ],
+      "median_time_change_percent": 0.2996866069430615,
+      "paired_log_ratio_sign_flip_p": 0.84765625
+    },
+    "BenchmarkReceivePatterns/mixed_all/chunk_1024-4": {
+      "before_median_ns_bytes_allocs": [
+        465655.0,
+        240965.0,
+        64.0
+      ],
+      "after_median_ns_bytes_allocs": [
+        500829.5,
+        242279.5,
+        66.0
+      ],
+      "median_time_change_percent": 7.553768347811141,
+      "paired_log_ratio_sign_flip_p": 0.646484375
+    },
+    "BenchmarkPublicRedactor/no_rules/chunk_1-4": {
+      "before_median_ns_bytes_allocs": [
+        56978.5,
+        8192.0,
+        1024.0
+      ],
+      "after_median_ns_bytes_allocs": [
+        59069.5,
+        8192.0,
+        1024.0
+      ],
+      "median_time_change_percent": 3.6698052774292167,
+      "paired_log_ratio_sign_flip_p": 0.98828125
+    },
+    "BenchmarkPublicRedactor/no_rules/chunk_32-4": {
+      "before_median_ns_bytes_allocs": [
+        2858.0,
+        1024.0,
+        32.0
+      ],
+      "after_median_ns_bytes_allocs": [
+        2869.5,
+        1024.0,
+        32.0
+      ],
+      "median_time_change_percent": 0.40237928621413843,
+      "paired_log_ratio_sign_flip_p": 0.703125
+    },
+    "BenchmarkPublicRedactor/no_rules/chunk_1024-4": {
+      "before_median_ns_bytes_allocs": [
+        655.35,
+        1024.0,
+        1.0
+      ],
+      "after_median_ns_bytes_allocs": [
+        793.5999999999999,
+        1024.0,
+        1.0
+      ],
+      "median_time_change_percent": 21.095597772182796,
+      "paired_log_ratio_sign_flip_p": 0.55078125
+    },
+    "BenchmarkPublicRedactor/safe/chunk_1-4": {
+      "before_median_ns_bytes_allocs": [
+        116803.0,
+        1056.0,
+        1022.0
+      ],
+      "after_median_ns_bytes_allocs": [
+        119755.0,
+        1056.0,
+        1022.0
+      ],
+      "median_time_change_percent": 2.527332345915778,
+      "paired_log_ratio_sign_flip_p": 0.982421875
+    },
+    "BenchmarkPublicRedactor/safe/chunk_32-4": {
+      "before_median_ns_bytes_allocs": [
+        7621.0,
+        1048.0,
+        35.0
+      ],
+      "after_median_ns_bytes_allocs": [
+        7297.5,
+        1048.0,
+        35.0
+      ],
+      "median_time_change_percent": -4.244849757249702,
+      "paired_log_ratio_sign_flip_p": 0.095703125
+    },
+    "BenchmarkPublicRedactor/safe/chunk_1024-4": {
+      "before_median_ns_bytes_allocs": [
+        1298.5,
+        1048.0,
+        4.0
+      ],
+      "after_median_ns_bytes_allocs": [
+        1194.0,
+        1048.0,
+        4.0
+      ],
+      "median_time_change_percent": -8.047747400847127,
+      "paired_log_ratio_sign_flip_p": 0.482421875
+    },
+    "BenchmarkPublicRedactor/matches/chunk_1-4": {
+      "before_median_ns_bytes_allocs": [
+        84139.0,
+        2080.0,
+        259.0
+      ],
+      "after_median_ns_bytes_allocs": [
+        85314.0,
+        2080.0,
+        259.0
+      ],
+      "median_time_change_percent": 1.396498651041722,
+      "paired_log_ratio_sign_flip_p": 0.98046875
+    },
+    "BenchmarkPublicRedactor/matches/chunk_32-4": {
+      "before_median_ns_bytes_allocs": [
+        23516.0,
+        6232.0,
+        182.0
+      ],
+      "after_median_ns_bytes_allocs": [
+        23870.0,
+        6232.0,
+        182.0
+      ],
+      "median_time_change_percent": 1.5053580540908218,
+      "paired_log_ratio_sign_flip_p": 0.95703125
+    },
+    "BenchmarkPublicRedactor/matches/chunk_1024-4": {
+      "before_median_ns_bytes_allocs": [
+        11859.5,
+        4520.0,
+        8.0
+      ],
+      "after_median_ns_bytes_allocs": [
+        11123.0,
+        4520.0,
+        8.0
+      ],
+      "median_time_change_percent": -6.210211223070116,
+      "paired_log_ratio_sign_flip_p": 0.28125
+    },
+    "BenchmarkPublicRedactor/overlaps/chunk_1-4": {
+      "before_median_ns_bytes_allocs": [
+        103349.5,
+        3216.0,
+        404.0
+      ],
+      "after_median_ns_bytes_allocs": [
+        99834.5,
+        3216.0,
+        404.0
+      ],
+      "median_time_change_percent": -3.4010807986492475,
+      "paired_log_ratio_sign_flip_p": 0.494140625
+    },
+    "BenchmarkPublicRedactor/overlaps/chunk_32-4": {
+      "before_median_ns_bytes_allocs": [
+        27795.5,
+        6144.0,
+        194.0
+      ],
+      "after_median_ns_bytes_allocs": [
+        28114.0,
+        6144.0,
+        194.0
+      ],
+      "median_time_change_percent": 1.1458689356190765,
+      "paired_log_ratio_sign_flip_p": 0.84375
+    },
+    "BenchmarkPublicRedactor/overlaps/chunk_1024-4": {
+      "before_median_ns_bytes_allocs": [
+        25336.5,
+        6928.0,
+        8.0
+      ],
+      "after_median_ns_bytes_allocs": [
+        25662.0,
+        6928.0,
+        8.0
+      ],
+      "median_time_change_percent": 1.2847078325735506,
+      "paired_log_ratio_sign_flip_p": 0.2578125
+    },
+    "BenchmarkAuditLine-4": {
+      "before_median_ns_bytes_allocs": [
+        165243524.5,
+        0.0,
+        0.0
+      ],
+      "after_median_ns_bytes_allocs": [
+        269567.5,
+        0.0,
+        0.0
+      ],
+      "median_time_change_percent": -99.83686652725686,
+      "paired_log_ratio_sign_flip_p": 0.001953125
+    },
+    "BenchmarkAuditNested-4": {
+      "before_median_ns_bytes_allocs": [
+        5868724.0,
+        0.0,
+        0.0
+      ],
+      "after_median_ns_bytes_allocs": [
+        12033.0,
+        0.0,
+        0.0
+      ],
+      "median_time_change_percent": -99.7949639478701,
+      "paired_log_ratio_sign_flip_p": 0.001953125
+    },
+    "BenchmarkAuditSnapshots-4": {
+      "before_median_ns_bytes_allocs": [
+        1539308.5,
+        4196107.5,
+        65.0
+      ],
+      "after_median_ns_bytes_allocs": [
+        4239.5,
+        1792.0,
+        1.0
+      ],
+      "median_time_change_percent": -99.72458412332551,
+      "paired_log_ratio_sign_flip_p": 0.001953125
+    },
+    "BenchmarkAuditBuffered-4": {
+      "before_median_ns_bytes_allocs": [
+        1879.0,
+        488.0,
+        7.0
+      ],
+      "after_median_ns_bytes_allocs": [
+        1252.5,
+        352.0,
+        3.0
+      ],
+      "median_time_change_percent": -33.34220329962746,
+      "paired_log_ratio_sign_flip_p": 0.001953125
+    }
+  }
+}

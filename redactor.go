@@ -34,17 +34,8 @@ func (r *redactor) add(secrets []string) {
 		}
 		secret := []byte(s)
 		rule := sessionRedactionRule{}
-		if len(secret) > 256 {
-			rule.failure = make([]int, len(secret))
-			for i, matched := 1, 0; i < len(secret); i++ {
-				for matched > 0 && secret[i] != secret[matched] {
-					matched = rule.failure[matched-1]
-				}
-				if secret[i] == secret[matched] {
-					matched++
-				}
-				rule.failure[i] = matched
-			}
+		if len(secret) > literalKMPThreshold {
+			rule.failure = literalPrefix(s)
 		}
 		// Only a new rule scans the existing suffix. It cannot reach bytes already
 		// emitted; existing rules keep both their prefix state and hidden coverage.
@@ -67,7 +58,7 @@ func (r *redactor) append(data []byte, finish bool) []byte {
 			}
 		}
 		if safe {
-			return bytes.Clone(data)
+			return data
 		}
 	}
 	prior := len(r.pending)

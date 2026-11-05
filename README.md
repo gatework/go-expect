@@ -109,7 +109,7 @@ result, err := s.Expect(ctx, []expect.Case{
 
 `Continue` resets the relative timer. `ContinueWithoutReset` preserves it.
 Neither extends the parent context deadline. Responder uses the latter.
-`Result` contains the final segment only; install `WithTranscript(writer)` to
+`Result` contains the final segment only; install `WithOutput(writer)` to
 record the filtered receive history across intermediate responses.
 
 ## PTY and processes
@@ -146,7 +146,7 @@ bash script/ci
 ```
 
 This runs format checks, module verification, vet, race tests (including local
-PTY), fuzz smokes, benchmarks, the dialogue example and an independent consumer
+PTY), fuzz smokes, benchmarks, the dialogue example and a disposable source consumer
 module. CI covers Linux/macOS on Go 1.26 and 1.27. Local tests and CI runs are
 separate evidence; neither substitutes for real device interoperability.
 

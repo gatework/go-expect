@@ -140,7 +140,7 @@ is append-only and cannot retract earlier output. Password replies are not guess
 or automatically registered; the caller decides what is secret. Register the
 password itself, without its line terminator, to mask common echo behavior.
 
-WithOutput and WithTranscript receive the same receive-only filtered stream,
+WithOutput receives the same receive-only filtered stream,
 as input is accepted by the matcher. Continued matches and subsequent Expect
 calls do not replay it. The transcript includes received tails beyond a match
 that were already accepted, but not unread data discarded by Close. To drain to
@@ -197,6 +197,12 @@ allowing previously hidden bytes to reappear. Session filtering keeps per-byte
 Public redaction compiles rules longer than 256 bytes once per rule scope and
 maintains their incremental KMP state. It merges ordered covered intervals,
 reuses a bounded retained suffix, and detaches oversized transient storage.
+
+Close releases idle receive buffers and queued input. An active receive owner
+releases its buffers on exit; results already returned remain independent.
+Calls after Close do not expose historical receive buffers.
+Cancellation before write admission returns the context error without retiring
+the transport; admission is checked by the worker immediately before transport entry.
 
 Close cancels the active handler context but does not wait for user code. Handlers
 must cooperate with cancellation. Automatic retirement preserves independent

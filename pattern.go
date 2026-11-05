@@ -16,21 +16,73 @@ import (
 // Pattern is an immutable literal, regular expression, EOF or All pattern.
 // Its zero value is invalid. It never contains per-operation match state.
 type Pattern struct {
-	kind uint8
-	text string
-	re   *regexp.Regexp
-	all  []Pattern
+	kind    uint8
+	text    string
+	re      *regexp.Regexp
+	all     []Pattern
+	failure []int
 }
+
+const literalKMPThreshold = 256
 
 const (
 	literalPattern uint8 = iota + 1
 	regexpPattern
 	eofPattern
 	allPattern
+	linePattern
 )
 
 // Literal matches a nonempty byte string, including arbitrary binary data.
-func Literal(text string) Pattern { return Pattern{kind: literalPattern, text: text} }
+func Literal(text string) Pattern {
+	p := Pattern{kind: literalPattern, text: text}
+	if len(text) > literalKMPThreshold {
+		p.failure = literalPrefix(text)
+	}
+	return p
+}
+
+// Line matches a byte-exact final line with optional space, tab and NUL padding.
+// The match includes its preceding CR/LF delimiter and trailing CR/LF bytes.
+// Empty text and text containing CR or LF are invalid declarations.
+func Line(text string) Pattern { return Pattern{kind: linePattern, text: text} }
+
+// IsZero distinguishes an unspecified pattern from a malformed declaration.
+func (p Pattern) IsZero() bool { return p.kind == 0 }
+
+// ValidateText checks a nonempty text declaration before transport access.
+// EOF and regular expressions matching empty input are not text declarations.
+func (p Pattern) ValidateText() error {
+	empty := false
+	var visit func(Pattern) error
+	visit = func(p Pattern) error {
+		if p.kind == allPattern {
+			if len(p.all) == 0 {
+				return errors.New("expect: invalid pattern")
+			}
+			for _, child := range p.all {
+				if err := visit(child); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+		if err := p.validate(true); err != nil {
+			return err
+		}
+		if p.kind == regexpPattern && p.re.MatchString("") {
+			empty = true
+		}
+		return nil
+	}
+	if err := visit(p); err != nil {
+		return err
+	}
+	if empty {
+		return ErrEmptyMatch
+	}
+	return nil
+}
 
 // Compile compiles a Go regular expression. Empty matches are rejected at runtime.
 func Compile(expr string) (Pattern, error) {
@@ -66,6 +118,10 @@ func (p Pattern) validate(textOnly bool) error {
 	switch p.kind {
 	case literalPattern:
 		if p.text != "" {
+			return nil
+		}
+	case linePattern:
+		if p.text != "" && !bytes.ContainsAny([]byte(p.text), "\r\n") {
 			return nil
 		}
 	case regexpPattern:
@@ -145,6 +201,8 @@ func (p Pattern) find(data []byte, terminal bool, scanFrom int) (location, bool,
 // offsets until Expect chooses its final winner. No candidate copies payloads.
 func (p Pattern) findLocation(data []byte, terminal bool, scanFrom int, captures bool) (location, bool, error) {
 	switch p.kind {
+	case linePattern:
+		return p.findLine(data)
 	case literalPattern:
 		i := bytes.Index(data[scanFrom:], []byte(p.text))
 		if i < 0 {
@@ -192,14 +250,28 @@ func (p Pattern) findLocation(data []byte, terminal bool, scanFrom int, captures
 // materializeCaptures runs once for the winner before guards or consumption.
 // Each string owns its bytes independently of the session receive storage.
 func (loc location) materializeCaptures(data []byte) []Capture {
+	return loc.capturesFromSnapshot(data, "")
+}
+func (loc location) capturesFromSnapshot(data []byte, match string) []Capture {
 	if len(loc.submatches) == 0 {
 		return nil
 	}
 	captures := make([]Capture, len(loc.submatches)/2)
+	snapshots := make(map[[2]int]string)
 	for i := range captures {
 		start, end := loc.submatches[2*i], loc.submatches[2*i+1]
 		if start >= 0 {
-			captures[i] = Capture{Text: string(data[start:end]), Matched: true}
+			key := [2]int{start, end}
+			text, ok := snapshots[key]
+			if !ok {
+				if start == loc.start && end == loc.end && len(match) == end-start {
+					text = match
+				} else {
+					text = string(data[start:end])
+				}
+				snapshots[key] = text
+			}
+			captures[i] = Capture{Text: text, Matched: true}
 		}
 	}
 	return captures
@@ -225,25 +297,27 @@ func completeUTF8(data []byte) int {
 // patternScan belongs to one Expect call. Pure literal All trees can retain
 // their first hits as input grows; regular expressions always see the full view.
 type patternScan struct {
-	all []literalScan
+	literals []literalScan
 }
 
 type literalScan struct {
 	text    string
+	failure []int
+	matched int
 	scanned int
 	hit     location
 	found   bool
 }
 
 func newPatternScan(p Pattern) patternScan {
-	if p.kind != allPattern {
+	if p.kind != allPattern && !(p.kind == literalPattern && len(p.failure) > 0) {
 		return patternScan{}
 	}
 	count := literalCount(p)
 	if count == 0 {
 		return patternScan{}
 	}
-	state := patternScan{all: make([]literalScan, 0, count)}
+	state := patternScan{literals: make([]literalScan, 0, count)}
 	state.addLiterals(p)
 	return state
 }
@@ -268,7 +342,7 @@ func literalCount(p Pattern) int {
 
 func (s *patternScan) addLiterals(p Pattern) {
 	if p.kind == literalPattern {
-		s.all = append(s.all, literalScan{text: p.text})
+		s.literals = append(s.literals, literalScan{text: p.text, failure: p.failure})
 		return
 	}
 	for _, child := range p.all {
@@ -276,20 +350,36 @@ func (s *patternScan) addLiterals(p Pattern) {
 	}
 }
 
-func (s *patternScan) findAll(data []byte) (location, bool) {
+func (s *patternScan) findLiterals(data []byte) (location, bool) {
 	loc := location{start: len(data)}
 	complete := true
-	for i := range s.all {
-		literal := &s.all[i]
+	for i := range s.literals {
+		literal := &s.literals[i]
 		if !literal.found {
-			from := max(0, literal.scanned-len(literal.text)+1)
-			index := bytes.Index(data[from:], []byte(literal.text))
-			literal.scanned = len(data)
-			if index >= 0 {
-				start := from + index
-				literal.hit = location{start: start, end: start + len(literal.text)}
-				literal.found = true
+			if len(literal.failure) > 0 {
+				for i := literal.scanned; i < len(data); i++ {
+					for literal.matched > 0 && data[i] != literal.text[literal.matched] {
+						literal.matched = literal.failure[literal.matched-1]
+					}
+					if data[i] == literal.text[literal.matched] {
+						literal.matched++
+					}
+					if literal.matched == len(literal.text) {
+						literal.hit = location{start: i + 1 - len(literal.text), end: i + 1}
+						literal.found = true
+						break
+					}
+				}
+			} else {
+				from := max(0, literal.scanned-len(literal.text)+1)
+				index := bytes.Index(data[from:], []byte(literal.text))
+				if index >= 0 {
+					start := from + index
+					literal.hit = location{start: start, end: start + len(literal.text)}
+					literal.found = true
+				}
 			}
+			literal.scanned = len(data)
 		}
 		if !literal.found {
 			complete = false
@@ -305,9 +395,51 @@ func (s *patternScan) findAll(data []byte) (location, bool) {
 }
 
 func (s *patternScan) reset() {
-	for i := range s.all {
-		s.all[i].scanned = 0
-		s.all[i].hit = location{}
-		s.all[i].found = false
+	for i := range s.literals {
+		s.literals[i].scanned = 0
+		s.literals[i].matched = 0
+		s.literals[i].hit = location{}
+		s.literals[i].found = false
 	}
+}
+
+func (p Pattern) findLine(data []byte) (location, bool, error) {
+	end := len(data)
+	for end > 0 && (data[end-1] == '\r' || data[end-1] == '\n') {
+		end--
+	}
+	line := bytes.LastIndexAny(data[:end], "\r\n") + 1
+	index := bytes.LastIndex(data[line:end], []byte(p.text))
+	if index < 0 {
+		return location{}, false, nil
+	}
+	start := line + index
+	pad := func(b byte) bool { return b == ' ' || b == '\t' || b == 0 }
+	for _, b := range data[start+len(p.text) : end] {
+		if !pad(b) {
+			return location{}, false, nil
+		}
+	}
+	for _, b := range data[line:start] {
+		if !pad(b) {
+			return location{}, false, nil
+		}
+	}
+	if line > 0 {
+		line--
+	}
+	return location{start: line, end: len(data)}, true, nil
+}
+func literalPrefix(text string) []int {
+	failure := make([]int, len(text))
+	for i, j := 1, 0; i < len(text); i++ {
+		for j > 0 && text[i] != text[j] {
+			j = failure[j-1]
+		}
+		if text[i] == text[j] {
+			j++
+		}
+		failure[i] = j
+	}
+	return failure
 }

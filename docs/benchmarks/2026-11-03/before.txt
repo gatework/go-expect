@@ -1,0 +1,190 @@
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkLongLiteralCursor-4   	      36	   3252675 ns/op	   5.04 MB/s	 2495392 B/op	     513 allocs/op
+BenchmarkFragmentedReceive/1024-4         	    5228	     21239 ns/op	 771.60 MB/s	  126264 B/op	      45 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkSessionFilter/rule=8/chunk=16384/safe-4         	  104889	      1107 ns/op	14797.90 MB/s	   16384 B/op	       1 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkPublicRedactor/safe/chunk_1024-4         	  683451	       165.0 ns/op	6205.80 MB/s	    1048 B/op	       4 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkLongLiteralCursor-4   	      37	   3055285 ns/op	   5.36 MB/s	 2495523 B/op	     513 allocs/op
+BenchmarkFragmentedReceive/1024-4         	    5076	     21150 ns/op	 774.86 MB/s	  126264 B/op	      45 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkSessionFilter/rule=8/chunk=16384/safe-4         	  105596	      1107 ns/op	14793.77 MB/s	   16384 B/op	       1 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkPublicRedactor/safe/chunk_1024-4         	  673794	       160.9 ns/op	6364.54 MB/s	    1048 B/op	       4 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkLongLiteralCursor-4   	      38	   3048773 ns/op	   5.37 MB/s	 2495235 B/op	     513 allocs/op
+BenchmarkFragmentedReceive/1024-4         	    4855	     21128 ns/op	 775.67 MB/s	  126264 B/op	      45 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkSessionFilter/rule=8/chunk=16384/safe-4         	  106077	      1104 ns/op	14843.20 MB/s	   16384 B/op	       1 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkPublicRedactor/safe/chunk_1024-4         	  689737	       162.1 ns/op	6316.88 MB/s	    1048 B/op	       4 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkLongLiteralCursor-4   	      37	   3056685 ns/op	   5.36 MB/s	 2495382 B/op	     513 allocs/op
+BenchmarkFragmentedReceive/1024-4         	    4971	     21330 ns/op	 768.31 MB/s	  126263 B/op	      45 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkSessionFilter/rule=8/chunk=16384/safe-4         	  104118	      1124 ns/op	14577.18 MB/s	   16384 B/op	       1 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkPublicRedactor/safe/chunk_1024-4         	  651819	       161.8 ns/op	6329.76 MB/s	    1048 B/op	       4 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkLongLiteralCursor-4   	      37	   3054032 ns/op	   5.37 MB/s	 2495382 B/op	     513 allocs/op
+BenchmarkFragmentedReceive/1024-4         	    5028	     21208 ns/op	 772.73 MB/s	  126265 B/op	      45 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkSessionFilter/rule=8/chunk=16384/safe-4         	  107666	      1082 ns/op	15138.58 MB/s	   16384 B/op	       1 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkPublicRedactor/safe/chunk_1024-4         	  678140	       162.7 ns/op	6292.85 MB/s	    1048 B/op	       4 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkLongLiteralCursor-4   	      37	   3062491 ns/op	   5.35 MB/s	 2495379 B/op	     513 allocs/op
+BenchmarkFragmentedReceive/1024-4         	    5268	     21126 ns/op	 775.73 MB/s	  126265 B/op	      45 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkSessionFilter/rule=8/chunk=16384/safe-4         	  107115	      1105 ns/op	14831.80 MB/s	   16384 B/op	       1 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkPublicRedactor/safe/chunk_1024-4         	  632049	       164.6 ns/op	6219.91 MB/s	    1048 B/op	       4 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkLongLiteralCursor-4   	      37	   3068629 ns/op	   5.34 MB/s	 2495382 B/op	     513 allocs/op
+BenchmarkFragmentedReceive/1024-4         	    5298	     21099 ns/op	 776.72 MB/s	  126263 B/op	      45 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkSessionFilter/rule=8/chunk=16384/safe-4         	  107799	      1102 ns/op	14866.98 MB/s	   16384 B/op	       1 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkPublicRedactor/safe/chunk_1024-4         	  651789	       168.1 ns/op	6092.81 MB/s	    1048 B/op	       4 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkLongLiteralCursor-4   	      34	   3132227 ns/op	   5.23 MB/s	 2495398 B/op	     513 allocs/op
+BenchmarkFragmentedReceive/1024-4         	    5140	     20591 ns/op	 795.90 MB/s	  126267 B/op	      45 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkSessionFilter/rule=8/chunk=16384/safe-4         	  108506	      1079 ns/op	15179.05 MB/s	   16384 B/op	       1 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkPublicRedactor/safe/chunk_1024-4         	  644756	       162.7 ns/op	6292.45 MB/s	    1048 B/op	       4 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkLongLiteralCursor-4   	      36	   3118485 ns/op	   5.25 MB/s	 2495534 B/op	     513 allocs/op
+BenchmarkFragmentedReceive/1024-4         	    5286	     20871 ns/op	 785.21 MB/s	  126262 B/op	      45 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkSessionFilter/rule=8/chunk=16384/safe-4         	  108301	      1089 ns/op	15040.97 MB/s	   16384 B/op	       1 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkPublicRedactor/safe/chunk_1024-4         	  613195	       163.1 ns/op	6278.83 MB/s	    1048 B/op	       4 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkLongLiteralCursor-4   	      37	   3106187 ns/op	   5.27 MB/s	 2495382 B/op	     513 allocs/op
+BenchmarkFragmentedReceive/1024-4         	    5247	     20978 ns/op	 781.20 MB/s	  126264 B/op	      45 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkSessionFilter/rule=8/chunk=16384/safe-4         	  109156	      1090 ns/op	15031.55 MB/s	   16384 B/op	       1 allocs/op
+PASS
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+BenchmarkPublicRedactor/safe/chunk_1024-4         	  692523	       159.4 ns/op	6424.02 MB/s	    1048 B/op	       4 allocs/op
+PASS

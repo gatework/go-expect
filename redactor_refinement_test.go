@@ -104,7 +104,7 @@ func (w *countedFailureWriter) Write([]byte) (int, error) {
 func TestSessionCloseReleasesFilterAfterSinkFailure(t *testing.T) {
 	failure := errors.New("sink failure")
 	sink := &countedFailureWriter{err: failure}
-	s, _ := pair(t, WithTranscript(sink))
+	s, _ := pair(t, WithOutput(sink))
 	secret := strings.Repeat("a", 65536) + "b"
 	if err := s.Redact(secret); err != nil {
 		t.Fatal(err)

@@ -119,3 +119,25 @@ At the local acceptance checkpoint, GitHub-hosted execution, draft mutation and
 public release/download had not been verified. See the linked remote runs for
 publication evidence, and releasing.md for operation and the GitHub token
 permission limitation.
+
+## 2026-11-04 lifecycle and matching refinement
+
+Local Linux/amd64 Go 1.27.3 verification passed the complete `script/ci`, including
+race/shuffle, vet, Windows test cross-compilation, eight 100000-execution fuzz
+smokes, benchmark smoke, dialogue and disposable source consumer. Darwin and
+Go 1.26 runtime verification remain the responsibility of the existing CI matrix;
+these local results do not establish those runs.
+
+Ten serial interleaved 100ms samples at GOMAXPROCS=4 compare the supplied original
+source ZIP with this working source. The archive digest and candidate Go-file
+hashes, reproducible runner, raw samples, CI log and numeric summary are in
+[the evidence directory](benchmarks/2026-11-04-refinement/). The benchmark overlay
+isolates cumulative final-line scans, nested validation, duplicate capture
+snapshots and an immediately buffered Expect. These are synthetic local workloads.
+
+Median final-line scan time falls from 165.24ms to 269.57us; depth-1024 validation
+falls from 5.87ms to 12.03us. Sixty-four identical 64KiB capture ranges allocate
+about 4.20MB/65 allocations before and 1792B/one allocation after, excluding the
+common Match snapshot. Buffered Expect falls from 488B/seven allocations to
+352B/three allocations. No receive/public-redactor control has both a median
+slowdown above 5% and paired log-ratio sign-flip p<0.05 in these ten samples.

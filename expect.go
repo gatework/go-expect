@@ -21,6 +21,12 @@ import (
 	"time"
 )
 
+const (
+	streamTriggerBytes = 64 << 10
+	streamConsumeBytes = 32 << 10
+	receiveDetachBytes = 64 << 10
+)
+
 // Expect consumes input through the earliest currently visible match. Ties use
 // declaration order. Continuations consume their match and rescan the remaining
 // buffer, without rereading or replaying bytes. Context cancellation and timeout
@@ -38,8 +44,14 @@ func (s *Session) expect(ctx context.Context, cases []Case, guards []func(Result
 	if !s.expecting.CompareAndSwap(false, true) {
 		return result, ErrBusy
 	}
-	defer s.expecting.Store(false)
-	defer s.releaseReceiveStorage()
+	defer func() {
+		s.releaseReceiveStorage()
+		s.expecting.Store(false)
+		if s.isClosed() && s.expecting.CompareAndSwap(false, true) {
+			s.releaseReceiveStorage()
+			s.expecting.Store(false)
+		}
+	}()
 	failure := func(e error) (Result, error) { return Result{CaseIndex: -1, Before: string(s.pending)}, e }
 	if ctx == nil {
 		return failure(errors.New("expect: nil context"))
@@ -65,45 +77,40 @@ func (s *Session) expect(ctx context.Context, cases []Case, guards []func(Result
 			return failure(err)
 		}
 	}
-	// One cancellable handler scope per wait avoids per-continuation allocation
-	// when relative and idle timers are disabled. Close never waits for callbacks.
-	handlerCtx, cancelHandlers := context.WithCancel(ctx)
-	s.lifeMu.Lock()
-	if s.isClosed() {
-		cancelHandlers()
-	} else {
-		s.handlerCancel = cancelHandlers
+	handlerCtx := ctx
+	hasHandler := o.streaming != nil
+	for _, c := range cases {
+		hasHandler = hasHandler || c.Handler != nil
 	}
-	s.lifeMu.Unlock()
-	defer func() {
-		cancelHandlers()
+	if hasHandler {
+		var cancelHandlers context.CancelFunc
+		handlerCtx, cancelHandlers = context.WithCancel(ctx)
 		s.lifeMu.Lock()
-		s.handlerCancel = nil
+		if s.isClosed() {
+			cancelHandlers()
+		} else {
+			s.handlerCancel = cancelHandlers
+		}
 		s.lifeMu.Unlock()
-	}()
+		defer func() { cancelHandlers(); s.lifeMu.Lock(); s.handlerCancel = nil; s.lifeMu.Unlock() }()
+	}
 	now := time.Now()
 	relative := after(now, o.timeout)
 	idle := after(now, o.idle)
-	timer := time.NewTimer(time.Hour)
-	timer.Stop()
-	defer timer.Stop()
+	var timer *time.Timer
+	stopTimer := func() {
+		if timer != nil {
+			timer.Stop()
+		}
+	}
+	defer stopTimer()
 	// Match state is local to this call and resets whenever input is consumed.
 	// Ordinary patterns retain only their existing scan offsets. Allocate All
 	// leaf state only when a pure literal tree is actually present.
 	scanned := make([]int, len(cases))
-	var allScans []patternScan
+	cursors := make([]matchCursor, len(cases))
 	for i, c := range cases {
-		if c.Pattern.kind != allPattern {
-			continue
-		}
-		state := newPatternScan(c.Pattern)
-		if len(state.all) == 0 {
-			continue
-		}
-		if allScans == nil {
-			allScans = make([]patternScan, len(cases))
-		}
-		allScans[i] = state
+		cursors[i] = newMatchCursor(c.Pattern)
 	}
 	var pollAck chan struct{}
 	pollOwned := false
@@ -132,11 +139,7 @@ func (s *Session) expect(ctx context.Context, cases []Case, guards []func(Result
 			var hit location
 			var ok bool
 			var e error
-			if allScans != nil && len(allScans[i].all) > 0 {
-				hit, ok = allScans[i].findAll(s.pending)
-			} else {
-				hit, ok, e = c.Pattern.find(s.pending, s.terminal != nil, from)
-			}
+			hit, ok, e = cursors[i].find(s.pending, s.terminal != nil, from, true)
 			scanned[i] = len(s.pending)
 			if e != nil {
 				return failure(e)
@@ -150,9 +153,9 @@ func (s *Session) expect(ctx context.Context, cases []Case, guards []func(Result
 			}
 		}
 		streaming := false
-		if chosen < 0 && o.streaming != nil && len(s.pending) >= 64<<10 {
+		if chosen < 0 && o.streaming != nil && len(s.pending) >= streamTriggerBytes {
 			chosen = len(cases)
-			loc = location{start: 0, end: 32 << 10}
+			loc = location{start: 0, end: streamConsumeBytes}
 			streaming = true
 		}
 		eof := false
@@ -184,7 +187,8 @@ func (s *Session) expect(ctx context.Context, cases []Case, guards []func(Result
 			if streaming {
 				index = -1
 			}
-			result = Result{CaseIndex: index, Before: string(s.pending[:loc.start]), Match: string(s.pending[loc.start:loc.end]), Captures: loc.materializeCaptures(s.pending)}
+			result = Result{CaseIndex: index, Before: string(s.pending[:loc.start]), Match: string(s.pending[loc.start:loc.end])}
+			result.Captures = loc.capturesFromSnapshot(s.pending, result.Match)
 			if !streaming && guards != nil && guards[chosen] != nil {
 				if err = guards[chosen](result); err != nil {
 					return result, err
@@ -197,8 +201,8 @@ func (s *Session) expect(ctx context.Context, cases []Case, guards []func(Result
 				s.pendingAlloc = 0
 			}
 			clear(scanned)
-			for i := range allScans {
-				allScans[i].reset()
+			for i := range cursors {
+				cursors[i].reset()
 			}
 			var handler Handler
 			if streaming {
@@ -246,8 +250,8 @@ func (s *Session) expect(ctx context.Context, cases []Case, guards []func(Result
 		}
 		if len(s.staged) > 0 {
 			n := s.opts.limit - len(s.pending)
-			if o.streaming != nil && len(s.pending) < 64<<10 {
-				n = min(n, (64<<10)-len(s.pending))
+			if o.streaming != nil && len(s.pending) < streamTriggerBytes {
+				n = min(n, streamTriggerBytes-len(s.pending))
 			}
 			if n > len(s.staged) {
 				n = len(s.staged)
@@ -286,7 +290,11 @@ func (s *Session) expect(ctx context.Context, cases []Case, guards []func(Result
 		deadline := earlier(relative, idle)
 		var wake <-chan time.Time
 		if !deadline.IsZero() {
-			timer.Reset(time.Until(deadline))
+			if timer == nil {
+				timer = time.NewTimer(time.Until(deadline))
+			} else {
+				timer.Reset(time.Until(deadline))
+			}
 			wake = timer.C
 		}
 		select {
@@ -298,11 +306,7 @@ func (s *Session) expect(ctx context.Context, cases []Case, guards []func(Result
 		case <-s.done:
 			return failure(ErrClosed)
 		}
-		if len(s.queued) > 0 {
-			event := s.queued[0]
-			s.queued[0] = readEvent{}
-			s.queued = nil
-			s.queuedBytes -= len(event.data)
+		if event, ok := s.takeQueued(); ok {
 			<-s.inputGate
 			if e := s.acceptEvent(event); e != nil {
 				return failure(errors.Join(e, s.Close()))
@@ -343,18 +347,18 @@ func (s *Session) expect(ctx context.Context, cases []Case, guards []func(Result
 			continue
 		case <-ctx.Done():
 			<-s.inputGate
-			timer.Stop()
+			stopTimer()
 			return failure(ctx.Err())
 		case <-s.done:
 			<-s.inputGate
-			timer.Stop()
+			stopTimer()
 			return failure(ErrClosed)
 		case <-wake:
 			<-s.inputGate
 			continue
 		case event, ok := <-s.events:
 			<-s.inputGate
-			timer.Stop()
+			stopTimer()
 			if !ok {
 				if s.terminal == nil {
 					s.terminal = io.EOF
@@ -373,6 +377,14 @@ func (s *Session) expect(ctx context.Context, cases []Case, guards []func(Result
 // Track the complete allocation because slicing a consumed prefix hides that
 // size from cap. Detach only at operation return, never per continuation.
 func (s *Session) releaseReceiveStorage() {
+	if s.isClosed() {
+		s.pending = nil
+		s.staged = nil
+		s.pendingAlloc = 0
+		s.stagedAlloc = 0
+		return
+	}
+
 	releaseRemainder(&s.pending, &s.pendingAlloc)
 	releaseRemainder(&s.staged, &s.stagedAlloc)
 }
@@ -381,7 +393,7 @@ func releaseRemainder(data *[]byte, allocation *int) {
 	if len(*data) == 0 {
 		*data = nil
 		*allocation = 0
-	} else if *allocation >= 64<<10 && len(*data) <= *allocation/4 {
+	} else if *allocation >= receiveDetachBytes && len(*data) <= *allocation/4 {
 		remaining := make([]byte, len(*data))
 		copy(remaining, *data)
 		*data = remaining

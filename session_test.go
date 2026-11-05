@@ -6,7 +6,6 @@ import (
 	"errors"
 	"io"
 	"net"
-	"strings"
 	"sync"
 	"testing"
 	"testing/synctest"
@@ -168,7 +167,7 @@ func TestSessionShortWriteNeverRetries(t *testing.T) {
 }
 func TestSessionTranscript(t *testing.T) {
 	var out bytes.Buffer
-	s, p := pair(t, WithTranscript(&out))
+	s, p := pair(t, WithOutput(&out))
 	if err := s.Redact("password", "aba", "bab"); err != nil {
 		t.Fatal(err)
 	}
@@ -221,19 +220,3 @@ func (p *finalReader) Read(b []byte) (int, error) {
 }
 func (p *finalReader) Write(b []byte) (int, error) { return len(b), nil }
 func (p *finalReader) Close() error                { return nil }
-func BenchmarkLiteral16K(b *testing.B) {
-	text := strings.Repeat("x", 16*1024) + "done!"
-	b.ReportAllocs()
-	for i := 0; i < b.N; i++ {
-		c, err := NewConsole()
-		if err != nil {
-			b.Fatal(err)
-		}
-		go c.TTY().Write([]byte(text))
-		_, err = c.Session().Expect(context.Background(), []Case{{Pattern: Literal("done!")}})
-		c.Close()
-		if err != nil {
-			b.Fatal(err)
-		}
-	}
-}

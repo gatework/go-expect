@@ -23,28 +23,23 @@ func TestNewSessionRejectsTypedNil(t *testing.T) {
 			t.Fatal("typed-nil transport accepted")
 		}
 	})
-	for _, transcript := range []bool{false, true} {
-		t.Run("output/transcript="+strconv.FormatBool(transcript), func(t *testing.T) {
-			a, b := net.Pipe()
-			defer a.Close()
-			defer b.Close()
-			var output *bytes.Buffer
-			opt := WithOutput(output)
-			if transcript {
-				opt = WithTranscript(output)
-			}
-			s, err := NewSession(a, opt)
-			if err == nil {
-				s.Close()
-				t.Fatal("typed-nil output accepted")
-			}
-			go b.Write([]byte("x"))
-			buf := make([]byte, 1)
-			if _, err := a.Read(buf); err != nil {
-				t.Fatalf("failed construction took ownership: %v", err)
-			}
-		})
-	}
+	t.Run("output", func(t *testing.T) {
+		a, b := net.Pipe()
+		defer a.Close()
+		defer b.Close()
+		var output *bytes.Buffer
+		opt := WithOutput(output)
+		s, err := NewSession(a, opt)
+		if err == nil {
+			s.Close()
+			t.Fatal("typed-nil output accepted")
+		}
+		go b.Write([]byte("x"))
+		buf := make([]byte, 1)
+		if _, err := a.Read(buf); err != nil {
+			t.Fatalf("failed construction took ownership: %v", err)
+		}
+	})
 }
 
 type nilTransport struct{}
@@ -191,7 +186,7 @@ func FuzzSessionContinuations(f *testing.F) {
 			}
 		}
 		var transcript bytes.Buffer
-		s, err := NewSession(&chunkStream{Reader: bytes.NewReader(data), chunk: 1 + int(chunk)%32}, WithBufferLimit(5+int(extra)%12), WithTranscript(&transcript))
+		s, err := NewSession(&chunkStream{Reader: bytes.NewReader(data), chunk: 1 + int(chunk)%32}, WithBufferLimit(5+int(extra)%12), WithOutput(&transcript))
 		if err != nil {
 			t.Fatal(err)
 		}

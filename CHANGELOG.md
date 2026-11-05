@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.1.3
+
+- BREAKING: remove WithTranscript; use WithOutput for the filtered receive stream.
+- Add byte-exact Line patterns, IsZero and ValidateText preflight checks, and shared long-literal prefix tables.
+- Check worker admission before writes; pre-admission cancellation leaves the session usable.
+- Release retired receive buffers; calls after Close no longer expose historical input.
+- Match final lines incrementally and validate nested patterns in one traversal.
+- Reuse detached strings for identical capture ranges and avoid unused wait scopes/timers.
+- Isolate PTY benchmarks and add Windows test cross-compilation and long-literal fuzz coverage.
+
 ## v0.1.1
 
 - BREAKING: rename Console.Tty to Console.TTY; update callers as described in

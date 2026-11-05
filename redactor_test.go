@@ -46,7 +46,7 @@ func TestRedactorRuleAdditionPreservesHiddenBytes(t *testing.T) {
 }
 func TestRedactorCloseMasksPendingPrefix(t *testing.T) {
 	var out bytes.Buffer
-	s, p := pair(t, WithTranscript(&out))
+	s, p := pair(t, WithOutput(&out))
 	if err := s.Redact("password"); err != nil {
 		t.Fatal(err)
 	}
@@ -128,7 +128,7 @@ func FuzzRedactorChunks(f *testing.F) {
 func FuzzMatchChunks(f *testing.F) {
 	f.Add([]byte("hello world"), "world", uint8(1))
 	f.Fuzz(func(t *testing.T, data []byte, needle string, size uint8) {
-		if len(data) > 4096 || needle == "" || len(needle) > 256 {
+		if len(data) > 4096 || needle == "" || len(needle) > 1024 {
 			return
 		}
 		pattern := Literal(needle)

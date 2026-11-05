@@ -27,9 +27,9 @@ type pollRequest struct {
 // concurrency safe. SendAll may queue bounded input for the next Expect.
 // Do not copy a Session. Callback and output execution is cooperative.
 type Session struct {
-	transport     io.ReadWriteCloser
-	opts          sessionOptions
-	events        chan readEvent
+	transport io.ReadWriteCloser
+	opts      sessionOptions
+	inputMailbox
 	done          chan struct{}
 	workers       sync.WaitGroup
 	lifeMu        sync.Mutex
@@ -37,10 +37,6 @@ type Session struct {
 	closeErr      error
 	handlerCancel context.CancelFunc
 	writeGate     chan struct{}
-	inputGate     chan struct{}
-	inputReady    chan struct{}
-	queued        []readEvent
-	queuedBytes   int
 	osIO          *osAccess
 	pollMu        sync.Mutex
 	pollRequest   *pollRequest
@@ -79,7 +75,7 @@ func NewSession(transport io.ReadWriteCloser, opts ...SessionOption) (*Session, 
 			return nil, err
 		}
 	}
-	s := &Session{transport: transport, opts: o, events: make(chan readEvent, 1), done: make(chan struct{}), writeGate: make(chan struct{}, 1), inputGate: make(chan struct{}, 1), inputReady: make(chan struct{}, 1), osIO: access}
+	s := &Session{transport: transport, opts: o, inputMailbox: inputMailbox{events: make(chan readEvent, 1), inputGate: make(chan struct{}, 1), inputReady: make(chan struct{}, 1)}, done: make(chan struct{}), writeGate: make(chan struct{}, 1), osIO: access}
 	s.workers.Add(1)
 	go s.readLoop()
 	return s, nil
@@ -169,6 +165,12 @@ func (s *Session) Close() error {
 		s.lifeMu.Unlock()
 		transportErr := s.transport.Close()
 		s.workers.Wait()
+		// Claim idle receive state; an active owner performs its own cleanup on exit.
+		if s.expecting.CompareAndSwap(false, true) {
+			s.releaseReceiveStorage()
+			s.expecting.Store(false)
+		}
+		s.inputMailbox.retire()
 		outputErr := s.emit(nil, true)
 		s.closeErr = errors.Join(transportErr, outputErr)
 	})
@@ -272,40 +274,17 @@ func (s *Session) Send(ctx context.Context, text string) (n int, err error) {
 		ctx, cancel = context.WithTimeout(ctx, s.opts.writeTimeout)
 		defer cancel()
 	}
-	select {
-	case s.writeGate <- struct{}{}:
-		defer func() { <-s.writeGate }()
-	case <-ctx.Done():
-		return 0, ctx.Err()
-	case <-s.done:
-		return 0, ErrClosed
-	}
-	if err = ctx.Err(); err != nil {
+	if err = s.acquireWrite(ctx); err != nil {
 		return 0, err
 	}
-	s.lifeMu.Lock()
-	if s.isClosed() {
-		s.lifeMu.Unlock()
-		return 0, ErrClosed
-	}
+	defer func() { <-s.writeGate }()
 	if len(text) == 0 {
-		s.lifeMu.Unlock()
 		return 0, nil
 	}
-	result := make(chan writeResult, 1)
-	s.workers.Add(1)
-	go func() {
-		defer s.workers.Done()
-		n, e := s.transport.Write([]byte(text))
-		if n < 0 || n > len(text) {
-			n, e = 0, errors.Join(errors.New("expect: invalid write count"), e)
-		}
-		if e == nil && n != len(text) {
-			e = io.ErrShortWrite
-		}
-		result <- writeResult{n, e}
-	}()
-	s.lifeMu.Unlock()
+	result, err := s.startWrite(ctx, text, writeOnce)
+	if err != nil {
+		return 0, err
+	}
 	select {
 	case resultValue := <-result:
 		n, err = resultValue.n, resultValue.err
@@ -317,18 +296,7 @@ func (s *Session) Send(ctx context.Context, text string) (n int, err error) {
 		r := <-result
 		return r.n, &WriteError{Written: r.n, Cause: errors.Join(ErrClosed, r.err, s.Close())}
 	}
-	// Both the write result and cancellation/Close can already be ready.
-	// select chooses randomly, so recheck before reporting successful progress.
-	if stop := ctx.Err(); stop != nil {
-		err = errors.Join(stop, err)
-	} else if s.isClosed() {
-		err = errors.Join(ErrClosed, err)
-	}
-	if err != nil {
-		err = errors.Join(err, s.Close())
-		return n, &WriteError{Written: n, Cause: err}
-	}
-	return n, nil
+	return s.finishWrite(ctx, writeResult{n, err})
 }
 
 type writeResult struct {
@@ -350,12 +318,5 @@ func (s *Session) publishRead(event readEvent) bool {
 		return true
 	case <-s.done:
 		return false
-	}
-}
-
-func (s *Session) signalInput() {
-	select {
-	case s.inputReady <- struct{}{}:
-	default:
 	}
 }

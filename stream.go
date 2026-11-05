@@ -3,7 +3,6 @@ package expect
 import (
 	"context"
 	"errors"
-	"io"
 )
 
 // Poll matches buffered bytes and performs one OS readiness pass without waiting
@@ -59,61 +58,21 @@ func (s *Session) sendAll(ctx context.Context, text string, poll bool) (n int, e
 	if err = ctx.Err(); err != nil {
 		return 0, err
 	}
-	select {
-	case s.writeGate <- struct{}{}:
-		defer func() { <-s.writeGate }()
-	case <-ctx.Done():
-		return 0, ctx.Err()
-	case <-s.done:
-		return 0, ErrClosed
-	}
-	if err = ctx.Err(); err != nil {
+	if err = s.acquireWrite(ctx); err != nil {
 		return 0, err
 	}
-	if s.isClosed() {
-		return 0, ErrClosed
-	}
+	defer func() { <-s.writeGate }()
 	if len(text) == 0 {
 		return 0, nil
 	}
-	s.lifeMu.Lock()
-	if s.isClosed() {
-		s.lifeMu.Unlock()
-		return 0, ErrClosed
+	mode := writeAll
+	if poll {
+		mode = writeAllReady
 	}
-	results := make(chan writeResult, 1)
-	s.workers.Add(1)
-	go func() {
-		defer s.workers.Done()
-		data := []byte(text)
-		total := 0
-		var e error
-		for total < len(text) {
-			if e = ctx.Err(); e != nil {
-				break
-			}
-			var count int
-			if poll {
-				count, e = s.osIO.writeNow(data[total:])
-			} else {
-				count, e = s.transport.Write(data[total:])
-			}
-			if count < 0 || count > len(text)-total {
-				count = 0
-				e = errors.Join(errors.New("expect: invalid write count"), e)
-			}
-			total += count
-			if e != nil {
-				break
-			}
-			if count == 0 {
-				e = io.ErrNoProgress
-				break
-			}
-		}
-		results <- writeResult{total, e}
-	}()
-	s.lifeMu.Unlock()
+	results, err := s.startWrite(ctx, text, mode)
+	if err != nil {
+		return 0, err
+	}
 	// Drain without competing with an active Expect receive. The input gate also
 	// preserves order when a later Expect claims queued input.
 	events := s.events
@@ -121,17 +80,7 @@ func (s *Session) sendAll(ctx context.Context, text string, poll bool) (n int, e
 	for {
 		select {
 		case r := <-results:
-			n, err = r.n, r.err
-			if stop := ctx.Err(); stop != nil {
-				err = errors.Join(stop, err)
-			} else if s.isClosed() {
-				err = errors.Join(ErrClosed, err)
-			}
-			if err != nil {
-				err = errors.Join(err, s.Close())
-				return n, &WriteError{Written: n, Cause: err}
-			}
-			return n, nil
+			return s.finishWrite(ctx, r)
 		case <-ctx.Done():
 			cleanup := s.Close()
 			r := <-results
@@ -161,17 +110,7 @@ func (s *Session) sendAll(ctx context.Context, text string, poll bool) (n int, e
 				}
 				<-s.inputGate
 			case r := <-results:
-				n, err = r.n, r.err
-				if stop := ctx.Err(); stop != nil {
-					err = errors.Join(stop, err)
-				} else if s.isClosed() {
-					err = errors.Join(ErrClosed, err)
-				}
-				if err != nil {
-					err = errors.Join(err, s.Close())
-					return n, &WriteError{Written: n, Cause: err}
-				}
-				return n, nil
+				return s.finishWrite(ctx, r)
 			case <-ctx.Done():
 				cleanup := s.Close()
 				r := <-results
@@ -189,36 +128,8 @@ func (s *Session) sendAll(ctx context.Context, text string, poll bool) (n int, e
 // The input gate protects both queue mutation and dequeue order. A terminal
 // event belongs after all its bytes and therefore remains at the coalesced end.
 func (s *Session) queueEvent(event readEvent) error {
-	if len(event.data) == 0 && event.err == nil {
-		return nil
+	if s.isClosed() {
+		return ErrClosed
 	}
-	if s.queuedBytes+len(event.data) > s.opts.limit {
-		return ErrBufferLimit
-	}
-	if len(s.queued) == 0 {
-		data := event.data
-		if cap(data) > s.opts.limit {
-			data = make([]byte, len(event.data))
-			copy(data, event.data)
-		}
-		s.queued = []readEvent{{data: data, err: event.err}}
-		s.queuedBytes = len(data)
-		return nil
-	}
-	queued := &s.queued[0]
-	size := len(queued.data) + len(event.data)
-	if size > cap(queued.data) {
-		capacity := min(s.opts.limit, max(size, 2*cap(queued.data)))
-		data := make([]byte, size, capacity)
-		copy(data, queued.data)
-		copy(data[len(queued.data):], event.data)
-		queued.data = data
-	} else {
-		queued.data = append(queued.data, event.data...)
-	}
-	if event.err != nil {
-		queued.err = event.err
-	}
-	s.queuedBytes = size
-	return nil
+	return s.inputMailbox.enqueue(event, s.opts.limit)
 }

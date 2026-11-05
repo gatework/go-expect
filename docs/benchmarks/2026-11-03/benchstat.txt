@@ -1,0 +1,41 @@
+goos: darwin
+goarch: arm64
+pkg: github.com/gatework/go-expect
+cpu: Apple M5
+                                        │ docs/benchmarks/2026-11-03/before.txt │ docs/benchmarks/2026-11-03/after.txt │
+                                        │                sec/op                 │    sec/op     vs base                │
+LongLiteralCursor-4                                               3065.56µ ± 2%    25.53µ ± 7%  -99.17% (p=0.000 n=10)
+FragmentedReceive/1024-4                                            21.13µ ± 1%    21.40µ ± 1%   +1.31% (p=0.002 n=10)
+SessionFilter/rule=8/chunk=16384/safe-4                            1103.0n ± 2%    164.7n ± 2%  -85.07% (p=0.000 n=10)
+PublicRedactor/safe/chunk_1024-4                                    162.7n ± 1%    164.7n ± 3%        ~ (p=0.565 n=10)
+geomean                                                             10.38µ         1.962µ       -81.11%
+
+                                        │ docs/benchmarks/2026-11-03/before.txt │   docs/benchmarks/2026-11-03/after.txt    │
+                                        │                  B/s                  │      B/s        vs base                   │
+LongLiteralCursor-4                                                5.097Mi ± 2%   612.388Mi ± 7%  +11913.75% (p=0.000 n=10)
+FragmentedReceive/1024-4                                           739.8Mi ± 1%     730.2Mi ± 1%      -1.30% (p=0.002 n=10)
+SessionFilter/rule=8/chunk=16384/safe-4                            13.83Gi ± 2%     92.68Gi ± 2%    +569.89% (p=0.000 n=10)
+PublicRedactor/safe/chunk_1024-4                                   5.860Gi ± 1%     5.794Gi ± 3%           ~ (p=0.579 n=10)
+geomean                                                            752.5Mi          3.890Gi         +429.37%
+
+                                        │ docs/benchmarks/2026-11-03/before.txt │   docs/benchmarks/2026-11-03/after.txt    │
+                                        │                 B/op                  │     B/op      vs base                     │
+LongLiteralCursor-4                                                2.380Mi ± 0%   0.000Mi ± 0%  -100.00% (p=0.000 n=10)
+FragmentedReceive/1024-4                                           123.3Ki ± 0%   123.3Ki ± 0%    +0.03% (p=0.000 n=10)
+SessionFilter/rule=8/chunk=16384/safe-4                            16.00Ki ± 0%    0.00Ki ± 0%  -100.00% (p=0.000 n=10)
+PublicRedactor/safe/chunk_1024-4                                   1.023Ki ± 0%   1.023Ki ± 0%         ~ (p=1.000 n=10) ¹
+geomean                                                            47.10Ki                      ?                       ² ³
+¹ all samples are equal
+² summaries must be >0 to compute geomean
+³ ratios must be >0 to compute geomean
+
+                                        │ docs/benchmarks/2026-11-03/before.txt │  docs/benchmarks/2026-11-03/after.txt   │
+                                        │               allocs/op               │ allocs/op   vs base                     │
+LongLiteralCursor-4                                                  513.0 ± 0%     0.0 ± 0%  -100.00% (p=0.000 n=10)
+FragmentedReceive/1024-4                                             45.00 ± 0%   45.00 ± 0%         ~ (p=1.000 n=10) ¹
+SessionFilter/rule=8/chunk=16384/safe-4                              1.000 ± 0%   0.000 ± 0%  -100.00% (p=0.000 n=10)
+PublicRedactor/safe/chunk_1024-4                                     4.000 ± 0%   4.000 ± 0%         ~ (p=1.000 n=10) ¹
+geomean                                                              17.43                    ?                       ² ³
+¹ all samples are equal
+² summaries must be >0 to compute geomean
+³ ratios must be >0 to compute geomean

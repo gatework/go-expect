@@ -64,7 +64,7 @@ func TestReceiveScratchDoesNotChangeQueuedInput(t *testing.T) {
 				data[i] = byte(i * 37)
 			}
 			var transcript bytes.Buffer
-			s, err := NewSession(&chunkStream{Reader: bytes.NewReader(data), chunk: chunk}, WithTranscript(&transcript))
+			s, err := NewSession(&chunkStream{Reader: bytes.NewReader(data), chunk: chunk}, WithOutput(&transcript))
 			if err != nil {
 				t.Fatal(err)
 			}

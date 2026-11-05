@@ -57,19 +57,10 @@ func (r *Redactor) set(secrets []string) {
 	for index, s := range secrets {
 		r.secrets = append(r.secrets, []byte(s))
 		r.keep = max(r.keep, len(s)-1)
-		if len(s) <= 256 {
+		if len(s) <= literalKMPThreshold {
 			continue
 		}
-		failure := make([]int, len(s))
-		for i, matched := 1, 0; i < len(s); i++ {
-			for matched > 0 && s[i] != s[matched] {
-				matched = failure[matched-1]
-			}
-			if s[i] == s[matched] {
-				matched++
-			}
-			failure[i] = matched
-		}
+		failure := literalPrefix(s)
 		r.rules[index].failure = failure
 	}
 }
@@ -234,7 +225,7 @@ func (r *Redactor) detach(capacity int) {
 // safeChunk avoids building and marking a full work buffer when every byte is
 // visible. Matches crossing the retained window still require the general path.
 func (r *Redactor) safeChunk(data []byte) bool {
-	if r.keep >= 256 {
+	if r.keep >= literalKMPThreshold {
 		return false
 	}
 	for _, hidden := range r.hidden {
@@ -245,7 +236,7 @@ func (r *Redactor) safeChunk(data []byte) bool {
 	for _, secret := range r.secrets {
 		// Candidate-by-candidate boundary comparisons can be quadratic in the
 		// secret length. Keep that work bounded; long rules use the general path.
-		if len(secret) > 256 {
+		if len(secret) > literalKMPThreshold {
 			return false
 		}
 		if bytes.Contains(data, secret) || bytes.Contains(r.pending, secret) {

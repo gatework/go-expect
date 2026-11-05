@@ -232,15 +232,16 @@ func referencePublicRedaction(input []byte, secrets []string, replacement []byte
 func FuzzLiteralAllChunks(f *testing.F) {
 	f.Add([]byte("!abab!abab"), "aba", "bab", uint8(1))
 	f.Add([]byte("needle missing"), "needle", "end", uint8(4))
+	f.Add(bytes.Repeat([]byte("a"), 1024), string(bytes.Repeat([]byte("a"), 257)), "a", uint8(1))
 	f.Fuzz(func(t *testing.T, input []byte, a, b string, size uint8) {
-		if len(input) > 4096 || a == "" || b == "" || len(a) > 64 || len(b) > 64 {
+		if len(input) > 4096 || a == "" || b == "" || len(a) > 1024 || len(b) > 1024 {
 			return
 		}
 		p := All(Literal(a), All(Literal(b), Literal(a)))
 		state := newPatternScan(p)
 		chunk := int(size)%32 + 1
 		for end := 0; ; end = min(end+chunk, len(input)) {
-			got, found := state.findAll(input[:end])
+			got, found := state.findLiterals(input[:end])
 			want, wantFound, wantErr := p.find(input[:end], end == len(input), 0)
 			if wantErr != nil || found != wantFound || got.start != want.start || got.end != want.end {
 				t.Fatalf("prefix=%d got=(%d,%d,%v) want=(%d,%d,%v,%v)", end, got.start, got.end, found, want.start, want.end, wantFound, wantErr)
@@ -250,7 +251,7 @@ func FuzzLiteralAllChunks(f *testing.F) {
 			}
 		}
 		state.reset()
-		got, found := state.findAll(input)
+		got, found := state.findLiterals(input)
 		want, wantFound, wantErr := p.find(input, true, 0)
 		if wantErr != nil || found != wantFound || got.start != want.start || got.end != want.end {
 			t.Fatal("reset changed matching")

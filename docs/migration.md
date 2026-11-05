@@ -45,3 +45,10 @@ close the parent's slave when appropriate, and arrange Wait and failure cleanup.
 Rename `Console.Tty()` calls to `Console.TTY()`. The ownership contract is unchanged.
 The device package introduced on a development branch was not part of v0.1.0; it
 is removed from this generic library. Device migration is described in connector.md.
+
+## Receive retirement and write admission
+
+Close now releases receive storage; later calls no longer return historical
+input in Before. An active operation retains its own result snapshot. Cancellation
+before worker write admission leaves the session usable and returns the context
+error directly, rather than WriteError.

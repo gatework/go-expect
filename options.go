@@ -121,9 +121,6 @@ func WithOutput(writers ...io.Writer) SessionOption {
 	}
 }
 
-// WithTranscript records the same filtered receive stream as WithOutput.
-func WithTranscript(w io.Writer) SessionOption { return WithOutput(w) }
-
 // WithObserver adds metadata observers in declaration order.
 func WithObserver(observers ...Observer) SessionOption {
 	observers = append([]Observer(nil), observers...)

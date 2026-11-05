@@ -18,7 +18,7 @@ func TestConsoleDeviceDialogue(t *testing.T) {
 	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
 	defer cancel()
 	var transcript bytes.Buffer
-	c, err := NewConsole(WithRaw(), WithSessionOptions(WithTranscript(&transcript)))
+	c, err := NewConsole(WithRaw(), WithSessionOptions(WithOutput(&transcript)))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -155,5 +155,22 @@ func TestConsoleInitializationFailureClosesDescriptors(t *testing.T) {
 	}
 	if after := count(); after != before {
 		t.Fatalf("fd count before=%d after=%d", before, after)
+	}
+}
+
+func BenchmarkLiteral16K(b *testing.B) {
+	text := strings.Repeat("x", 16*1024) + "done!"
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		c, err := NewConsole()
+		if err != nil {
+			b.Fatal(err)
+		}
+		go c.TTY().Write([]byte(text))
+		_, err = c.Session().Expect(context.Background(), []Case{{Pattern: Literal("done!")}})
+		c.Close()
+		if err != nil {
+			b.Fatal(err)
+		}
 	}
 }

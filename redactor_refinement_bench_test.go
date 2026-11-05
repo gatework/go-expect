@@ -51,7 +51,7 @@ func BenchmarkSessionFilterRetention(b *testing.B) {
 				a, peer := net.Pipe()
 				var options []SessionOption
 				if sink {
-					options = append(options, WithTranscript(io.Discard))
+					options = append(options, WithOutput(io.Discard))
 				}
 				s, err := NewSession(a, options...)
 				if err != nil {

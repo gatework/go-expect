@@ -1,0 +1,226 @@
+all modules verified
+ok  	github.com/gatework/go-expect	0.002s
+?   	github.com/gatework/go-expect/examples/dialogue	[no test files]
+ok  	github.com/gatework/go-expect	7.351s
+?   	github.com/gatework/go-expect/examples/dialogue	[no test files]
+ok  	github.com/gatework/go-expect/expecttest	1.009s
+fuzz: elapsed: 0s, gathering baseline coverage: 0/31 completed
+fuzz: elapsed: 0s, gathering baseline coverage: 31/31 completed, now fuzzing with 2 workers
+fuzz: elapsed: 3s, execs: 35094 (11698/sec), new interesting: 1 (total: 32)
+fuzz: elapsed: 4s, execs: 100000 (61016/sec), new interesting: 1 (total: 32)
+PASS
+ok  	github.com/gatework/go-expect	4.078s
+fuzz: elapsed: 0s, gathering baseline coverage: 0/126 completed
+fuzz: elapsed: 0s, gathering baseline coverage: 126/126 completed, now fuzzing with 2 workers
+fuzz: elapsed: 3s, execs: 16450 (5476/sec), new interesting: 13 (total: 139)
+fuzz: elapsed: 6s, execs: 59037 (14211/sec), new interesting: 14 (total: 140)
+fuzz: elapsed: 9s, execs: 59037 (0/sec), new interesting: 14 (total: 140)
+fuzz: elapsed: 12s, execs: 59037 (0/sec), new interesting: 14 (total: 140)
+fuzz: elapsed: 14s, execs: 100000 (17640/sec), new interesting: 15 (total: 141)
+PASS
+ok  	github.com/gatework/go-expect	14.372s
+fuzz: elapsed: 0s, gathering baseline coverage: 0/112 completed
+fuzz: elapsed: 0s, gathering baseline coverage: 112/112 completed, now fuzzing with 2 workers
+fuzz: elapsed: 3s, execs: 21965 (7321/sec), new interesting: 2 (total: 114)
+fuzz: elapsed: 6s, execs: 62853 (13629/sec), new interesting: 2 (total: 114)
+fuzz: elapsed: 9s, execs: 96172 (11105/sec), new interesting: 4 (total: 116)
+fuzz: elapsed: 9s, execs: 100000 (17734/sec), new interesting: 4 (total: 116)
+PASS
+ok  	github.com/gatework/go-expect	9.247s
+fuzz: elapsed: 0s, gathering baseline coverage: 0/19 completed
+fuzz: elapsed: 0s, gathering baseline coverage: 19/19 completed, now fuzzing with 2 workers
+fuzz: elapsed: 3s, execs: 38077 (12684/sec), new interesting: 1 (total: 20)
+fuzz: elapsed: 6s, execs: 50076 (4000/sec), new interesting: 2 (total: 21)
+fuzz: elapsed: 9s, execs: 50076 (0/sec), new interesting: 2 (total: 21)
+fuzz: elapsed: 9s, execs: 100000 (105862/sec), new interesting: 3 (total: 22)
+PASS
+ok  	github.com/gatework/go-expect	9.485s
+fuzz: elapsed: 0s, gathering baseline coverage: 0/23 completed
+fuzz: elapsed: 0s, gathering baseline coverage: 23/23 completed, now fuzzing with 2 workers
+fuzz: elapsed: 3s, execs: 1835 (611/sec), new interesting: 5 (total: 28)
+fuzz: elapsed: 6s, execs: 50052 (16064/sec), new interesting: 11 (total: 34)
+fuzz: elapsed: 9s, execs: 50052 (0/sec), new interesting: 11 (total: 34)
+fuzz: elapsed: 12s, execs: 50052 (0/sec), new interesting: 11 (total: 34)
+fuzz: elapsed: 15s, execs: 50052 (0/sec), new interesting: 11 (total: 34)
+fuzz: elapsed: 18s, execs: 50052 (0/sec), new interesting: 11 (total: 34)
+fuzz: elapsed: 18s, execs: 100000 (218701/sec), new interesting: 12 (total: 35)
+PASS
+ok  	github.com/gatework/go-expect	18.240s
+fuzz: elapsed: 0s, gathering baseline coverage: 0/29 completed
+fuzz: elapsed: 0s, gathering baseline coverage: 29/29 completed, now fuzzing with 2 workers
+fuzz: elapsed: 3s, execs: 1367 (455/sec), new interesting: 3 (total: 32)
+fuzz: elapsed: 6s, execs: 1367 (0/sec), new interesting: 3 (total: 32)
+fuzz: elapsed: 9s, execs: 37942 (12197/sec), new interesting: 4 (total: 33)
+fuzz: elapsed: 12s, execs: 37942 (0/sec), new interesting: 4 (total: 33)
+fuzz: elapsed: 15s, execs: 37942 (0/sec), new interesting: 4 (total: 33)
+fuzz: elapsed: 18s, execs: 50951 (4339/sec), new interesting: 5 (total: 34)
+fuzz: elapsed: 21s, execs: 50951 (0/sec), new interesting: 5 (total: 34)
+fuzz: elapsed: 24s, execs: 50951 (0/sec), new interesting: 5 (total: 34)
+fuzz: elapsed: 27s, execs: 50951 (0/sec), new interesting: 5 (total: 34)
+fuzz: elapsed: 30s, execs: 50951 (0/sec), new interesting: 5 (total: 34)
+fuzz: elapsed: 33s, execs: 50951 (0/sec), new interesting: 5 (total: 34)
+fuzz: elapsed: 36s, execs: 50951 (0/sec), new interesting: 5 (total: 34)
+fuzz: elapsed: 39s, execs: 50951 (0/sec), new interesting: 5 (total: 34)
+fuzz: elapsed: 39s, execs: 100000 (115597/sec), new interesting: 6 (total: 35)
+PASS
+ok  	github.com/gatework/go-expect	39.440s
+fuzz: elapsed: 0s, gathering baseline coverage: 0/21 completed
+fuzz: elapsed: 0s, gathering baseline coverage: 21/21 completed, now fuzzing with 2 workers
+fuzz: elapsed: 3s, execs: 337 (112/sec), new interesting: 3 (total: 24)
+fuzz: elapsed: 6s, execs: 337 (0/sec), new interesting: 3 (total: 24)
+fuzz: elapsed: 9s, execs: 337 (0/sec), new interesting: 3 (total: 24)
+fuzz: elapsed: 12s, execs: 337 (0/sec), new interesting: 3 (total: 24)
+fuzz: elapsed: 15s, execs: 337 (0/sec), new interesting: 3 (total: 24)
+fuzz: elapsed: 18s, execs: 337 (0/sec), new interesting: 3 (total: 24)
+fuzz: elapsed: 21s, execs: 337 (0/sec), new interesting: 3 (total: 24)
+fuzz: elapsed: 24s, execs: 50252 (16636/sec), new interesting: 4 (total: 25)
+fuzz: elapsed: 25s, execs: 100000 (50337/sec), new interesting: 5 (total: 26)
+PASS
+ok  	github.com/gatework/go-expect	25.000s
+fuzz: elapsed: 0s, gathering baseline coverage: 0/33 completed
+fuzz: elapsed: 0s, gathering baseline coverage: 33/33 completed, now fuzzing with 2 workers
+fuzz: elapsed: 3s, execs: 5274 (1757/sec), new interesting: 1 (total: 34)
+fuzz: elapsed: 6s, execs: 5274 (0/sec), new interesting: 1 (total: 34)
+fuzz: elapsed: 9s, execs: 5274 (0/sec), new interesting: 1 (total: 34)
+fuzz: elapsed: 12s, execs: 5274 (0/sec), new interesting: 1 (total: 34)
+fuzz: elapsed: 15s, execs: 5274 (0/sec), new interesting: 1 (total: 34)
+fuzz: elapsed: 18s, execs: 44978 (13238/sec), new interesting: 2 (total: 35)
+fuzz: elapsed: 21s, execs: 53616 (2879/sec), new interesting: 3 (total: 36)
+fuzz: elapsed: 24s, execs: 53616 (0/sec), new interesting: 3 (total: 36)
+fuzz: elapsed: 27s, execs: 53616 (0/sec), new interesting: 3 (total: 36)
+fuzz: elapsed: 29s, execs: 100000 (30755/sec), new interesting: 4 (total: 37)
+PASS
+ok  	github.com/gatework/go-expect	28.523s
+goos: linux
+goarch: amd64
+pkg: github.com/gatework/go-expect
+cpu: AMD EPYC 7K62 48-Core Processor
+BenchmarkLiteral16K                   	       3	    345548 ns/op	  129077 B/op	      41 allocs/op
+BenchmarkContinuedBurst/128           	       3	     45199 ns/op	   2.83 MB/s	   18168 B/op	      16 allocs/op
+BenchmarkContinuedBurst/4096          	       3	   1302001 ns/op	   3.15 MB/s	   22136 B/op	      16 allocs/op
+BenchmarkReceiveRemainderRetention/held_false/tail_0         	       3	       163.7 ns/op	     19837 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_false/tail_8         	       3	       167.0 ns/op	     18974 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_false/tail_4096      	       3	        70.00 ns/op	     23040 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_true/tail_0          	       3	       103.7 ns/op	   1067534 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_true/tail_8          	       3	       167.0 ns/op	   1067546 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkReceiveRemainderRetention/held_true/tail_4096       	       3	       100.3 ns/op	   1071630 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkLongLiteralCursor                                   	       3	     68840 ns/op	 238.02 MB/s	       0 B/op	       0 allocs/op
+BenchmarkPTYReceive/1                                        	       3	     32498 ns/op	   0.03 MB/s	    6021 B/op	      12 allocs/op
+BenchmarkPTYReceive/32                                       	       3	     21083 ns/op	   1.52 MB/s	    6085 B/op	      13 allocs/op
+BenchmarkPTYReceive/1024                                     	       3	     27565 ns/op	  37.15 MB/s	    8389 B/op	      15 allocs/op
+BenchmarkOSIdlePopulation/1                                  	       3	  50199562 ns/op	     35718 close-p50-ns	     35718 close-p95-ns	      2443 cpu-ns/session-ms	         2.000 fd-delta	     91102 poll-p50-ns	     91102 poll-p95-ns	     -6680 retained-B/session	         0 thread-delta	         4.000 threads	       0 B/op	       0 allocs/op
+BenchmarkOSIdlePopulation/64                                 	       3	  50561151 ns/op	      5981 close-p50-ns	     19287 close-p95-ns	        42.33 cpu-ns/session-ms	       128.0 fd-delta	      8496 poll-p50-ns	     15660 poll-p95-ns	      1830 retained-B/session	         0 thread-delta	         4.000 threads	       0 B/op	       0 allocs/op
+BenchmarkOSIdlePopulation/256                                	       3	  50184795 ns/op	      5360 close-p50-ns	      8526 close-p95-ns	        10.30 cpu-ns/session-ms	       512.0 fd-delta	      6452 poll-p50-ns	     10820 poll-p95-ns	      1919 retained-B/session	         0 thread-delta	         4.000 threads	       0 B/op	       0 allocs/op
+BenchmarkOSIdlePopulation/1024                               	       3	  50154291 ns/op	      5981 close-p50-ns	      8897 close-p95-ns	         2.297 cpu-ns/session-ms	      2048 fd-delta	      6322 poll-p50-ns	      9298 poll-p95-ns	      1949 retained-B/session	         0 thread-delta	         4.000 threads	       0 B/op	       0 allocs/op
+BenchmarkOSIdleHeap/1                                        	       3	  50153439 ns/op	      1681 cpu-ns/session-ms	         2.000 fd-delta	     -6680 retained-B/session	         0 thread-delta	         4.000 threads	       0 B/op	       0 allocs/op
+BenchmarkOSIdleHeap/64                                       	       3	  50192115 ns/op	        38.18 cpu-ns/session-ms	       128.0 fd-delta	      1456 retained-B/session	         0 thread-delta	         4.000 threads	       0 B/op	       0 allocs/op
+BenchmarkOSIdleHeap/256                                      	       3	  50203660 ns/op	         9.855 cpu-ns/session-ms	       512.0 fd-delta	      1555 retained-B/session	         0 thread-delta	         4.000 threads	       0 B/op	       0 allocs/op
+BenchmarkOSIdleHeap/1024                                     	       3	  50182474 ns/op	         2.413 cpu-ns/session-ms	      2048 fd-delta	      1579 retained-B/session	         0 thread-delta	         4.000 threads	       0 B/op	       0 allocs/op
+BenchmarkReceivePatterns/literal/chunk_32                    	       3	   1565007 ns/op	  20.94 MB/s	  246200 B/op	    1061 allocs/op
+BenchmarkReceivePatterns/literal/chunk_1024                  	       3	     90457 ns/op	 362.35 MB/s	  236792 B/op	      61 allocs/op
+BenchmarkReceivePatterns/all_literals/chunk_32               	       3	   1419096 ns/op	  23.10 MB/s	  246616 B/op	    1062 allocs/op
+BenchmarkReceivePatterns/all_literals/chunk_1024             	       3	    100743 ns/op	 325.35 MB/s	  237208 B/op	      62 allocs/op
+BenchmarkReceivePatterns/nested_all/chunk_32                 	       3	   1375173 ns/op	  23.83 MB/s	  246728 B/op	    1062 allocs/op
+BenchmarkReceivePatterns/nested_all/chunk_1024               	       3	     80114 ns/op	 409.13 MB/s	  237320 B/op	      62 allocs/op
+BenchmarkReceivePatterns/regexp/chunk_32                     	       3	   2719437 ns/op	  12.05 MB/s	  248426 B/op	    1071 allocs/op
+BenchmarkReceivePatterns/regexp/chunk_1024                   	       3	    143510 ns/op	 228.39 MB/s	  236946 B/op	      65 allocs/op
+BenchmarkReceivePatterns/mixed_all/chunk_32                  	       3	   3336089 ns/op	   9.82 MB/s	  247045 B/op	    1065 allocs/op
+BenchmarkReceivePatterns/mixed_all/chunk_1024                	       3	    125183 ns/op	 261.83 MB/s	  237637 B/op	      65 allocs/op
+BenchmarkReceivePatterns/mixed_literal_first/chunk_32        	       3	   1462170 ns/op	  22.42 MB/s	  246936 B/op	    1064 allocs/op
+BenchmarkReceivePatterns/mixed_literal_first/chunk_1024      	       3	    260959 ns/op	 125.61 MB/s	  237528 B/op	      64 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_1                     	       3	     41775 ns/op	  24.51 MB/s	    8192 B/op	    1024 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_32                    	       3	      3139 ns/op	 326.22 MB/s	    1024 B/op	      32 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_1024                  	       3	      1750 ns/op	 585.14 MB/s	    1024 B/op	       1 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1                         	       3	    122665 ns/op	   8.35 MB/s	    1056 B/op	    1022 allocs/op
+BenchmarkPublicRedactor/safe/chunk_32                        	       3	      7611 ns/op	 134.54 MB/s	    1050 B/op	      35 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1024                      	       3	      2124 ns/op	 482.11 MB/s	    1050 B/op	       4 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1                      	       3	     79837 ns/op	  12.02 MB/s	    2080 B/op	     259 allocs/op
+BenchmarkPublicRedactor/matches/chunk_32                     	       3	     15633 ns/op	  61.41 MB/s	    6234 B/op	     182 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1024                   	       3	     10466 ns/op	  91.72 MB/s	    4522 B/op	       8 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1                     	       3	     96198 ns/op	  10.40 MB/s	    3216 B/op	     404 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_32                    	       3	     27375 ns/op	  36.53 MB/s	    6149 B/op	     194 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1024                  	       3	     22005 ns/op	  45.44 MB/s	    6928 B/op	       8 allocs/op
+BenchmarkRedactorRetainedTail                                	       3	    536331 ns/op	1955.09 MB/s	        10.00 tail-cap-B	 1048618 B/op	       5 allocs/op
+BenchmarkPublicRedactorLongBoundary/32                       	       3	       845.0 ns/op	  37.87 MB/s	      32 B/op	       1 allocs/op
+BenchmarkPublicRedactorLongBoundary/256                      	       3	      2251 ns/op	 113.73 MB/s	     256 B/op	       1 allocs/op
+BenchmarkPublicRedactorLongBoundary/4096                     	       3	     24944 ns/op	 164.21 MB/s	    4096 B/op	       1 allocs/op
+BenchmarkPublicRedactorLongBoundary/65536                    	       3	    428775 ns/op	 152.84 MB/s	   65536 B/op	       1 allocs/op
+BenchmarkOSReceive/1                                         	       3	     26039 ns/op	   0.04 MB/s	    5984 B/op	      12 allocs/op
+BenchmarkOSReceive/32                                        	       3	     16688 ns/op	   1.92 MB/s	    6048 B/op	      13 allocs/op
+BenchmarkOSReceive/1024                                      	       3	     23397 ns/op	  43.77 MB/s	    8352 B/op	      15 allocs/op
+BenchmarkOSReceive/16384                                     	       3	     68449 ns/op	 239.36 MB/s	   33610 B/op	      14 allocs/op
+BenchmarkIdleSessions/os_false/count_1                       	       3	  20203430 ns/op	      6780 cpu-ns/session-ms	     19040 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkIdleSessions/os_false/count_64                      	       3	  20169265 ns/op	        79.26 cpu-ns/session-ms	     19306 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkIdleSessions/os_true/count_1                        	       3	  20193014 ns/op	      8714 cpu-ns/session-ms	      1872 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkIdleSessions/os_true/count_64                       	       3	  20168250 ns/op	        97.08 cpu-ns/session-ms	      1600 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=1/safe                   	       3	       344.0 ns/op	   2.91 MB/s	      16 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=1/dense                  	       3	       297.0 ns/op	   3.37 MB/s	      21 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=1/mixed                  	       3	       297.3 ns/op	   3.36 MB/s	      21 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=32/safe                  	       3	       507.7 ns/op	  63.03 MB/s	      48 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=32/dense                 	       3	      1065 ns/op	  30.04 MB/s	      64 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=32/mixed                 	       3	      1216 ns/op	  26.32 MB/s	      64 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=16384/safe               	       3	     14778 ns/op	1108.70 MB/s	   18432 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=16384/dense              	       3	    210798 ns/op	  77.72 MB/s	   28672 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=8/chunk=16384/mixed              	       3	    405912 ns/op	  40.36 MB/s	   28672 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=1/safe                	       3	      4068 ns/op	   0.25 MB/s	    6826 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=1/dense               	       3	      3307 ns/op	   0.30 MB/s	    5472 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=1/mixed               	       3	      4989 ns/op	   0.20 MB/s	    5472 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=32/safe               	       3	      6068 ns/op	   5.27 MB/s	    7082 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=32/dense              	       3	      2926 ns/op	  10.94 MB/s	    5493 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=32/mixed              	       3	      1920 ns/op	  16.66 MB/s	    5493 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=16384/safe            	       3	     24536 ns/op	 667.74 MB/s	   20480 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=16384/dense           	       3	     74888 ns/op	 218.78 MB/s	   30037 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=4096/chunk=16384/mixed           	       3	    282175 ns/op	  58.06 MB/s	   30037 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=1/safe               	       3	     14073 ns/op	   0.07 MB/s	   27306 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=1/dense              	       3	      3650 ns/op	   0.27 MB/s	   21856 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=1/mixed              	       3	     10991 ns/op	   0.09 MB/s	   21856 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=32/safe              	       3	     13746 ns/op	   2.33 MB/s	   27989 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=32/dense             	       3	      3767 ns/op	   8.49 MB/s	   21877 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=32/mixed             	       3	      6739 ns/op	   4.75 MB/s	   21877 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=16384/safe           	       3	     33947 ns/op	 482.63 MB/s	   32768 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=16384/dense          	       3	     83978 ns/op	 195.10 MB/s	   38229 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=16384/chunk=16384/mixed          	       3	    345331 ns/op	  47.44 MB/s	   38229 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=1/safe               	       3	     78802 ns/op	   0.01 MB/s	  109226 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=1/dense              	       3	     25949 ns/op	   0.04 MB/s	   87392 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=1/mixed              	       3	     62104 ns/op	   0.02 MB/s	   87392 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=32/safe              	       3	    546774 ns/op	   0.06 MB/s	  111957 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=32/dense             	       3	     24990 ns/op	   1.28 MB/s	   87413 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=32/mixed             	       3	     24814 ns/op	   1.29 MB/s	   87413 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=16384/safe           	       3	     89141 ns/op	 183.80 MB/s	  114688 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=16384/dense          	       3	    112432 ns/op	 145.72 MB/s	  103765 B/op	       1 allocs/op
+BenchmarkSessionFilter/rule=65536/chunk=16384/mixed          	       3	    351048 ns/op	  46.67 MB/s	  103765 B/op	       1 allocs/op
+BenchmarkSessionFilterRetention/sink=false                   	       3	       170.3 ns/op	     18948 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkSessionFilterRetention/sink=true                    	       3	       143.7 ns/op	     19050 retained-B/session	       0 B/op	       0 allocs/op
+BenchmarkCompetingCaptures/cases=1/all=false                 	       3	   7196334 ns/op	   73509 B/op	      12 allocs/op
+BenchmarkCompetingCaptures/cases=1/all=true                  	       3	  13785129 ns/op	   71842 B/op	       8 allocs/op
+BenchmarkCompetingCaptures/cases=8/all=false                 	       3	  63707246 ns/op	   72514 B/op	      14 allocs/op
+BenchmarkCompetingCaptures/cases=8/all=true                  	       3	 104067558 ns/op	   77170 B/op	      37 allocs/op
+BenchmarkLineCursor/16384                                    	       3	     67627 ns/op	 242.27 MB/s	       0 B/op	       0 allocs/op
+BenchmarkLineCursor/65536                                    	       3	    269294 ns/op	 243.36 MB/s	       0 B/op	       0 allocs/op
+BenchmarkNestedValidation/64/validate                        	       3	      8576 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNestedValidation/64/cursor                          	       3	      4943 ns/op	     208 B/op	       1 allocs/op
+BenchmarkNestedValidation/256/validate                       	       3	     21817 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNestedValidation/256/cursor                         	       3	     18682 ns/op	     208 B/op	       1 allocs/op
+BenchmarkNestedValidation/1024/validate                      	       3	    113657 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNestedValidation/1024/cursor                        	       3	     68720 ns/op	     208 B/op	       1 allocs/op
+BenchmarkBufferedExpect                                      	       3	      4295 ns/op	     144 B/op	       2 allocs/op
+BenchmarkDuplicateCaptureSnapshots                           	       3	      2732 ns/op	    1792 B/op	       1 allocs/op
+BenchmarkFragmentedReceive/1                                 	       3	  21288970 ns/op	   0.77 MB/s	  135666 B/op	   16425 allocs/op
+BenchmarkFragmentedReceive/32                                	       3	    677500 ns/op	  24.19 MB/s	  135602 B/op	     547 allocs/op
+BenchmarkFragmentedReceive/1024                              	       3	     50846 ns/op	 322.31 MB/s	  126194 B/op	      43 allocs/op
+BenchmarkFragmentedReceive/16384                             	       3	     19594 ns/op	 836.39 MB/s	   72690 B/op	      22 allocs/op
+BenchmarkPublicRedactorDenseLong/256                         	       3	     16642 ns/op	  61.53 MB/s	    3456 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/1024                        	       3	     21360 ns/op	 191.76 MB/s	   13440 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/4096                        	       3	    128943 ns/op	 127.06 MB/s	   54528 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/16384                       	       3	    427706 ns/op	 153.23 MB/s	  221184 B/op	       5 allocs/op
+BenchmarkPublicRedactorDenseLong/65536                       	       3	   1823852 ns/op	 143.73 MB/s	  860160 B/op	       5 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/257                    	       3	       307.3 ns/op	   3.25 MB/s	     341 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/4096                   	       3	      1817 ns/op	   0.55 MB/s	    5461 B/op	       0 allocs/op
+BenchmarkPublicRedactorMixedDenseByte/65536                  	       3	     14517 ns/op	   0.07 MB/s	   87381 B/op	       0 allocs/op
+PASS
+ok  	github.com/gatework/go-expect	3.144s
+logged in
+completed: show status
+completed: save configuration
+consumer: stream and PTY passed
+source consumer passed (disposable module snapshot)

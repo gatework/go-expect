@@ -1,0 +1,460 @@
+goos: linux
+goarch: amd64
+pkg: github.com/gatework/go-expect
+cpu: AMD EPYC 7K62 48-Core Processor
+BenchmarkPTYReceive/1-4       	    7766	     15589 ns/op	   0.06 MB/s	     692 B/op	      11 allocs/op
+BenchmarkPTYReceive/32-4      	   10000	     17442 ns/op	   1.83 MB/s	     754 B/op	      12 allocs/op
+BenchmarkPTYReceive/1024-4    	    5269	     25044 ns/op	  40.89 MB/s	    2852 B/op	      13 allocs/op
+BenchmarkReceivePatterns/literal/chunk_32-4         	      82	   2024935 ns/op	  16.19 MB/s	  246429 B/op	    1062 allocs/op
+BenchmarkReceivePatterns/literal/chunk_1024-4       	     274	    391166 ns/op	  83.79 MB/s	  237007 B/op	      62 allocs/op
+BenchmarkReceivePatterns/all_literals/chunk_32-4    	      80	   1959369 ns/op	  16.73 MB/s	  246642 B/op	    1062 allocs/op
+BenchmarkReceivePatterns/all_literals/chunk_1024-4  	     382	    332678 ns/op	  98.52 MB/s	  237217 B/op	      62 allocs/op
+BenchmarkReceivePatterns/nested_all/chunk_32-4      	      54	   2318792 ns/op	  14.14 MB/s	  246743 B/op	    1062 allocs/op
+BenchmarkReceivePatterns/nested_all/chunk_1024-4    	     574	    375859 ns/op	  87.21 MB/s	  237324 B/op	      62 allocs/op
+BenchmarkReceivePatterns/regexp/chunk_32-4          	      26	   4470211 ns/op	   7.33 MB/s	  260669 B/op	    1070 allocs/op
+BenchmarkReceivePatterns/regexp/chunk_1024-4        	     259	    528971 ns/op	  61.96 MB/s	  241288 B/op	      67 allocs/op
+BenchmarkReceivePatterns/mixed_all/chunk_32-4       	      37	   4356180 ns/op	   7.52 MB/s	  254360 B/op	    1067 allocs/op
+BenchmarkReceivePatterns/mixed_all/chunk_1024-4     	     360	    420790 ns/op	  77.89 MB/s	  241994 B/op	      65 allocs/op
+BenchmarkReceivePatterns/mixed_literal_first/chunk_32-4         	      54	   2725648 ns/op	  12.03 MB/s	  247145 B/op	    1065 allocs/op
+BenchmarkReceivePatterns/mixed_literal_first/chunk_1024-4       	     216	    545484 ns/op	  60.09 MB/s	  237688 B/op	      65 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_1-4                      	    2480	     57328 ns/op	  17.86 MB/s	    8192 B/op	    1024 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_32-4                     	   51711	      2995 ns/op	 341.86 MB/s	    1024 B/op	      32 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_1024-4                   	  271518	       445.5 ns/op	2298.69 MB/s	    1024 B/op	       1 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1-4                          	    1083	    114437 ns/op	   8.95 MB/s	    1056 B/op	    1022 allocs/op
+BenchmarkPublicRedactor/safe/chunk_32-4                         	   16599	      7412 ns/op	 138.15 MB/s	    1048 B/op	      35 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1024-4                       	   82988	      1543 ns/op	 663.44 MB/s	    1048 B/op	       4 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1-4                       	    1557	     80658 ns/op	  11.90 MB/s	    2080 B/op	     259 allocs/op
+BenchmarkPublicRedactor/matches/chunk_32-4                      	    8655	     23534 ns/op	  40.79 MB/s	    6232 B/op	     182 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1024-4                    	   12477	      9710 ns/op	  98.87 MB/s	    4520 B/op	       8 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1-4                      	    1363	     98259 ns/op	  10.18 MB/s	    3216 B/op	     404 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_32-4                     	    7334	     25980 ns/op	  38.49 MB/s	    6144 B/op	     194 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1024-4                   	    4936	     26221 ns/op	  38.14 MB/s	    6928 B/op	       8 allocs/op
+BenchmarkNestedValidation/64/validate-4                         	  171897	       723.0 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNestedValidation/64/cursor-4                           	    3679	     47703 ns/op	   13320 B/op	      65 allocs/op
+BenchmarkNestedValidation/256/validate-4                        	   40448	      2840 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNestedValidation/256/cursor-4                          	     313	    412598 ns/op	   53257 B/op	     257 allocs/op
+BenchmarkNestedValidation/1024/validate-4                       	   10000	     11493 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNestedValidation/1024/cursor-4                         	      19	   6083097 ns/op	  213008 B/op	    1025 allocs/op
+BenchmarkBufferedExpect-4                                       	  129896	      1240 ns/op	     352 B/op	       3 allocs/op
+BenchmarkAuditLineSetup-4                                       	    4800	     29238 ns/op	   32768 B/op	       1 allocs/op
+BenchmarkAuditResponder/0-4                                     	   91287	      1759 ns/op	     448 B/op	       4 allocs/op
+BenchmarkAuditResponder/1-4                                     	   53503	      3313 ns/op	    1160 B/op	       9 allocs/op
+BenchmarkAuditResponder/8-4                                     	   10000	     12500 ns/op	    6129 B/op	      32 allocs/op
+BenchmarkAuditResponder/64-4                                    	    2631	     79449 ns/op	   43024 B/op	     200 allocs/op
+BenchmarkAuditNoOutput-4                                        	    4069	     99333 ns/op	   54769 B/op	      16 allocs/op
+PASS
+ok  	github.com/gatework/go-expect	6.541s
+goos: linux
+goarch: amd64
+pkg: github.com/gatework/go-expect
+cpu: AMD EPYC 7K62 48-Core Processor
+BenchmarkPTYReceive/1-4       	    6996	     15223 ns/op	   0.07 MB/s	     692 B/op	      11 allocs/op
+BenchmarkPTYReceive/32-4      	    7272	     16755 ns/op	   1.91 MB/s	     755 B/op	      12 allocs/op
+BenchmarkPTYReceive/1024-4    	    5452	     24145 ns/op	  42.41 MB/s	    2852 B/op	      13 allocs/op
+BenchmarkReceivePatterns/literal/chunk_32-4         	      73	   1918564 ns/op	  17.08 MB/s	  246435 B/op	    1062 allocs/op
+BenchmarkReceivePatterns/literal/chunk_1024-4       	     405	    356189 ns/op	  92.02 MB/s	  237007 B/op	      62 allocs/op
+BenchmarkReceivePatterns/all_literals/chunk_32-4    	      67	   2111338 ns/op	  15.52 MB/s	  246616 B/op	    1062 allocs/op
+BenchmarkReceivePatterns/all_literals/chunk_1024-4  	     452	    351331 ns/op	  93.29 MB/s	  237209 B/op	      62 allocs/op
+BenchmarkReceivePatterns/nested_all/chunk_32-4      	      66	   2012092 ns/op	  16.29 MB/s	  246736 B/op	    1062 allocs/op
+BenchmarkReceivePatterns/nested_all/chunk_1024-4    	     470	    376975 ns/op	  86.95 MB/s	  237328 B/op	      62 allocs/op
+BenchmarkReceivePatterns/regexp/chunk_32-4          	      31	   4112098 ns/op	   7.97 MB/s	  257501 B/op	    1070 allocs/op
+BenchmarkReceivePatterns/regexp/chunk_1024-4        	     321	    360476 ns/op	  90.93 MB/s	  241958 B/op	      67 allocs/op
+BenchmarkReceivePatterns/mixed_all/chunk_32-4       	      34	   3873554 ns/op	   8.46 MB/s	  254898 B/op	    1068 allocs/op
+BenchmarkReceivePatterns/mixed_all/chunk_1024-4     	     417	    427253 ns/op	  76.72 MB/s	  242401 B/op	      66 allocs/op
+BenchmarkReceivePatterns/mixed_literal_first/chunk_32-4         	      36	   3238961 ns/op	  10.12 MB/s	  247067 B/op	    1065 allocs/op
+BenchmarkReceivePatterns/mixed_literal_first/chunk_1024-4       	     196	    537792 ns/op	  60.95 MB/s	  237676 B/op	      65 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_1-4                      	    2564	     59413 ns/op	  17.24 MB/s	    8192 B/op	    1024 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_32-4                     	   35408	      2999 ns/op	 341.47 MB/s	    1024 B/op	      32 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_1024-4                   	  165674	       619.1 ns/op	1653.96 MB/s	    1024 B/op	       1 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1-4                          	     886	    117743 ns/op	   8.70 MB/s	    1056 B/op	    1022 allocs/op
+BenchmarkPublicRedactor/safe/chunk_32-4                         	   15519	      7695 ns/op	 133.07 MB/s	    1048 B/op	      35 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1024-4                       	  124117	      1174 ns/op	 872.39 MB/s	    1048 B/op	       4 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1-4                       	    1539	     94506 ns/op	  10.16 MB/s	    2080 B/op	     259 allocs/op
+BenchmarkPublicRedactor/matches/chunk_32-4                      	    7917	     23279 ns/op	  41.24 MB/s	    6232 B/op	     182 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1024-4                    	   10000	     10628 ns/op	  90.32 MB/s	    4520 B/op	       8 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1-4                      	    1306	    101105 ns/op	   9.89 MB/s	    3216 B/op	     404 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_32-4                     	    6921	     25455 ns/op	  39.28 MB/s	    6144 B/op	     194 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1024-4                   	    5888	     21118 ns/op	  47.35 MB/s	    6928 B/op	       8 allocs/op
+BenchmarkNestedValidation/64/validate-4                         	  176388	       714.2 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNestedValidation/64/cursor-4                           	    4089	     42438 ns/op	   13320 B/op	      65 allocs/op
+BenchmarkNestedValidation/256/validate-4                        	   42402	      2863 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNestedValidation/256/cursor-4                          	     300	    415064 ns/op	   53256 B/op	     257 allocs/op
+BenchmarkNestedValidation/1024/validate-4                       	    8376	     12323 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNestedValidation/1024/cursor-4                         	      20	   5805616 ns/op	  213000 B/op	    1025 allocs/op
+BenchmarkBufferedExpect-4                                       	  122006	      1128 ns/op	     352 B/op	       3 allocs/op
+BenchmarkAuditLineSetup-4                                       	    6177	     17774 ns/op	   32768 B/op	       1 allocs/op
+BenchmarkAuditResponder/0-4                                     	   79750	      1327 ns/op	     448 B/op	       4 allocs/op
+BenchmarkAuditResponder/1-4                                     	   45837	      3200 ns/op	    1160 B/op	       9 allocs/op
+BenchmarkAuditResponder/8-4                                     	   10000	     11566 ns/op	    6129 B/op	      32 allocs/op
+BenchmarkAuditResponder/64-4                                    	    3643	     81323 ns/op	   43029 B/op	     200 allocs/op
+BenchmarkAuditNoOutput-4                                        	    1522	     97601 ns/op	   54768 B/op	      16 allocs/op
+PASS
+ok  	github.com/gatework/go-expect	6.065s
+goos: linux
+goarch: amd64
+pkg: github.com/gatework/go-expect
+cpu: AMD EPYC 7K62 48-Core Processor
+BenchmarkPTYReceive/1-4       	    7152	     15600 ns/op	   0.06 MB/s	     693 B/op	      11 allocs/op
+BenchmarkPTYReceive/32-4      	    8014	     16329 ns/op	   1.96 MB/s	     755 B/op	      12 allocs/op
+BenchmarkPTYReceive/1024-4    	    5070	     24062 ns/op	  42.56 MB/s	    2852 B/op	      13 allocs/op
+BenchmarkReceivePatterns/literal/chunk_32-4         	      91	   2182444 ns/op	  15.02 MB/s	  246443 B/op	    1062 allocs/op
+BenchmarkReceivePatterns/literal/chunk_1024-4       	     213	    481130 ns/op	  68.13 MB/s	  237013 B/op	      62 allocs/op
+BenchmarkReceivePatterns/all_literals/chunk_32-4    	      74	   2088001 ns/op	  15.70 MB/s	  246639 B/op	    1062 allocs/op
+BenchmarkReceivePatterns/all_literals/chunk_1024-4  	     344	    319859 ns/op	 102.47 MB/s	  237209 B/op	      62 allocs/op
+BenchmarkReceivePatterns/nested_all/chunk_32-4      	      58	   2251117 ns/op	  14.56 MB/s	  246728 B/op	    1062 allocs/op
+BenchmarkReceivePatterns/nested_all/chunk_1024-4    	     201	    500651 ns/op	  65.47 MB/s	  237326 B/op	      62 allocs/op
+BenchmarkReceivePatterns/regexp/chunk_32-4          	      43	   3915021 ns/op	   8.37 MB/s	  253289 B/op	    1070 allocs/op
+BenchmarkReceivePatterns/regexp/chunk_1024-4        	     438	    389728 ns/op	  84.10 MB/s	  241353 B/op	      67 allocs/op
+BenchmarkReceivePatterns/mixed_all/chunk_32-4       	      42	   4048324 ns/op	   8.10 MB/s	  260305 B/op	    1069 allocs/op
+BenchmarkReceivePatterns/mixed_all/chunk_1024-4     	     194	    551580 ns/op	  59.42 MB/s	  242243 B/op	      66 allocs/op
+BenchmarkReceivePatterns/mixed_literal_first/chunk_32-4         	      40	   2935974 ns/op	  11.16 MB/s	  247069 B/op	    1065 allocs/op
+BenchmarkReceivePatterns/mixed_literal_first/chunk_1024-4       	     344	    453634 ns/op	  72.26 MB/s	  237675 B/op	      65 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_1-4                      	    2970	     63930 ns/op	  16.02 MB/s	    8192 B/op	    1024 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_32-4                     	   55251	      2824 ns/op	 362.61 MB/s	    1024 B/op	      32 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_1024-4                   	  266710	      1114 ns/op	 919.20 MB/s	    1024 B/op	       1 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1-4                          	     942	    123733 ns/op	   8.28 MB/s	    1056 B/op	    1022 allocs/op
+BenchmarkPublicRedactor/safe/chunk_32-4                         	   17676	      7017 ns/op	 145.93 MB/s	    1048 B/op	      35 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1024-4                       	  111750	      1087 ns/op	 942.11 MB/s	    1048 B/op	       4 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1-4                       	    1641	     76107 ns/op	  12.61 MB/s	    2080 B/op	     259 allocs/op
+BenchmarkPublicRedactor/matches/chunk_32-4                      	    8041	     21738 ns/op	  44.16 MB/s	    6232 B/op	     182 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1024-4                    	   13533	      9953 ns/op	  96.45 MB/s	    4520 B/op	       8 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1-4                      	    1539	     95924 ns/op	  10.42 MB/s	    3216 B/op	     404 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_32-4                     	    6646	     29675 ns/op	  33.70 MB/s	    6144 B/op	     194 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1024-4                   	    6519	     25043 ns/op	  39.93 MB/s	    6928 B/op	       8 allocs/op
+BenchmarkNestedValidation/64/validate-4                         	  168192	       742.1 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNestedValidation/64/cursor-4                           	    2304	     58826 ns/op	   13320 B/op	      65 allocs/op
+BenchmarkNestedValidation/256/validate-4                        	   41049	      3126 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNestedValidation/256/cursor-4                          	     312	    399624 ns/op	   53257 B/op	     257 allocs/op
+BenchmarkNestedValidation/1024/validate-4                       	    9727	     12748 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNestedValidation/1024/cursor-4                         	      19	   6049759 ns/op	  213007 B/op	    1025 allocs/op
+BenchmarkBufferedExpect-4                                       	  139239	      1176 ns/op	     352 B/op	       3 allocs/op
+BenchmarkAuditLineSetup-4                                       	    6321	     35693 ns/op	   32768 B/op	       1 allocs/op
+BenchmarkAuditResponder/0-4                                     	   85201	      1555 ns/op	     448 B/op	       4 allocs/op
+BenchmarkAuditResponder/1-4                                     	   40914	      3712 ns/op	    1160 B/op	       9 allocs/op
+BenchmarkAuditResponder/8-4                                     	   10000	     12675 ns/op	    6128 B/op	      32 allocs/op
+BenchmarkAuditResponder/64-4                                    	    1485	     73181 ns/op	   43036 B/op	     200 allocs/op
+BenchmarkAuditNoOutput-4                                        	    1468	     91861 ns/op	   54769 B/op	      16 allocs/op
+PASS
+ok  	github.com/gatework/go-expect	6.306s
+goos: linux
+goarch: amd64
+pkg: github.com/gatework/go-expect
+cpu: AMD EPYC 7K62 48-Core Processor
+BenchmarkPTYReceive/1-4       	    7972	     15649 ns/op	   0.06 MB/s	     692 B/op	      11 allocs/op
+BenchmarkPTYReceive/32-4      	    7369	     16127 ns/op	   1.98 MB/s	     755 B/op	      12 allocs/op
+BenchmarkPTYReceive/1024-4    	    6789	     23681 ns/op	  43.24 MB/s	    2852 B/op	      13 allocs/op
+BenchmarkReceivePatterns/literal/chunk_32-4         	      63	   1906423 ns/op	  17.19 MB/s	  246445 B/op	    1062 allocs/op
+BenchmarkReceivePatterns/literal/chunk_1024-4       	     241	    513332 ns/op	  63.85 MB/s	  237008 B/op	      62 allocs/op
+BenchmarkReceivePatterns/all_literals/chunk_32-4    	      61	   2089722 ns/op	  15.68 MB/s	  246633 B/op	    1062 allocs/op
+BenchmarkReceivePatterns/all_literals/chunk_1024-4  	     565	    360885 ns/op	  90.82 MB/s	  237211 B/op	      62 allocs/op
+BenchmarkReceivePatterns/nested_all/chunk_32-4      	      61	   2096541 ns/op	  15.63 MB/s	  246752 B/op	    1062 allocs/op
+BenchmarkReceivePatterns/nested_all/chunk_1024-4    	     478	    380958 ns/op	  86.04 MB/s	  237326 B/op	      62 allocs/op
+BenchmarkReceivePatterns/regexp/chunk_32-4          	      26	   3848133 ns/op	   8.52 MB/s	  259714 B/op	    1071 allocs/op
+BenchmarkReceivePatterns/regexp/chunk_1024-4        	     248	    480694 ns/op	  68.19 MB/s	  242017 B/op	      67 allocs/op
+BenchmarkReceivePatterns/mixed_all/chunk_32-4       	      36	   4002399 ns/op	   8.19 MB/s	  256825 B/op	    1068 allocs/op
+BenchmarkReceivePatterns/mixed_all/chunk_1024-4     	     238	    513456 ns/op	  63.84 MB/s	  242936 B/op	      66 allocs/op
+BenchmarkReceivePatterns/mixed_literal_first/chunk_32-4         	      57	   3089558 ns/op	  10.61 MB/s	  247068 B/op	    1065 allocs/op
+BenchmarkReceivePatterns/mixed_literal_first/chunk_1024-4       	     253	    494790 ns/op	  66.25 MB/s	  237668 B/op	      65 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_1-4                      	    3045	     62926 ns/op	  16.27 MB/s	    8192 B/op	    1024 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_32-4                     	   42054	      3201 ns/op	 319.89 MB/s	    1024 B/op	      32 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_1024-4                   	  185641	       939.5 ns/op	1089.94 MB/s	    1024 B/op	       1 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1-4                          	     756	    146368 ns/op	   7.00 MB/s	    1056 B/op	    1022 allocs/op
+BenchmarkPublicRedactor/safe/chunk_32-4                         	   14156	      8668 ns/op	 118.13 MB/s	    1048 B/op	      35 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1024-4                       	   93104	      1169 ns/op	 875.92 MB/s	    1048 B/op	       4 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1-4                       	    1329	     94517 ns/op	  10.16 MB/s	    2080 B/op	     259 allocs/op
+BenchmarkPublicRedactor/matches/chunk_32-4                      	    6441	     26767 ns/op	  35.87 MB/s	    6232 B/op	     182 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1024-4                    	   10000	     13280 ns/op	  72.29 MB/s	    4520 B/op	       8 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1-4                      	    1198	    100092 ns/op	   9.99 MB/s	    3216 B/op	     404 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_32-4                     	    6338	     31879 ns/op	  31.37 MB/s	    6144 B/op	     194 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1024-4                   	    6051	     27686 ns/op	  36.12 MB/s	    6928 B/op	       8 allocs/op
+BenchmarkNestedValidation/64/validate-4                         	  169258	       732.6 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNestedValidation/64/cursor-4                           	    3680	     56812 ns/op	   13320 B/op	      65 allocs/op
+BenchmarkNestedValidation/256/validate-4                        	   34518	      3091 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNestedValidation/256/cursor-4                          	     301	    402779 ns/op	   53258 B/op	     257 allocs/op
+BenchmarkNestedValidation/1024/validate-4                       	   10047	     12298 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNestedValidation/1024/cursor-4                         	      18	   6190954 ns/op	  213008 B/op	    1025 allocs/op
+BenchmarkBufferedExpect-4                                       	   89904	      1328 ns/op	     352 B/op	       3 allocs/op
+BenchmarkAuditLineSetup-4                                       	    8308	     31346 ns/op	   32768 B/op	       1 allocs/op
+BenchmarkAuditResponder/0-4                                     	   85354	      1679 ns/op	     448 B/op	       4 allocs/op
+BenchmarkAuditResponder/1-4                                     	   30954	      3758 ns/op	    1160 B/op	       9 allocs/op
+BenchmarkAuditResponder/8-4                                     	   10000	     14674 ns/op	    6129 B/op	      32 allocs/op
+BenchmarkAuditResponder/64-4                                    	    1500	     81320 ns/op	   43024 B/op	     200 allocs/op
+BenchmarkAuditNoOutput-4                                        	    2442	    101749 ns/op	   54770 B/op	      16 allocs/op
+PASS
+ok  	github.com/gatework/go-expect	6.320s
+goos: linux
+goarch: amd64
+pkg: github.com/gatework/go-expect
+cpu: AMD EPYC 7K62 48-Core Processor
+BenchmarkPTYReceive/1-4       	    5187	     20500 ns/op	   0.05 MB/s	     693 B/op	      11 allocs/op
+BenchmarkPTYReceive/32-4      	   10000	     19734 ns/op	   1.62 MB/s	     754 B/op	      12 allocs/op
+BenchmarkPTYReceive/1024-4    	    5595	     26728 ns/op	  38.31 MB/s	    2853 B/op	      13 allocs/op
+BenchmarkReceivePatterns/literal/chunk_32-4         	      56	   2043873 ns/op	  16.04 MB/s	  246469 B/op	    1062 allocs/op
+BenchmarkReceivePatterns/literal/chunk_1024-4       	     277	    412692 ns/op	  79.42 MB/s	  237008 B/op	      62 allocs/op
+BenchmarkReceivePatterns/all_literals/chunk_32-4    	      75	   2076142 ns/op	  15.79 MB/s	  246622 B/op	    1062 allocs/op
+BenchmarkReceivePatterns/all_literals/chunk_1024-4  	     289	    426842 ns/op	  76.79 MB/s	  237215 B/op	      62 allocs/op
+BenchmarkReceivePatterns/nested_all/chunk_32-4      	      48	   2200167 ns/op	  14.90 MB/s	  246738 B/op	    1062 allocs/op
+BenchmarkReceivePatterns/nested_all/chunk_1024-4    	     262	    427526 ns/op	  76.67 MB/s	  237326 B/op	      62 allocs/op
+BenchmarkReceivePatterns/regexp/chunk_32-4          	      30	   4307341 ns/op	   7.61 MB/s	  252809 B/op	    1069 allocs/op
+BenchmarkReceivePatterns/regexp/chunk_1024-4        	     262	    408849 ns/op	  80.17 MB/s	  241404 B/op	      67 allocs/op
+BenchmarkReceivePatterns/mixed_all/chunk_32-4       	      36	   3964719 ns/op	   8.27 MB/s	  258172 B/op	    1069 allocs/op
+BenchmarkReceivePatterns/mixed_all/chunk_1024-4     	     189	    653950 ns/op	  50.12 MB/s	  242371 B/op	      66 allocs/op
+BenchmarkReceivePatterns/mixed_literal_first/chunk_32-4         	      38	   3261431 ns/op	  10.05 MB/s	  247121 B/op	    1065 allocs/op
+BenchmarkReceivePatterns/mixed_literal_first/chunk_1024-4       	     184	    619655 ns/op	  52.90 MB/s	  237694 B/op	      65 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_1-4                      	    2488	     62304 ns/op	  16.44 MB/s	    8192 B/op	    1024 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_32-4                     	   55040	      3117 ns/op	 328.55 MB/s	    1024 B/op	      32 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_1024-4                   	   85206	      1357 ns/op	 754.57 MB/s	    1024 B/op	       1 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1-4                          	     870	    125280 ns/op	   8.17 MB/s	    1056 B/op	    1022 allocs/op
+BenchmarkPublicRedactor/safe/chunk_32-4                         	   15367	      7554 ns/op	 135.55 MB/s	    1048 B/op	      35 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1024-4                       	  129610	      1368 ns/op	 748.52 MB/s	    1048 B/op	       4 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1-4                       	    1690	     84203 ns/op	  11.40 MB/s	    2080 B/op	     259 allocs/op
+BenchmarkPublicRedactor/matches/chunk_32-4                      	    4436	     24084 ns/op	  39.86 MB/s	    6232 B/op	     182 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1024-4                    	   12212	      9340 ns/op	 102.79 MB/s	    4520 B/op	       8 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1-4                      	    1400	     97113 ns/op	  10.30 MB/s	    3216 B/op	     404 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_32-4                     	    7008	     25030 ns/op	  39.95 MB/s	    6144 B/op	     194 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1024-4                   	    6130	     23968 ns/op	  41.72 MB/s	    6928 B/op	       8 allocs/op
+BenchmarkNestedValidation/64/validate-4                         	  163674	       722.5 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNestedValidation/64/cursor-4                           	    3361	     49586 ns/op	   13320 B/op	      65 allocs/op
+BenchmarkNestedValidation/256/validate-4                        	   42152	      2811 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNestedValidation/256/cursor-4                          	     303	    437471 ns/op	   53258 B/op	     257 allocs/op
+BenchmarkNestedValidation/1024/validate-4                       	    9103	     11398 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNestedValidation/1024/cursor-4                         	      18	   6221969 ns/op	  213000 B/op	    1025 allocs/op
+BenchmarkBufferedExpect-4                                       	  161718	      1303 ns/op	     352 B/op	       3 allocs/op
+BenchmarkAuditLineSetup-4                                       	    6262	     29369 ns/op	   32768 B/op	       1 allocs/op
+BenchmarkAuditResponder/0-4                                     	  104188	      1348 ns/op	     448 B/op	       4 allocs/op
+BenchmarkAuditResponder/1-4                                     	   31876	      3723 ns/op	    1160 B/op	       9 allocs/op
+BenchmarkAuditResponder/8-4                                     	   10000	     13246 ns/op	    6128 B/op	      32 allocs/op
+BenchmarkAuditResponder/64-4                                    	    3032	     74897 ns/op	   43024 B/op	     200 allocs/op
+BenchmarkAuditNoOutput-4                                        	    3626	    105847 ns/op	   54768 B/op	      16 allocs/op
+PASS
+ok  	github.com/gatework/go-expect	6.278s
+goos: linux
+goarch: amd64
+pkg: github.com/gatework/go-expect
+cpu: AMD EPYC 7K62 48-Core Processor
+BenchmarkPTYReceive/1-4       	    6744	     15123 ns/op	   0.07 MB/s	     692 B/op	      11 allocs/op
+BenchmarkPTYReceive/32-4      	    6914	     15870 ns/op	   2.02 MB/s	     755 B/op	      12 allocs/op
+BenchmarkPTYReceive/1024-4    	    6534	     23692 ns/op	  43.22 MB/s	    2851 B/op	      13 allocs/op
+BenchmarkReceivePatterns/literal/chunk_32-4         	      78	   1940469 ns/op	  16.89 MB/s	  246447 B/op	    1062 allocs/op
+BenchmarkReceivePatterns/literal/chunk_1024-4       	     393	    405503 ns/op	  80.83 MB/s	  237015 B/op	      62 allocs/op
+BenchmarkReceivePatterns/all_literals/chunk_32-4    	      76	   1933241 ns/op	  16.95 MB/s	  246618 B/op	    1062 allocs/op
+BenchmarkReceivePatterns/all_literals/chunk_1024-4  	     426	    347649 ns/op	  94.28 MB/s	  237212 B/op	      62 allocs/op
+BenchmarkReceivePatterns/nested_all/chunk_32-4      	      52	   2314772 ns/op	  14.16 MB/s	  246734 B/op	    1062 allocs/op
+BenchmarkReceivePatterns/nested_all/chunk_1024-4    	     520	    421373 ns/op	  77.79 MB/s	  237331 B/op	      62 allocs/op
+BenchmarkReceivePatterns/regexp/chunk_32-4          	      30	   3894872 ns/op	   8.42 MB/s	  255676 B/op	    1070 allocs/op
+BenchmarkReceivePatterns/regexp/chunk_1024-4        	     231	    575830 ns/op	  56.92 MB/s	  241628 B/op	      67 allocs/op
+BenchmarkReceivePatterns/mixed_all/chunk_32-4       	      39	   4059949 ns/op	   8.07 MB/s	  256265 B/op	    1068 allocs/op
+BenchmarkReceivePatterns/mixed_all/chunk_1024-4     	     301	    456975 ns/op	  71.73 MB/s	  243042 B/op	      66 allocs/op
+BenchmarkReceivePatterns/mixed_literal_first/chunk_32-4         	      54	   3059475 ns/op	  10.71 MB/s	  247072 B/op	    1065 allocs/op
+BenchmarkReceivePatterns/mixed_literal_first/chunk_1024-4       	     189	    622006 ns/op	  52.70 MB/s	  237671 B/op	      65 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_1-4                      	    2812	     63874 ns/op	  16.03 MB/s	    8192 B/op	    1024 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_32-4                     	   51950	      2814 ns/op	 363.95 MB/s	    1024 B/op	      32 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_1024-4                   	  139639	      1142 ns/op	 896.63 MB/s	    1024 B/op	       1 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1-4                          	     920	    123143 ns/op	   8.32 MB/s	    1056 B/op	    1022 allocs/op
+BenchmarkPublicRedactor/safe/chunk_32-4                         	   15409	      7450 ns/op	 137.44 MB/s	    1048 B/op	      35 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1024-4                       	   60528	      1974 ns/op	 518.65 MB/s	    1048 B/op	       4 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1-4                       	    1435	     90112 ns/op	  10.65 MB/s	    2080 B/op	     259 allocs/op
+BenchmarkPublicRedactor/matches/chunk_32-4                      	    7942	     25026 ns/op	  38.36 MB/s	    6232 B/op	     182 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1024-4                    	   12445	      9579 ns/op	 100.22 MB/s	    4520 B/op	       8 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1-4                      	    1168	     95569 ns/op	  10.46 MB/s	    3216 B/op	     404 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_32-4                     	    6943	     27375 ns/op	  36.53 MB/s	    6144 B/op	     194 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1024-4                   	    4605	     28835 ns/op	  34.68 MB/s	    6928 B/op	       8 allocs/op
+BenchmarkNestedValidation/64/validate-4                         	  174190	       721.6 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNestedValidation/64/cursor-4                           	    3698	     44965 ns/op	   13320 B/op	      65 allocs/op
+BenchmarkNestedValidation/256/validate-4                        	   41958	      2785 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNestedValidation/256/cursor-4                          	     304	    412113 ns/op	   53258 B/op	     257 allocs/op
+BenchmarkNestedValidation/1024/validate-4                       	    8464	     12214 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNestedValidation/1024/cursor-4                         	      20	   5914568 ns/op	  213001 B/op	    1025 allocs/op
+BenchmarkBufferedExpect-4                                       	  149230	      1370 ns/op	     352 B/op	       3 allocs/op
+BenchmarkAuditLineSetup-4                                       	    5791	     28231 ns/op	   32768 B/op	       1 allocs/op
+BenchmarkAuditResponder/0-4                                     	   83300	      1553 ns/op	     448 B/op	       4 allocs/op
+BenchmarkAuditResponder/1-4                                     	   36724	      3543 ns/op	    1160 B/op	       9 allocs/op
+BenchmarkAuditResponder/8-4                                     	   10000	     15536 ns/op	    6129 B/op	      32 allocs/op
+BenchmarkAuditResponder/64-4                                    	    2385	     68299 ns/op	   43031 B/op	     200 allocs/op
+BenchmarkAuditNoOutput-4                                        	    3144	     98131 ns/op	   54772 B/op	      16 allocs/op
+PASS
+ok  	github.com/gatework/go-expect	6.396s
+goos: linux
+goarch: amd64
+pkg: github.com/gatework/go-expect
+cpu: AMD EPYC 7K62 48-Core Processor
+BenchmarkPTYReceive/1-4       	    7608	     16384 ns/op	   0.06 MB/s	     692 B/op	      11 allocs/op
+BenchmarkPTYReceive/32-4      	    8307	     16932 ns/op	   1.89 MB/s	     755 B/op	      12 allocs/op
+BenchmarkPTYReceive/1024-4    	    6433	     25443 ns/op	  40.25 MB/s	    2851 B/op	      13 allocs/op
+BenchmarkReceivePatterns/literal/chunk_32-4         	      56	   2063805 ns/op	  15.88 MB/s	  246453 B/op	    1062 allocs/op
+BenchmarkReceivePatterns/literal/chunk_1024-4       	     267	    486317 ns/op	  67.40 MB/s	  237008 B/op	      62 allocs/op
+BenchmarkReceivePatterns/all_literals/chunk_32-4    	      63	   1951622 ns/op	  16.79 MB/s	  246668 B/op	    1062 allocs/op
+BenchmarkReceivePatterns/all_literals/chunk_1024-4  	     295	    430395 ns/op	  76.16 MB/s	  237221 B/op	      62 allocs/op
+BenchmarkReceivePatterns/nested_all/chunk_32-4      	      88	   2294117 ns/op	  14.29 MB/s	  246744 B/op	    1062 allocs/op
+BenchmarkReceivePatterns/nested_all/chunk_1024-4    	     328	    399506 ns/op	  82.04 MB/s	  237321 B/op	      62 allocs/op
+BenchmarkReceivePatterns/regexp/chunk_32-4          	      38	   4393121 ns/op	   7.46 MB/s	  255930 B/op	    1070 allocs/op
+BenchmarkReceivePatterns/regexp/chunk_1024-4        	     499	    371879 ns/op	  88.14 MB/s	  241898 B/op	      67 allocs/op
+BenchmarkReceivePatterns/mixed_all/chunk_32-4       	      37	   4099981 ns/op	   7.99 MB/s	  254183 B/op	    1067 allocs/op
+BenchmarkReceivePatterns/mixed_all/chunk_1024-4     	     466	    495056 ns/op	  66.21 MB/s	  242178 B/op	      66 allocs/op
+BenchmarkReceivePatterns/mixed_literal_first/chunk_32-4         	      36	   3185001 ns/op	  10.29 MB/s	  247064 B/op	    1065 allocs/op
+BenchmarkReceivePatterns/mixed_literal_first/chunk_1024-4       	     184	    641469 ns/op	  51.10 MB/s	  237698 B/op	      65 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_1-4                      	    2997	     60862 ns/op	  16.82 MB/s	    8192 B/op	    1024 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_32-4                     	   34904	      3065 ns/op	 334.10 MB/s	    1024 B/op	      32 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_1024-4                   	  171876	       659.4 ns/op	1552.92 MB/s	    1024 B/op	       1 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1-4                          	    1002	    121491 ns/op	   8.43 MB/s	    1056 B/op	    1022 allocs/op
+BenchmarkPublicRedactor/safe/chunk_32-4                         	   17121	      7555 ns/op	 135.54 MB/s	    1048 B/op	      35 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1024-4                       	   80229	      1585 ns/op	 646.13 MB/s	    1048 B/op	       4 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1-4                       	    1592	     86705 ns/op	  11.07 MB/s	    2080 B/op	     259 allocs/op
+BenchmarkPublicRedactor/matches/chunk_32-4                      	    6098	     23394 ns/op	  41.04 MB/s	    6232 B/op	     182 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1024-4                    	   13221	      9223 ns/op	 104.09 MB/s	    4520 B/op	       8 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1-4                      	    1339	     93370 ns/op	  10.71 MB/s	    3216 B/op	     404 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_32-4                     	    7125	     26041 ns/op	  38.40 MB/s	    6144 B/op	     194 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1024-4                   	    7234	     24475 ns/op	  40.86 MB/s	    6928 B/op	       8 allocs/op
+BenchmarkNestedValidation/64/validate-4                         	  157605	       747.3 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNestedValidation/64/cursor-4                           	    3741	     47650 ns/op	   13320 B/op	      65 allocs/op
+BenchmarkNestedValidation/256/validate-4                        	   42082	      2820 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNestedValidation/256/cursor-4                          	     267	    427352 ns/op	   53256 B/op	     257 allocs/op
+BenchmarkNestedValidation/1024/validate-4                       	    9363	     12088 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNestedValidation/1024/cursor-4                         	      20	   5569508 ns/op	  213000 B/op	    1025 allocs/op
+BenchmarkBufferedExpect-4                                       	  151060	      1197 ns/op	     352 B/op	       3 allocs/op
+BenchmarkAuditLineSetup-4                                       	    6127	     25521 ns/op	   32768 B/op	       1 allocs/op
+BenchmarkAuditResponder/0-4                                     	   87992	      1420 ns/op	     448 B/op	       4 allocs/op
+BenchmarkAuditResponder/1-4                                     	   34292	      3652 ns/op	    1160 B/op	       9 allocs/op
+BenchmarkAuditResponder/8-4                                     	   12092	     10893 ns/op	    6129 B/op	      32 allocs/op
+BenchmarkAuditResponder/64-4                                    	    2271	     86173 ns/op	   43024 B/op	     200 allocs/op
+BenchmarkAuditNoOutput-4                                        	    5496	     98400 ns/op	   54768 B/op	      16 allocs/op
+PASS
+ok  	github.com/gatework/go-expect	6.699s
+goos: linux
+goarch: amd64
+pkg: github.com/gatework/go-expect
+cpu: AMD EPYC 7K62 48-Core Processor
+BenchmarkPTYReceive/1-4       	    7562	     17001 ns/op	   0.06 MB/s	     692 B/op	      11 allocs/op
+BenchmarkPTYReceive/32-4      	    8619	     15965 ns/op	   2.00 MB/s	     755 B/op	      12 allocs/op
+BenchmarkPTYReceive/1024-4    	    6537	     23305 ns/op	  43.94 MB/s	    2852 B/op	      13 allocs/op
+BenchmarkReceivePatterns/literal/chunk_32-4         	      64	   1802196 ns/op	  18.19 MB/s	  246432 B/op	    1062 allocs/op
+BenchmarkReceivePatterns/literal/chunk_1024-4       	     224	    466393 ns/op	  70.28 MB/s	  237012 B/op	      62 allocs/op
+BenchmarkReceivePatterns/all_literals/chunk_32-4    	      74	   2086876 ns/op	  15.71 MB/s	  246646 B/op	    1062 allocs/op
+BenchmarkReceivePatterns/all_literals/chunk_1024-4  	     304	    384959 ns/op	  85.14 MB/s	  237210 B/op	      62 allocs/op
+BenchmarkReceivePatterns/nested_all/chunk_32-4      	      79	   2041243 ns/op	  16.06 MB/s	  246736 B/op	    1062 allocs/op
+BenchmarkReceivePatterns/nested_all/chunk_1024-4    	     279	    417116 ns/op	  78.58 MB/s	  237324 B/op	      62 allocs/op
+BenchmarkReceivePatterns/regexp/chunk_32-4          	      31	   3640642 ns/op	   9.00 MB/s	  256780 B/op	    1071 allocs/op
+BenchmarkReceivePatterns/regexp/chunk_1024-4        	     240	    496373 ns/op	  66.03 MB/s	  240665 B/op	      66 allocs/op
+BenchmarkReceivePatterns/mixed_all/chunk_32-4       	      28	   4415001 ns/op	   7.42 MB/s	  256463 B/op	    1068 allocs/op
+BenchmarkReceivePatterns/mixed_all/chunk_1024-4     	     304	    430946 ns/op	  76.06 MB/s	  241931 B/op	      65 allocs/op
+BenchmarkReceivePatterns/mixed_literal_first/chunk_32-4         	      32	   3394738 ns/op	   9.66 MB/s	  247119 B/op	    1065 allocs/op
+BenchmarkReceivePatterns/mixed_literal_first/chunk_1024-4       	     192	    704934 ns/op	  46.50 MB/s	  237668 B/op	      65 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_1-4                      	    2947	     58303 ns/op	  17.56 MB/s	    8192 B/op	    1024 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_32-4                     	   45969	      3093 ns/op	 331.06 MB/s	    1024 B/op	      32 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_1024-4                   	   97448	      1144 ns/op	 895.17 MB/s	    1024 B/op	       1 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1-4                          	     898	    124238 ns/op	   8.24 MB/s	    1056 B/op	    1022 allocs/op
+BenchmarkPublicRedactor/safe/chunk_32-4                         	   16020	      7289 ns/op	 140.48 MB/s	    1048 B/op	      35 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1024-4                       	  155980	      1105 ns/op	 926.32 MB/s	    1048 B/op	       4 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1-4                       	    1419	     80686 ns/op	  11.90 MB/s	    2080 B/op	     259 allocs/op
+BenchmarkPublicRedactor/matches/chunk_32-4                      	    5482	     22861 ns/op	  41.99 MB/s	    6232 B/op	     182 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1024-4                    	   10000	     11132 ns/op	  86.24 MB/s	    4520 B/op	       8 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1-4                      	    1125	    113474 ns/op	   8.81 MB/s	    3216 B/op	     404 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_32-4                     	    6909	     26852 ns/op	  37.24 MB/s	    6144 B/op	     194 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1024-4                   	    6986	     26813 ns/op	  37.30 MB/s	    6928 B/op	       8 allocs/op
+BenchmarkNestedValidation/64/validate-4                         	  170232	       720.9 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNestedValidation/64/cursor-4                           	    3729	     45560 ns/op	   13320 B/op	      65 allocs/op
+BenchmarkNestedValidation/256/validate-4                        	   41394	      2856 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNestedValidation/256/cursor-4                          	     314	    418794 ns/op	   53259 B/op	     257 allocs/op
+BenchmarkNestedValidation/1024/validate-4                       	    9766	     11732 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNestedValidation/1024/cursor-4                         	      18	   5718566 ns/op	  213000 B/op	    1025 allocs/op
+BenchmarkBufferedExpect-4                                       	  153285	      1351 ns/op	     352 B/op	       3 allocs/op
+BenchmarkAuditLineSetup-4                                       	    4885	     34065 ns/op	   32768 B/op	       1 allocs/op
+BenchmarkAuditResponder/0-4                                     	   74384	      1476 ns/op	     448 B/op	       4 allocs/op
+BenchmarkAuditResponder/1-4                                     	   46558	      2898 ns/op	    1160 B/op	       9 allocs/op
+BenchmarkAuditResponder/8-4                                     	   10000	     12814 ns/op	    6129 B/op	      32 allocs/op
+BenchmarkAuditResponder/64-4                                    	    2696	     94983 ns/op	   43024 B/op	     200 allocs/op
+BenchmarkAuditNoOutput-4                                        	    3597	     92398 ns/op	   54769 B/op	      16 allocs/op
+PASS
+ok  	github.com/gatework/go-expect	6.141s
+goos: linux
+goarch: amd64
+pkg: github.com/gatework/go-expect
+cpu: AMD EPYC 7K62 48-Core Processor
+BenchmarkPTYReceive/1-4       	    7236	     14543 ns/op	   0.07 MB/s	     692 B/op	      11 allocs/op
+BenchmarkPTYReceive/32-4      	    7768	     14582 ns/op	   2.19 MB/s	     755 B/op	      12 allocs/op
+BenchmarkPTYReceive/1024-4    	    6123	     20215 ns/op	  50.66 MB/s	    2852 B/op	      13 allocs/op
+BenchmarkReceivePatterns/literal/chunk_32-4         	      79	   1916242 ns/op	  17.10 MB/s	  246446 B/op	    1062 allocs/op
+BenchmarkReceivePatterns/literal/chunk_1024-4       	     246	    440569 ns/op	  74.40 MB/s	  237007 B/op	      62 allocs/op
+BenchmarkReceivePatterns/all_literals/chunk_32-4    	      93	   2209712 ns/op	  14.83 MB/s	  246625 B/op	    1062 allocs/op
+BenchmarkReceivePatterns/all_literals/chunk_1024-4  	     352	    404067 ns/op	  81.12 MB/s	  237208 B/op	      62 allocs/op
+BenchmarkReceivePatterns/nested_all/chunk_32-4      	      81	   2028075 ns/op	  16.16 MB/s	  246750 B/op	    1062 allocs/op
+BenchmarkReceivePatterns/nested_all/chunk_1024-4    	     283	    452793 ns/op	  72.39 MB/s	  237327 B/op	      62 allocs/op
+BenchmarkReceivePatterns/regexp/chunk_32-4          	      30	   3833251 ns/op	   8.55 MB/s	  254502 B/op	    1070 allocs/op
+BenchmarkReceivePatterns/regexp/chunk_1024-4        	     189	    540239 ns/op	  60.67 MB/s	  242128 B/op	      67 allocs/op
+BenchmarkReceivePatterns/mixed_all/chunk_32-4       	      34	   3919730 ns/op	   8.36 MB/s	  253924 B/op	    1068 allocs/op
+BenchmarkReceivePatterns/mixed_all/chunk_1024-4     	     273	    459191 ns/op	  71.38 MB/s	  241851 B/op	      66 allocs/op
+BenchmarkReceivePatterns/mixed_literal_first/chunk_32-4         	      31	   3574560 ns/op	   9.17 MB/s	  247174 B/op	    1065 allocs/op
+BenchmarkReceivePatterns/mixed_literal_first/chunk_1024-4       	     264	    497261 ns/op	  65.92 MB/s	  237680 B/op	      65 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_1-4                      	    2721	     63957 ns/op	  16.01 MB/s	    8192 B/op	    1024 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_32-4                     	   48380	      2683 ns/op	 381.61 MB/s	    1024 B/op	      32 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_1024-4                   	  144938	       723.8 ns/op	1414.84 MB/s	    1024 B/op	       1 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1-4                          	     840	    121331 ns/op	   8.44 MB/s	    1056 B/op	    1022 allocs/op
+BenchmarkPublicRedactor/safe/chunk_32-4                         	   15162	      7895 ns/op	 129.71 MB/s	    1048 B/op	      35 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1024-4                       	   59637	      1973 ns/op	 519.00 MB/s	    1048 B/op	       4 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1-4                       	    1495	     87023 ns/op	  11.03 MB/s	    2080 B/op	     259 allocs/op
+BenchmarkPublicRedactor/matches/chunk_32-4                      	    8010	     23219 ns/op	  41.35 MB/s	    6232 B/op	     182 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1024-4                    	   10000	     15588 ns/op	  61.59 MB/s	    4520 B/op	       8 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1-4                      	    1267	     96949 ns/op	  10.31 MB/s	    3216 B/op	     404 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_32-4                     	    6116	     29221 ns/op	  34.22 MB/s	    6144 B/op	     194 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1024-4                   	    5162	     23623 ns/op	  42.33 MB/s	    6928 B/op	       8 allocs/op
+BenchmarkNestedValidation/64/validate-4                         	  167410	       709.3 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNestedValidation/64/cursor-4                           	    3952	     43865 ns/op	   13320 B/op	      65 allocs/op
+BenchmarkNestedValidation/256/validate-4                        	   42216	      2810 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNestedValidation/256/cursor-4                          	     304	    410613 ns/op	   53257 B/op	     257 allocs/op
+BenchmarkNestedValidation/1024/validate-4                       	    9788	     12539 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNestedValidation/1024/cursor-4                         	      19	   5731338 ns/op	  213007 B/op	    1025 allocs/op
+BenchmarkBufferedExpect-4                                       	  120624	      1366 ns/op	     352 B/op	       3 allocs/op
+BenchmarkAuditLineSetup-4                                       	    6385	     18684 ns/op	   32768 B/op	       1 allocs/op
+BenchmarkAuditResponder/0-4                                     	  106124	      1333 ns/op	     448 B/op	       4 allocs/op
+BenchmarkAuditResponder/1-4                                     	   39879	      3018 ns/op	    1160 B/op	       9 allocs/op
+BenchmarkAuditResponder/8-4                                     	   10000	     12489 ns/op	    6129 B/op	      32 allocs/op
+BenchmarkAuditResponder/64-4                                    	    3247	     74655 ns/op	   43024 B/op	     200 allocs/op
+BenchmarkAuditNoOutput-4                                        	    2656	     93867 ns/op	   54772 B/op	      16 allocs/op
+PASS
+ok  	github.com/gatework/go-expect	6.075s
+goos: linux
+goarch: amd64
+pkg: github.com/gatework/go-expect
+cpu: AMD EPYC 7K62 48-Core Processor
+BenchmarkPTYReceive/1-4       	    8114	     16876 ns/op	   0.06 MB/s	     692 B/op	      11 allocs/op
+BenchmarkPTYReceive/32-4      	    6720	     17621 ns/op	   1.82 MB/s	     755 B/op	      12 allocs/op
+BenchmarkPTYReceive/1024-4    	    6356	     22134 ns/op	  46.26 MB/s	    2852 B/op	      13 allocs/op
+BenchmarkReceivePatterns/literal/chunk_32-4         	      70	   2340748 ns/op	  14.00 MB/s	  246445 B/op	    1062 allocs/op
+BenchmarkReceivePatterns/literal/chunk_1024-4       	     426	    393036 ns/op	  83.39 MB/s	  237012 B/op	      62 allocs/op
+BenchmarkReceivePatterns/all_literals/chunk_32-4    	      73	   2326190 ns/op	  14.09 MB/s	  246619 B/op	    1062 allocs/op
+BenchmarkReceivePatterns/all_literals/chunk_1024-4  	     253	    452041 ns/op	  72.51 MB/s	  237210 B/op	      62 allocs/op
+BenchmarkReceivePatterns/nested_all/chunk_32-4      	      61	   1892037 ns/op	  17.32 MB/s	  246729 B/op	    1062 allocs/op
+BenchmarkReceivePatterns/nested_all/chunk_1024-4    	     309	    419867 ns/op	  78.07 MB/s	  237322 B/op	      62 allocs/op
+BenchmarkReceivePatterns/regexp/chunk_32-4          	      25	   4046567 ns/op	   8.10 MB/s	  258746 B/op	    1071 allocs/op
+BenchmarkReceivePatterns/regexp/chunk_1024-4        	     219	    497513 ns/op	  65.88 MB/s	  241639 B/op	      67 allocs/op
+BenchmarkReceivePatterns/mixed_all/chunk_32-4       	      37	   3984108 ns/op	   8.23 MB/s	  257705 B/op	    1068 allocs/op
+BenchmarkReceivePatterns/mixed_all/chunk_1024-4     	     428	    420119 ns/op	  78.02 MB/s	  242475 B/op	      66 allocs/op
+BenchmarkReceivePatterns/mixed_literal_first/chunk_32-4         	      33	   3159545 ns/op	  10.37 MB/s	  247077 B/op	    1065 allocs/op
+BenchmarkReceivePatterns/mixed_literal_first/chunk_1024-4       	     224	    522040 ns/op	  62.79 MB/s	  237688 B/op	      65 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_1-4                      	    2072	     58032 ns/op	  17.65 MB/s	    8192 B/op	    1024 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_32-4                     	   54331	      3037 ns/op	 337.16 MB/s	    1024 B/op	      32 allocs/op
+BenchmarkPublicRedactor/no_rules/chunk_1024-4                   	   95246	      1422 ns/op	 719.88 MB/s	    1024 B/op	       1 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1-4                          	    1075	    123191 ns/op	   8.31 MB/s	    1056 B/op	    1022 allocs/op
+BenchmarkPublicRedactor/safe/chunk_32-4                         	   15832	      7908 ns/op	 129.50 MB/s	    1048 B/op	      35 allocs/op
+BenchmarkPublicRedactor/safe/chunk_1024-4                       	   74042	      1574 ns/op	 650.38 MB/s	    1048 B/op	       4 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1-4                       	    1478	     85456 ns/op	  11.23 MB/s	    2080 B/op	     259 allocs/op
+BenchmarkPublicRedactor/matches/chunk_32-4                      	    7952	     25325 ns/op	  37.91 MB/s	    6232 B/op	     182 allocs/op
+BenchmarkPublicRedactor/matches/chunk_1024-4                    	   13610	      9664 ns/op	  99.34 MB/s	    4520 B/op	       8 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1-4                      	    1410	     98624 ns/op	  10.14 MB/s	    3216 B/op	     404 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_32-4                     	    7080	     31969 ns/op	  31.28 MB/s	    6144 B/op	     194 allocs/op
+BenchmarkPublicRedactor/overlaps/chunk_1024-4                   	    5713	     24273 ns/op	  41.20 MB/s	    6928 B/op	       8 allocs/op
+BenchmarkNestedValidation/64/validate-4                         	  173468	       734.0 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNestedValidation/64/cursor-4                           	    3802	     39988 ns/op	   13320 B/op	      65 allocs/op
+BenchmarkNestedValidation/256/validate-4                        	   44392	      2857 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNestedValidation/256/cursor-4                          	     274	    419807 ns/op	   53258 B/op	     257 allocs/op
+BenchmarkNestedValidation/1024/validate-4                       	    8658	     12562 ns/op	       0 B/op	       0 allocs/op
+BenchmarkNestedValidation/1024/cursor-4                         	      18	   6299486 ns/op	  213006 B/op	    1025 allocs/op
+BenchmarkBufferedExpect-4                                       	  174014	      1256 ns/op	     352 B/op	       3 allocs/op
+BenchmarkAuditLineSetup-4                                       	    6930	     24493 ns/op	   32768 B/op	       1 allocs/op
+BenchmarkAuditResponder/0-4                                     	  129932	      1475 ns/op	     448 B/op	       4 allocs/op
+BenchmarkAuditResponder/1-4                                     	   35509	      3388 ns/op	    1160 B/op	       9 allocs/op
+BenchmarkAuditResponder/8-4                                     	   10000	     13139 ns/op	    6130 B/op	      32 allocs/op
+BenchmarkAuditResponder/64-4                                    	    1771	     64562 ns/op	   43033 B/op	     200 allocs/op
+BenchmarkAuditNoOutput-4                                        	    3638	     93494 ns/op	   54769 B/op	      16 allocs/op
+PASS
+ok  	github.com/gatework/go-expect	6.367s

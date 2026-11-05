@@ -11,6 +11,8 @@ import (
 
 const readChunk = 16 << 10
 
+var errInvalidReadCount = errors.New("expect: invalid read count")
+
 type readEvent struct {
 	data []byte
 	err  error
@@ -107,7 +109,7 @@ func (s *Session) readLoop() {
 		n, err := s.transport.Read(data)
 		if n < 0 || n > len(data) {
 			n = 0
-			err = errors.New("expect: invalid read count")
+			err = errors.Join(errInvalidReadCount, err)
 		}
 		if n == 0 && err == nil {
 			empty++
@@ -172,6 +174,9 @@ func (s *Session) Close() error {
 		}
 		s.retire()
 		outputErr := s.emit(nil, true)
+		s.diagMu.Lock()
+		s.redactor = redactor{}
+		s.diagMu.Unlock()
 		s.closeErr = errors.Join(transportErr, outputErr)
 	})
 	return s.closeErr
@@ -190,7 +195,9 @@ func (s *Session) Redact(secrets ...string) error {
 	if s.isClosed() {
 		return ErrClosed
 	}
-	s.redactor.add(secrets)
+	if len(s.opts.outputs) > 0 {
+		s.redactor.add(secrets)
+	}
 	return nil
 }
 func (s *Session) emit(data []byte, finish bool) error {
@@ -228,6 +235,8 @@ func errorClass(err error) string {
 	switch {
 	case err == nil:
 		return ""
+	case errors.Is(err, errInvalidReadCount):
+		return "error"
 	case errors.Is(err, context.Canceled):
 		return "canceled"
 	case errors.Is(err, context.DeadlineExceeded):

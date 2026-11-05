@@ -1,0 +1,21 @@
+0 issues.
+ok  	github.com/gatework/go-expect	6.966s
+?   	github.com/gatework/go-expect/examples/dialogue	[no test files]
+ok  	github.com/gatework/go-expect/expecttest	1.009s
+fuzz: elapsed: 0s, gathering baseline coverage: 0/141 completed
+fuzz: elapsed: 0s, gathering baseline coverage: 141/141 completed, now fuzzing with 2 workers
+fuzz: elapsed: 3s, execs: 17866 (5954/sec), new interesting: 17 (total: 158)
+fuzz: elapsed: 6s, execs: 38456 (6864/sec), new interesting: 23 (total: 164)
+fuzz: elapsed: 9s, execs: 52390 (4644/sec), new interesting: 29 (total: 170)
+fuzz: elapsed: 12s, execs: 52390 (0/sec), new interesting: 29 (total: 170)
+fuzz: elapsed: 15s, execs: 52390 (0/sec), new interesting: 29 (total: 170)
+fuzz: elapsed: 18s, execs: 52390 (0/sec), new interesting: 29 (total: 170)
+fuzz: elapsed: 21s, execs: 52390 (0/sec), new interesting: 29 (total: 170)
+fuzz: elapsed: 21s, execs: 100000 (295360/sec), new interesting: 30 (total: 171)
+PASS
+ok  	github.com/gatework/go-expect	21.201s
+
+Final race/shuffle after the zero-rule allocation guard:
+ok  	github.com/gatework/go-expect	6.905s
+?   	github.com/gatework/go-expect/examples/dialogue	[no test files]
+ok  	github.com/gatework/go-expect/expecttest	1.009s

@@ -23,11 +23,15 @@ func BenchmarkReceivePatterns(b *testing.B) {
 		{"nested_all", All(All(Literal("START"), Literal("START")), literal)},
 		{"regexp", expression},
 		{"mixed_all", All(Literal("START"), expression)},
+		{"mixed_literal_first", All(literal, Line("END!"))},
 	}
 	for _, entry := range patterns {
 		for _, chunk := range []int{32, 1024} {
 			b.Run(fmt.Sprintf("%s/chunk_%d", entry.name, chunk), func(b *testing.B) {
 				input := append([]byte("START"), bytes.Repeat([]byte("x"), 32<<10)...)
+				if entry.name == "mixed_literal_first" {
+					input = append(input, '\n')
+				}
 				input = append(input, "END!"...)
 				b.SetBytes(int64(len(input)))
 				b.ReportAllocs()

@@ -32,6 +32,20 @@ type closeFailure struct {
 
 func (p *closeFailure) Close() error { p.Conn.Close(); return p.err }
 func TestSessionReadErrorWithDataPreservesTail(t *testing.T) {
+	for _, count := range []int{-1, readChunk + 1} {
+		for _, cause := range []error{io.ErrUnexpectedEOF, io.EOF} {
+			s, err := NewSession(&errorReader{err: cause, invalidCount: count})
+			if err != nil {
+				t.Fatal(err)
+			}
+			_, err = s.Expect(t.Context(), []Case{{Pattern: EOF()}})
+			s.Close()
+			if err == nil || !errors.Is(err, cause) || errorClass(err) != "error" {
+				t.Fatalf("count=%d lost cause %v: %v", count, cause, err)
+			}
+		}
+	}
+
 	failure := errors.New("read failed")
 	s, err := NewSession(&errorReader{err: failure})
 	if err != nil {
@@ -47,11 +61,15 @@ func TestSessionReadErrorWithDataPreservesTail(t *testing.T) {
 }
 
 type errorReader struct {
-	err  error
-	read bool
+	err          error
+	read         bool
+	invalidCount int
 }
 
 func (r *errorReader) Read(p []byte) (int, error) {
+	if r.invalidCount != 0 {
+		return r.invalidCount, r.err
+	}
 	if r.read {
 		return 0, r.err
 	}

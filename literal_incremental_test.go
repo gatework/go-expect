@@ -7,20 +7,20 @@ import (
 
 func TestLongLiteralIncrementalAcrossChunks(t *testing.T) {
 	for _, p := range []Pattern{Literal(strings.Repeat("a", 4096) + "b"), All(Literal("start"), Literal(strings.Repeat("a", 4096)+"b"))} {
-		s := newPatternScan(p)
-		if len(s.literals) == 0 {
+		s := newMatchCursor(p)
+		if len(s.literal.literals) == 0 {
 			t.Fatal("missing incremental cursor")
 		}
 		data := []byte("start" + strings.Repeat("a", 8192) + "b")
 		for end := 1; end <= len(data); end++ {
-			got, ok := s.findLiterals(data[:end])
+			got, ok, scanErr := s.find(data[:end], false, 0, true)
 			want, wok, err := p.find(data[:end], false, 0)
-			if err != nil || ok != wok || ok && (got.start != want.start || got.end != want.end) {
+			if scanErr != nil || err != nil || ok != wok || ok && (got.start != want.start || got.end != want.end) {
 				t.Fatalf("end=%d got %+v %v want %+v %v", end, got, ok, want, wok)
 			}
 		}
 		s.reset()
-		if _, ok := s.findLiterals([]byte("other")); ok {
+		if _, ok, _ := s.find([]byte("other"), false, 0, true); ok {
 			t.Fatal("stale state")
 		}
 	}
@@ -29,15 +29,15 @@ func TestLongLiteralIncrementalAcrossChunks(t *testing.T) {
 func BenchmarkLongLiteralCursor(b *testing.B) {
 	p := All(Literal(strings.Repeat("a", 4096) + "b"))
 	data := []byte(strings.Repeat("a", 16384) + "b")
-	s := newPatternScan(p)
+	s := newMatchCursor(p)
 	b.ReportAllocs()
 	b.SetBytes(int64(len(data)))
 	for b.Loop() {
 		s.reset()
 		for end := 32; end < len(data); end += 32 {
-			s.findLiterals(data[:end])
+			s.find(data[:end], false, 0, true)
 		}
-		if _, ok := s.findLiterals(data); !ok {
+		if _, ok, _ := s.find(data, false, 0, true); !ok {
 			b.Fatal("missing match")
 		}
 	}

@@ -74,6 +74,9 @@ func TestSessionEmitWithoutSinkSkipsFilter(t *testing.T) {
 	if err := s.emit([]byte("sec"), false); err != nil {
 		t.Fatal(err)
 	}
+	if len(s.redactor.secrets) != 0 || len(s.redactor.rules) != 0 {
+		t.Fatal("no-sink session retained rules")
+	}
 	if len(s.redactor.pending) != 0 {
 		t.Fatal("no-sink session retained diagnostic bytes")
 	}
@@ -120,6 +123,9 @@ func TestSessionCloseReleasesFilterAfterSinkFailure(t *testing.T) {
 	}
 	if cap(s.redactor.pending)+cap(s.redactor.hidden)+cap(s.redactor.storage)+cap(s.redactor.marks) != 0 {
 		t.Fatal("Close retained filter storage after sink failure")
+	}
+	if len(s.redactor.secrets) != 0 || len(s.redactor.rules) != 0 {
+		t.Fatal("closed session retained rules")
 	}
 	if sink.calls != 1 {
 		t.Fatalf("sink was retried %d times", sink.calls)

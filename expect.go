@@ -78,22 +78,15 @@ func (s *Session) expect(ctx context.Context, cases []Case, guards []func(Result
 		}
 	}
 	handlerCtx := ctx
-	hasHandler := o.streaming != nil
-	for _, c := range cases {
-		hasHandler = hasHandler || c.Handler != nil
-	}
-	if hasHandler {
-		var cancelHandlers context.CancelFunc
-		handlerCtx, cancelHandlers = context.WithCancel(ctx)
-		s.lifeMu.Lock()
-		if s.isClosed() {
+	var cancelHandlers context.CancelFunc
+	defer func() {
+		if cancelHandlers != nil {
 			cancelHandlers()
-		} else {
-			s.handlerCancel = cancelHandlers
+			s.lifeMu.Lock()
+			s.handlerCancel = nil
+			s.lifeMu.Unlock()
 		}
-		s.lifeMu.Unlock()
-		defer func() { cancelHandlers(); s.lifeMu.Lock(); s.handlerCancel = nil; s.lifeMu.Unlock() }()
-	}
+	}()
 	now := time.Now()
 	relative := after(now, o.timeout)
 	idle := after(now, o.idle)
@@ -105,13 +98,11 @@ func (s *Session) expect(ctx context.Context, cases []Case, guards []func(Result
 	}
 	defer stopTimer()
 	// Match state is local to this call and resets whenever input is consumed.
-	// Ordinary patterns retain only their existing scan offsets. Allocate All
-	// leaf state only when a pure literal tree is actually present.
+	// Plain patterns retain scan offsets. Stateful cursors are created lazily
+	// only for patterns that need them.
 	scanned := make([]int, len(cases))
-	cursors := make([]matchCursor, len(cases))
-	for i, c := range cases {
-		cursors[i] = newMatchCursor(c.Pattern)
-	}
+	var cursorStorage [8]*matchCursor
+	var cursors []*matchCursor
 	var pollAck chan struct{}
 	pollOwned := false
 	polled := false
@@ -139,7 +130,22 @@ func (s *Session) expect(ctx context.Context, cases []Case, guards []func(Result
 			var hit location
 			var ok bool
 			var e error
-			hit, ok, e = cursors[i].find(s.pending, s.terminal != nil, from, true)
+			if c.Pattern.kind == allPattern || c.Pattern.kind == linePattern || (c.Pattern.kind == literalPattern && len(c.Pattern.failure) > 0) {
+				if cursors == nil {
+					if len(cases) <= len(cursorStorage) {
+						cursors = cursorStorage[:len(cases)]
+					} else {
+						cursors = make([]*matchCursor, len(cases))
+					}
+				}
+				if cursors[i] == nil {
+					cursor := newMatchCursor(c.Pattern)
+					cursors[i] = &cursor
+				}
+				hit, ok, e = cursors[i].find(s.pending, s.terminal != nil, from, true)
+			} else {
+				hit, ok, e = c.Pattern.find(s.pending, s.terminal != nil, from)
+			}
 			scanned[i] = len(s.pending)
 			if e != nil {
 				return failure(e)
@@ -160,7 +166,7 @@ func (s *Session) expect(ctx context.Context, cases []Case, guards []func(Result
 		}
 		eof := false
 		if chosen < 0 && s.terminal != nil {
-			if errors.Is(s.terminal, io.EOF) {
+			if errors.Is(s.terminal, io.EOF) && !errors.Is(s.terminal, errInvalidReadCount) {
 				for i, c := range cases {
 					if c.Pattern.kind == eofPattern {
 						chosen = i
@@ -202,7 +208,9 @@ func (s *Session) expect(ctx context.Context, cases []Case, guards []func(Result
 			}
 			clear(scanned)
 			for i := range cursors {
-				cursors[i].reset()
+				if cursors[i] != nil {
+					cursors[i].reset()
+				}
 			}
 			var handler Handler
 			if streaming {
@@ -212,6 +220,16 @@ func (s *Session) expect(ctx context.Context, cases []Case, guards []func(Result
 			}
 			if handler == nil {
 				return result, nil
+			}
+			if cancelHandlers == nil {
+				handlerCtx, cancelHandlers = context.WithCancel(ctx)
+				s.lifeMu.Lock()
+				if s.isClosed() {
+					cancelHandlers()
+				} else {
+					s.handlerCancel = cancelHandlers
+				}
+				s.lifeMu.Unlock()
 			}
 			action, handlerErr := s.callHandler(handlerCtx, earlier(relative, idle), handler, result)
 			if handlerErr != nil {

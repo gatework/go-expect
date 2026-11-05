@@ -45,7 +45,9 @@ func Literal(text string) Pattern {
 // Line matches a byte-exact final line with optional space, tab and NUL padding.
 // The match includes its preceding CR/LF delimiter and trailing CR/LF bytes.
 // Empty text and text containing CR or LF are invalid declarations.
-func Line(text string) Pattern { return Pattern{kind: linePattern, text: text} }
+func Line(text string) Pattern {
+	return Pattern{kind: linePattern, text: text, failure: literalPrefix(text)}
+}
 
 // IsZero distinguishes an unspecified pattern from a malformed declaration.
 func (p Pattern) IsZero() bool { return p.kind == 0 }
@@ -304,47 +306,6 @@ type literalScan struct {
 	scanned int
 	hit     location
 	found   bool
-}
-
-func newPatternScan(p Pattern) patternScan {
-	if p.kind != allPattern && (p.kind != literalPattern || len(p.failure) == 0) {
-		return patternScan{}
-	}
-	count := literalCount(p)
-	if count == 0 {
-		return patternScan{}
-	}
-	state := patternScan{literals: make([]literalScan, 0, count)}
-	state.addLiterals(p)
-	return state
-}
-
-func literalCount(p Pattern) int {
-	if p.kind == literalPattern {
-		return 1
-	}
-	if p.kind != allPattern {
-		return 0
-	}
-	total := 0
-	for _, child := range p.all {
-		count := literalCount(child)
-		if count == 0 {
-			return 0
-		}
-		total += count
-	}
-	return total
-}
-
-func (s *patternScan) addLiterals(p Pattern) {
-	if p.kind == literalPattern {
-		s.literals = append(s.literals, literalScan{text: p.text, failure: p.failure})
-		return
-	}
-	for _, child := range p.all {
-		s.addLiterals(child)
-	}
 }
 
 func (s *patternScan) findLiterals(data []byte) (location, bool) {

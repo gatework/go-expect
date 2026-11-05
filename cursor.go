@@ -10,17 +10,44 @@ type matchCursor struct {
 }
 
 func newMatchCursor(p Pattern) matchCursor {
-	c := matchCursor{pattern: p, literal: newPatternScan(p)}
-	if p.kind == linePattern {
-		c.line.prefix = literalPrefix(p.text)
-	}
-	if p.kind == allPattern && len(c.literal.literals) == 0 {
-		for _, child := range p.all {
-			c.children = append(c.children, newMatchCursor(child))
+	c := matchCursor{pattern: p}
+	switch p.kind {
+	case literalPattern:
+		c.literal.literals = []literalScan{{text: p.text, failure: p.failure}}
+	case linePattern:
+		c.line.prefix = p.failure
+	case allPattern:
+		var local [8]*Pattern
+		leaves := local[:0]
+		pure := true
+		var collect func([]Pattern)
+		collect = func(children []Pattern) {
+			for i := range children {
+				child := &children[i]
+				if child.kind == allPattern {
+					collect(child.all)
+				} else {
+					leaves = append(leaves, child)
+					pure = pure && child.kind == literalPattern
+				}
+			}
+		}
+		collect(p.all)
+		if pure {
+			c.literal.literals = make([]literalScan, len(leaves))
+			for i, leaf := range leaves {
+				c.literal.literals[i] = literalScan{text: leaf.text, failure: leaf.failure}
+			}
+		} else {
+			c.children = make([]matchCursor, len(leaves))
+			for i, leaf := range leaves {
+				c.children[i] = newMatchCursor(*leaf)
+			}
 		}
 	}
 	return c
 }
+
 func (c *matchCursor) find(data []byte, terminal bool, from int, captures bool) (location, bool, error) {
 	if len(c.literal.literals) > 0 {
 		loc, ok := c.literal.findLiterals(data)

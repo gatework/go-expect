@@ -238,12 +238,12 @@ func FuzzLiteralAllChunks(f *testing.F) {
 			return
 		}
 		p := All(Literal(a), All(Literal(b), Literal(a)))
-		state := newPatternScan(p)
+		state := newMatchCursor(p)
 		chunk := int(size)%32 + 1
 		for end := 0; ; end = min(end+chunk, len(input)) {
-			got, found := state.findLiterals(input[:end])
+			got, found, scanErr := state.find(input[:end], false, 0, true)
 			want, wantFound, wantErr := p.find(input[:end], end == len(input), 0)
-			if wantErr != nil || found != wantFound || got.start != want.start || got.end != want.end {
+			if scanErr != nil || wantErr != nil || found != wantFound || got.start != want.start || got.end != want.end {
 				t.Fatalf("prefix=%d got=(%d,%d,%v) want=(%d,%d,%v,%v)", end, got.start, got.end, found, want.start, want.end, wantFound, wantErr)
 			}
 			if end == len(input) {
@@ -251,9 +251,9 @@ func FuzzLiteralAllChunks(f *testing.F) {
 			}
 		}
 		state.reset()
-		got, found := state.findLiterals(input)
+		got, found, scanErr := state.find(input, true, 0, true)
 		want, wantFound, wantErr := p.find(input, true, 0)
-		if wantErr != nil || found != wantFound || got.start != want.start || got.end != want.end {
+		if scanErr != nil || wantErr != nil || found != wantFound || got.start != want.start || got.end != want.end {
 			t.Fatal("reset changed matching")
 		}
 	})

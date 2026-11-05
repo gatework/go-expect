@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.1.4
+
+- Flatten per-wait All cursors, retain mixed literal progress and share immutable Line prefix tables.
+- Allocate stateful cursors and handler scopes only when used; share per-call Responder counters and callbacks.
+- Skip secret compilation without output sinks and release private rules when closing a Session.
+- Preserve underlying invalid-read-count causes without treating them as a clean EOF.
+
 ## v0.1.3
 
 - BREAKING: remove WithTranscript; use WithOutput for the filtered receive stream.

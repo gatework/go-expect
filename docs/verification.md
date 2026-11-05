@@ -148,3 +148,28 @@ wrapper. The same four diagnostics reproduced locally. Removing the wrapper and
 simplifying those expressions gives zero issues with that exact linter, and the
 full race/shuffle suite passes again. The recorded performance samples and Go
 file digests identify the measured source before this nonsemantic lint cleanup.
+
+## 2026-11-05 second refinement
+
+The baseline is published v0.1.3, commit 0290173. Local Linux/amd64 Go 1.27.3
+script/ci passed, including Windows test cross-compilation and all eight fixed
+fuzz budgets. Final source also passed the pinned golangci-lint v2.15.0 and
+race/shuffle checks, plus 100000 extra Line cursor fuzz executions covering nested
+mixed All declarations. No new test files or independent test functions were
+added: existing error/lifecycle assertions, scanner tests and benchmarks were
+extended. Runtime verification on other platforms/toolchains awaits CI.
+
+[Evidence](benchmarks/2026-11-05-round2/) includes the runner, raw samples, source
+digests, CI logs and summary. Ten serial interleaved 100ms samples at GOMAXPROCS=4
+use the same benchmark fixtures against both sources. The supplied baseline ZIP
+contains the v0.1.3 Go sources and module manifests; the runner also accepts a
+go-expect-prefixed source ZIP created from that tag. These synthetic workloads
+measure local costs rather than device throughput.
+
+Depth-1024 mixed cursor preparation drops from median 5.98ms, 213KB and 1025
+allocations to 6.77us, 208B and one allocation. Reused 4096-byte Line cursor setup
+now allocates zero bytes, down from 32KiB per setup. Direct completion with 64
+short-literal responder rules drops from 43KB/200 allocations to 14KB/eight.
+Buffered Expect drops from 352B/three allocations to 144B/two. No receive, PTY
+or public-redactor control shows both median slowdown above 5% and paired
+log-ratio sign-flip p<0.05 in these samples.

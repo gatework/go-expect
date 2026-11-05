@@ -96,7 +96,7 @@ func FuzzLineCursor(f *testing.F) {
 		if p.ValidateText() != nil {
 			return
 		}
-		for _, pattern := range []Pattern{p, All(Literal(""+text), p)} {
+		for _, pattern := range []Pattern{p, All(Literal(text), p), All(p, All(Literal(text), p))} {
 			cursor := newMatchCursor(pattern)
 			for pass := 0; pass < 2; pass++ {
 				for end := 0; ; end = min(len(data), end+1+int(chunk)%32) {
@@ -131,15 +131,26 @@ func BenchmarkLineCursor(b *testing.B) {
 	}
 }
 func BenchmarkNestedValidation(b *testing.B) {
-	p := Literal("x")
-	for range 1024 {
-		p = All(p)
-	}
-	b.ReportAllocs()
-	for b.Loop() {
-		if err := p.ValidateText(); err != nil {
-			b.Fatal(err)
+	for _, depth := range []int{64, 256, 1024} {
+		p := Line("x")
+		for range depth {
+			p = All(p)
 		}
+		b.Run(strconv.Itoa(depth)+"/validate", func(b *testing.B) {
+			b.ReportAllocs()
+			for b.Loop() {
+				if err := p.ValidateText(); err != nil {
+					b.Fatal(err)
+				}
+			}
+		})
+		b.Run(strconv.Itoa(depth)+"/cursor", func(b *testing.B) {
+			b.ReportAllocs()
+			for b.Loop() {
+				cursor := newMatchCursor(p)
+				runtime.KeepAlive(cursor)
+			}
+		})
 	}
 }
 

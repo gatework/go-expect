@@ -67,18 +67,24 @@ func (r *Responder) Expect(ctx context.Context, s *Session, completion []Pattern
 		cases = append(cases, Case{Pattern: pattern})
 		guards = append(guards, nil)
 	}
-	for i, rule := range r.rules {
-		count := 0
-		guards = append(guards, func(Result) error {
-			if count >= rule.Limit {
+	if len(r.rules) > 0 {
+		counts := make([]int, len(r.rules))
+		guard := func(result Result) error {
+			i := result.CaseIndex - len(completion)
+			if counts[i] >= r.rules[i].Limit {
 				return &ResponseError{RuleIndex: i}
 			}
 			return nil
-		})
-		cases = append(cases, Case{Pattern: rule.Pattern, Handler: func(ctx context.Context, s *Session, result Result) (Action, error) {
-			count++
-			return ContinueWithoutReset, rule.Respond(ctx, s, result)
-		}})
+		}
+		handler := func(ctx context.Context, s *Session, result Result) (Action, error) {
+			i := result.CaseIndex - len(completion)
+			counts[i]++
+			return ContinueWithoutReset, r.rules[i].Respond(ctx, s, result)
+		}
+		for _, rule := range r.rules {
+			guards = append(guards, guard)
+			cases = append(cases, Case{Pattern: rule.Pattern, Handler: handler})
+		}
 	}
 	result, err := s.expect(ctx, cases, guards, opts...)
 	if result.CaseIndex >= len(completion) {

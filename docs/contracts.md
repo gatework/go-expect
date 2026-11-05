@@ -207,3 +207,20 @@ the transport; admission is checked by the worker immediately before transport e
 Close cancels the active handler context but does not wait for user code. Handlers
 must cooperate with cancellation. Automatic retirement preserves independent
 cleanup causes through errors.Is/As; writes still expose exact Written progress.
+
+## Preparation and retired rule storage
+
+Line patterns compile immutable byte-prefix tables once. Wait cursors own all
+mutable progress. Nested All declarations are traversed in their original order
+and flattened for per-wait matching; captures remain omitted. Mixed literal
+leaves retain their first hits until consumption resets the cursor.
+
+Without output sinks, Redact still validates all secrets and session state but
+does not compile or retain rules. Close finishes filtered output before dropping
+private rule references, including on output failure. Standalone Redactor.Finish
+continues to retain its rules for a fresh stream.
+
+An invalid transport read count discards that read's untrusted bytes and preserves
+the underlying cause through errors.Is/As. It remains a validation failure even
+when the cause includes io.EOF: an EOF case cannot turn it into success, and the
+observer classification is error.

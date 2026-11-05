@@ -244,7 +244,10 @@ func (t *transport) Close() error {
 		// Close the output pipe before ClosePseudoConsole, including on older Windows.
 		var c error
 		if t.job != 0 {
-			c = windows.CloseHandle(t.job)
+			// Closing a kill-on-close job can report exit status zero. Terminate
+			// explicitly so interrupted children retain a nonzero exit status.
+			c = windows.TerminateJobObject(t.job, 1)
+			c = errors.Join(c, windows.CloseHandle(t.job))
 		}
 		a := t.output.Close()
 		b := t.input.Close()

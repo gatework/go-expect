@@ -38,8 +38,11 @@ func TestProcessDialogueAndCancellation(t *testing.T) {
 		t.Fatal(err)
 	}
 	childCtx, stop := context.WithCancel(ctx)
-	child, err := Start(childCtx, "cmd.exe", []string{"/d", "/q", "/c", "set /p answer="})
+	child, err := Start(childCtx, "cmd.exe", []string{"/d", "/q", "/c", "echo WAITING & set /p answer="})
 	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = child.Session().Expect(childCtx, []expect.Case{{Pattern: expect.Literal("WAITING")}}); err != nil {
 		t.Fatal(err)
 	}
 	stop()

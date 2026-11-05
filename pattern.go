@@ -1,7 +1,10 @@
+// SPDX-License-Identifier: Apache-2.0
+
 // Copyright 2018 Netflix, Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy at https://www.apache.org/licenses/LICENSE-2.0
+
 package expect
 
 import (
@@ -10,7 +13,10 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"regexp/syntax"
 	"unicode/utf8"
+
+	"github.com/gatework/go-expect/internal/redact"
 )
 
 // Pattern is an immutable literal, regular expression, EOF or All pattern.
@@ -24,20 +30,25 @@ type Pattern struct {
 }
 
 const literalKMPThreshold = 256
+const invalidPattern uint8 = 255
 
+// Pattern kinds are internal matching discriminators.
 const (
 	literalPattern uint8 = iota + 1
 	regexpPattern
 	eofPattern
 	allPattern
 	linePattern
+	timeoutPattern
+	defaultPattern
+	fullBufferPattern
 )
 
 // Literal matches a nonempty byte string, including arbitrary binary data.
 func Literal(text string) Pattern {
 	p := Pattern{kind: literalPattern, text: text}
 	if len(text) > literalKMPThreshold {
-		p.failure = literalPrefix(text)
+		p.failure = redact.Prefix(text)
 	}
 	return p
 }
@@ -46,7 +57,7 @@ func Literal(text string) Pattern {
 // The match includes its preceding CR/LF delimiter and trailing CR/LF bytes.
 // Empty text and text containing CR or LF are invalid declarations.
 func Line(text string) Pattern {
-	return Pattern{kind: linePattern, text: text, failure: literalPrefix(text)}
+	return Pattern{kind: linePattern, text: text, failure: redact.Prefix(text)}
 }
 
 // IsZero distinguishes an unspecified pattern from a malformed declaration.
@@ -60,7 +71,7 @@ func (p Pattern) ValidateText() error {
 	visit = func(p Pattern) error {
 		if p.kind == allPattern {
 			if len(p.all) == 0 {
-				return errors.New("expect: invalid pattern")
+				return ErrInvalidPattern
 			}
 			for _, child := range p.all {
 				if err := visit(child); err != nil {
@@ -90,7 +101,11 @@ func (p Pattern) ValidateText() error {
 func Compile(expr string) (Pattern, error) {
 	r, e := regexp.Compile(expr)
 	if e != nil {
-		return Pattern{}, errors.New("expect: invalid regular expression")
+		var detail *syntax.Error
+		if errors.As(e, &detail) {
+			return Pattern{}, &CompileError{Code: detail.Code}
+		}
+		return Pattern{}, ErrInvalidPattern
 	}
 	return Pattern{kind: regexpPattern, re: r}, nil
 }
@@ -99,12 +114,21 @@ func Compile(expr string) (Pattern, error) {
 // Later changes to the caller's expression do not affect the Pattern.
 func FromRegexp(re *regexp.Regexp) (Pattern, error) {
 	if re == nil {
-		return Pattern{}, errors.New("expect: nil regular expression")
+		return Pattern{}, ErrInvalidPattern
 	}
 	// Copy is appropriate here to isolate Longest settings, as documented by regexp.
 	//nolint:staticcheck // SA1019: preserving independent Longest configuration.
 	return Pattern{kind: regexpPattern, re: re.Copy()}, nil
 }
+
+// Timeout matches the relative wait deadline, never parent cancellation.
+func Timeout() Pattern { return Pattern{kind: timeoutPattern} }
+
+// Default matches a relative timeout or clean EOF when selected in declaration order.
+func Default() Pattern { return Pattern{kind: defaultPattern} }
+
+// FullBuffer explicitly accepts a full unmatched buffer and consumes that snapshot.
+func FullBuffer() Pattern { return Pattern{kind: fullBufferPattern} }
 
 // EOF matches a clean end of input, after buffered text has been matched.
 func EOF() Pattern { return Pattern{kind: eofPattern} }
@@ -114,7 +138,23 @@ func EOF() Pattern { return Pattern{kind: eofPattern} }
 func All(patterns ...Pattern) Pattern {
 	return Pattern{kind: allPattern, all: append([]Pattern(nil), patterns...)}
 }
-func (p Pattern) String() string   { return "expect.Pattern" }
+func (p Pattern) String() string {
+	names := []string{"invalid", "literal", "regexp", "eof", "all", "line", "timeout", "default", "full_buffer"}
+	kind := "invalid"
+	if int(p.kind) < len(names) {
+		kind = names[p.kind]
+	}
+	size := len(p.text)
+	if p.re != nil {
+		size = len(p.re.String())
+	}
+	if p.kind == allPattern {
+		size = len(p.all)
+	}
+	return fmt.Sprintf("expect.Pattern{%s,len=%d}", kind, size)
+}
+
+// GoString formats metadata without exposing payloads.
 func (p Pattern) GoString() string { return p.String() }
 func (p Pattern) validate(textOnly bool) error {
 	switch p.kind {
@@ -130,7 +170,7 @@ func (p Pattern) validate(textOnly bool) error {
 		if p.re != nil {
 			return nil
 		}
-	case eofPattern:
+	case eofPattern, timeoutPattern, defaultPattern, fullBufferPattern:
 		if !textOnly {
 			return nil
 		}
@@ -144,16 +184,20 @@ func (p Pattern) validate(textOnly bool) error {
 			return nil
 		}
 	}
-	return errors.New("expect: invalid pattern")
+	return ErrInvalidPattern
 }
 
 // Capture distinguishes an unmatched optional group from an empty matched group.
 type Capture struct {
-	Text    string
-	Matched bool
+	Text       string
+	Matched    bool
+	Name       string
+	Start, End int
 }
 
-func (Capture) String() string     { return "expect.Capture" }
+func (Capture) String() string { return "expect.Capture" }
+
+// GoString formats metadata without exposing payloads.
 func (c Capture) GoString() string { return c.String() }
 
 // Result is a detached snapshot of the final match, not the whole conversation.
@@ -161,20 +205,26 @@ func (c Capture) GoString() string { return c.String() }
 // Explicit fields contain unredacted bytes; formatting emits only metadata.
 type Result struct {
 	CaseIndex     int
+	RuleIndex     int
+	Scope         RuleScope
+	Start, End    int
 	Before, Match string
 	Captures      []Capture
 }
 
-func (r Result) String() string   { return fmt.Sprintf("expect.Result{case:%d}", r.CaseIndex) }
+func (r Result) String() string { return fmt.Sprintf("expect.Result{case:%d}", r.CaseIndex) }
+
+// GoString formats metadata without exposing payloads.
 func (r Result) GoString() string { return r.String() }
 
 // Action determines whether a matched Case returns or continues waiting.
 type Action uint8
 
+// Actions determine whether a handler returns or continues waiting.
 const (
-	Return Action = iota + 1
+	Return Action = iota
 	Continue
-	ContinueWithoutReset
+	ContinueKeepTimer
 )
 
 // Handler runs after consumption, outside internal locks. It may send or close,
@@ -185,14 +235,18 @@ type Handler func(context.Context, *Session, Result) (Action, error)
 type Case struct {
 	Pattern Pattern
 	Handler Handler
+	Limit   int
 }
 
-func (Case) String() string     { return "expect.Case" }
+func (Case) String() string { return "expect.Case" }
+
+// GoString formats metadata without exposing payloads.
 func (c Case) GoString() string { return c.String() }
 
 type location struct {
 	start, end int
 	submatches []int
+	names      []string
 }
 
 func (p Pattern) find(data []byte, terminal bool, scanFrom int) (location, bool, error) {
@@ -229,7 +283,7 @@ func (p Pattern) findLocation(data []byte, terminal bool, scanFrom int, captures
 		if idx[0] == idx[1] {
 			return location{}, false, ErrEmptyMatch
 		}
-		return location{start: idx[0], end: idx[1], submatches: idx[2:]}, true, nil
+		return location{start: idx[0], end: idx[1], submatches: idx[2:], names: p.re.SubexpNames()[1:]}, true, nil
 	case allPattern:
 		loc := location{start: len(data)}
 		for _, child := range p.all {
@@ -249,13 +303,20 @@ func (p Pattern) findLocation(data []byte, terminal bool, scanFrom int, captures
 	return location{}, false, nil
 }
 
-// capturesFromSnapshot runs once for the winner before guards or consumption.
+// capturesFromSnapshot runs once for the winner before callback dispatch or consumption.
 // Each string owns its bytes independently of the session receive storage.
 func (loc location) capturesFromSnapshot(data []byte, match string) []Capture {
 	if len(loc.submatches) == 0 {
 		return nil
 	}
 	captures := make([]Capture, len(loc.submatches)/2)
+	for i := range captures {
+		captures[i].Start = -1
+		captures[i].End = -1
+		if i < len(loc.names) {
+			captures[i].Name = loc.names[i]
+		}
+	}
 	snapshots := make(map[[2]int]string)
 	for i := range captures {
 		start, end := loc.submatches[2*i], loc.submatches[2*i+1]
@@ -270,7 +331,11 @@ func (loc location) capturesFromSnapshot(data []byte, match string) []Capture {
 				}
 				snapshots[key] = text
 			}
-			captures[i] = Capture{Text: text, Matched: true}
+			name := ""
+			if i < len(loc.names) {
+				name = loc.names[i]
+			}
+			captures[i] = Capture{Text: text, Matched: true, Name: name, Start: start, End: end}
 		}
 	}
 	return captures
@@ -387,17 +452,4 @@ func (p Pattern) findLine(data []byte) (location, bool, error) {
 		line--
 	}
 	return location{start: line, end: len(data)}, true, nil
-}
-func literalPrefix(text string) []int {
-	failure := make([]int, len(text))
-	for i, j := 1, 0; i < len(text); i++ {
-		for j > 0 && text[i] != text[j] {
-			j = failure[j-1]
-		}
-		if text[i] == text[j] {
-			j++
-		}
-		failure[i] = j
-	}
-	return failure
 }

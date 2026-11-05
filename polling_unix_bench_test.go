@@ -1,4 +1,6 @@
-//go:build linux || darwin
+//go:build linux || darwin || freebsd
+
+// SPDX-License-Identifier: Apache-2.0
 
 package expect
 

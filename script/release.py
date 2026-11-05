@@ -107,7 +107,7 @@ def version_key(tag):
     return tuple(map(int, match.groups()))
 
 
-def select_version(sha, tags, releases, ancestor):
+def select_version(sha, tags, releases, ancestor, breaking=lambda prior, current: False):
     """Reuse a commit's version; reserve drafts; reject divergent publication."""
     stable = {tag: commit for tag, commit in tags.items() if VERSION.fullmatch(tag)}
     existing = [r for r in releases if VERSION.fullmatch(r["tag_name"]) and
@@ -142,6 +142,10 @@ def select_version(sha, tags, releases, ancestor):
         major, minor, patch = version_key(latest)
         if major >= 2:
             raise ValueError("major versions >= 2 require a matching Go module path")
+        if breaking(stable[latest], sha):
+            if major != 0:
+                raise ValueError("breaking changes require an explicit major version and matching Go module path")
+            return f"v0.{minor + 1}.0", None
         return f"v{major}.{minor}.{patch + 1}", None
     return "v0.1.0", None
 
@@ -272,7 +276,10 @@ def main():
     if not ancestor(sha, f"origin/{branch}"):
         raise ValueError("tested commit is not on the default branch")
     tags = {tag: git("rev-parse", f"{tag}^{{commit}}") for tag in git("tag", "--list", "v*").splitlines()}
-    tag, existing = select_version(sha, tags, api.releases(), ancestor)
+    def breaking(prior, current):
+        messages = git("log", "--format=%B", f"{prior}..{current}")
+        return re.search(r"(?m)^BREAKING(?: CHANGE)?:", messages) is not None
+    tag, existing = select_version(sha, tags, api.releases(), ancestor, breaking)
     if tag is None:
         print("Skipped: a newer snapshot has already been released.")
         return

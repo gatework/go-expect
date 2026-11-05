@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 // Copyright 2018 Netflix, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,9 +16,9 @@
 
 // Package expect automates interactive byte streams with bounded waits,
 // continuation callbacks and reusable response rules. Session owns a supplied
-// duplex transport; Console adapts a PTY on Linux and macOS. Callers own process
-// lifecycle, connection establishment, device policy and command success checks.
+// duplex transport; Console adapts Unix PTYs. The spawn and conpty subpackages own
+// child process lifetimes. Callers own connections and command success checks.
 //
-// Matching uses unmodified input. Diagnostics and output copies use explicit
+// Matching preserves input unless explicit normalization options are enabled. Diagnostics and output copies use explicit
 // streaming secret redaction. Result fields are raw, detached snapshots.
 package expect

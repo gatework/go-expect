@@ -1,12 +1,16 @@
+// SPDX-License-Identifier: Apache-2.0
+
 package expect
 
 import (
 	"context"
 	"errors"
 	"io"
+	"log/slog"
 	"reflect"
 	"sync"
 	"sync/atomic"
+	"time"
 )
 
 const readChunk = 16 << 10
@@ -18,10 +22,6 @@ type readEvent struct {
 	err  error
 }
 
-type pollRequest struct {
-	ack chan struct{}
-}
-
 // Session owns one duplex transport and one matching buffer. The transport must
 // support concurrent Read/Write and guarantee Close interrupts both. After a
 // successful NewSession, callers must not perform I/O on that transport.
@@ -29,41 +29,49 @@ type pollRequest struct {
 // concurrency safe. SendAll may queue bounded input for the next Expect.
 // Do not copy a Session. Callback and output execution is cooperative.
 type Session struct {
-	transport io.ReadWriteCloser
-	opts      sessionOptions
-	inputMailbox
+	transport     io.ReadWriteCloser
+	opts          sessionOptions
+	mailbox       inputMailbox
 	done          chan struct{}
 	workers       sync.WaitGroup
 	lifeMu        sync.Mutex
 	closeOnce     sync.Once
 	closeErr      error
 	handlerCancel context.CancelFunc
-	writeGate     chan struct{}
+	writeGate     gate
 	osIO          *osAccess
-	pollMu        sync.Mutex
-	pollRequest   *pollRequest
-	pollStopped   bool
 	expecting     atomic.Bool
-	// Only the active Expect/Poll accesses the protocol state below.
-	pending, staged     []byte
-	pendingAlloc        int
-	stagedAlloc         int
-	stagedErr, terminal error
-	diagMu              sync.Mutex
-	redactor            redactor
-	outputErr           error
+	receive       receiveState
+	diagnostics   diagnosticState
+}
+
+// receiveState is accessed only by the exclusive wait owner.
+type receiveState struct {
+	pending, staged           []byte
+	pendingAlloc, stagedAlloc int
+	stagedErr, terminal       error
+}
+
+// diagnosticState serializes borrowed sinks and their independent stream filters.
+type diagnosticState struct {
+	mu                                          sync.Mutex
+	redactor                                    redactor
+	sentRedactor, interactRedactor              *redactor
+	interactSink                                io.Writer
+	secrets                                     []string
+	sendOutputErr, interactOutputErr, outputErr error
 }
 
 // NewSession transfers transport ownership only on success. Options are
 // validated before any reads, writes or closes take place.
 func NewSession(transport io.ReadWriteCloser, opts ...SessionOption) (*Session, error) {
 	if nilInterface(transport) {
-		return nil, errors.New("expect: nil transport")
+		return nil, &ConfigError{Option: "transport", Reason: "nil transport"}
 	}
 	o := defaults()
 	for _, opt := range opts {
 		if opt == nil {
-			return nil, errors.New("expect: nil session option")
+			return nil, &ConfigError{Option: "session", Reason: "nil option"}
 		}
 		if err := opt(&o); err != nil {
 			return nil, err
@@ -77,9 +85,11 @@ func NewSession(transport io.ReadWriteCloser, opts ...SessionOption) (*Session, 
 			return nil, err
 		}
 	}
-	s := &Session{transport: transport, opts: o, inputMailbox: inputMailbox{events: make(chan readEvent, 1), inputGate: make(chan struct{}, 1), inputReady: make(chan struct{}, 1)}, done: make(chan struct{}), writeGate: make(chan struct{}, 1), osIO: access}
-	s.workers.Add(1)
-	go s.readLoop()
+	s := &Session{transport: transport, opts: o, mailbox: inputMailbox{events: make(chan readEvent, 1), inputGate: make(chan struct{}, 1), inputReady: make(chan struct{}, 1)}, done: make(chan struct{}), writeGate: make(gate, 1), osIO: access}
+	if len(o.sendOutputs) > 0 {
+		s.diagnostics.sentRedactor = &redactor{}
+	}
+	s.workers.Go(s.readLoop)
 	return s, nil
 }
 
@@ -101,8 +111,7 @@ func (s *Session) readLoop() {
 		s.osReadLoop()
 		return
 	}
-	defer s.workers.Done()
-	defer close(s.events)
+	defer close(s.mailbox.events)
 	empty := 0
 	data := make([]byte, readChunk)
 	for {
@@ -172,11 +181,9 @@ func (s *Session) Close() error {
 			s.releaseReceiveStorage()
 			s.expecting.Store(false)
 		}
-		s.retire()
+		s.mailbox.retire()
 		outputErr := s.emit(nil, true)
-		s.diagMu.Lock()
-		s.redactor = redactor{}
-		s.diagMu.Unlock()
+		outputErr = errors.Join(outputErr, s.finishDiagnosticRules())
 		s.closeErr = errors.Join(transportErr, outputErr)
 	})
 	return s.closeErr
@@ -187,35 +194,57 @@ func (s *Session) Close() error {
 func (s *Session) Redact(secrets ...string) error {
 	for _, secret := range secrets {
 		if secret == "" {
-			return errors.New("expect: empty secret")
+			return &ConfigError{Option: "redact", Reason: "empty secret"}
 		}
 	}
-	s.diagMu.Lock()
-	defer s.diagMu.Unlock()
+	s.diagnostics.mu.Lock()
+	defer s.diagnostics.mu.Unlock()
 	if s.isClosed() {
 		return ErrClosed
 	}
+	for _, secret := range secrets {
+		duplicate := false
+		for _, old := range s.diagnostics.secrets {
+			if old == secret {
+				duplicate = true
+				break
+			}
+		}
+		if !duplicate {
+			s.diagnostics.secrets = append(s.diagnostics.secrets, secret)
+		}
+	}
 	if len(s.opts.outputs) > 0 {
-		s.redactor.add(secrets)
+		s.diagnostics.redactor.add(secrets)
+	}
+	if len(s.opts.sendOutputs) > 0 {
+		s.diagnostics.sentRedactor.add(secrets)
+	}
+	if s.diagnostics.interactSink != nil {
+		s.diagnostics.interactRedactor.add(secrets)
 	}
 	return nil
 }
 func (s *Session) emit(data []byte, finish bool) error {
-	s.diagMu.Lock()
-	defer s.diagMu.Unlock()
-	if s.outputErr != nil {
+	s.diagnostics.mu.Lock()
+	defer s.diagnostics.mu.Unlock()
+	if s.diagnostics.outputErr != nil {
 		if finish {
-			s.redactor.resetStream()
+			s.diagnostics.redactor.resetStream()
 		}
-		return s.outputErr
+		return s.diagnostics.outputErr
 	}
 	if !finish && s.isClosed() {
 		return ErrClosed
 	}
+	if err := s.emitInteractiveLocked(data, finish); err != nil {
+		s.diagnostics.outputErr = err
+		return err
+	}
 	if len(s.opts.outputs) == 0 {
 		return nil
 	}
-	filtered := s.redactor.append(data, finish)
+	filtered := s.diagnostics.redactor.append(data, finish)
 	if len(filtered) == 0 {
 		return nil
 	}
@@ -225,40 +254,46 @@ func (s *Session) emit(data []byte, finish bool) error {
 			err = io.ErrShortWrite
 		}
 		if err != nil {
-			s.outputErr = err
+			s.diagnostics.outputErr = err
 			return err
 		}
 	}
 	return nil
 }
-func errorClass(err error) string {
+func errorClass(err error) ErrClass {
 	switch {
 	case err == nil:
-		return ""
+		return ClassOK
 	case errors.Is(err, errInvalidReadCount):
-		return "error"
+		return ClassError
 	case errors.Is(err, context.Canceled):
-		return "canceled"
+		return ClassCanceled
 	case errors.Is(err, context.DeadlineExceeded):
-		return "deadline"
+		return ClassDeadline
 	case errors.Is(err, ErrClosed):
-		return "closed"
+		return ClassClosed
 	case errors.Is(err, ErrBusy):
-		return "busy"
+		return ClassBusy
 	case errors.Is(err, ErrTimeout):
-		return "timeout"
+		return ClassTimeout
 	case errors.Is(err, ErrIdleTimeout):
-		return "idle_timeout"
+		return ClassIdleTimeout
 	case errors.Is(err, io.EOF):
-		return "eof"
+		return ClassEOF
 	default:
-		return "error"
+		return ClassError
 	}
 }
-func (s *Session) notify(event Event) {
-	if s.opts.logger != nil {
-		s.opts.logger.Printf("expect %s case=%d bytes=%d status=%s", event.Operation, event.CaseIndex, event.Bytes, event.Error)
+
+//nolint:contextcheck // Rejected nil-context calls still emit metadata; they have no parent context.
+func (s *Session) notify(ctx context.Context, event Event) {
+	if s.opts.structuredLogger != nil {
+		if ctx == nil {
+			ctx = context.Background()
+		}
+		s.opts.structuredLogger.LogAttrs(ctx, slog.LevelInfo, "expect", slog.String("op", event.Operation.String()), slog.Int("case", event.CaseIndex), slog.Int("bytes", event.Bytes), slog.String("class", event.Error.String()))
 	}
+
 	for _, observer := range s.opts.observers {
 		observer(event)
 	}
@@ -268,9 +303,9 @@ func (s *Session) notify(event Event) {
 // transport.Write closes the Session and returns its progress in WriteError.
 // An invalid transport count is rejected and reported as zero.
 func (s *Session) Send(ctx context.Context, text string) (n int, err error) {
-	defer func() { s.notify(Event{Operation: "send", CaseIndex: -1, Bytes: n, Error: errorClass(err)}) }()
+	defer func() { s.notify(ctx, Event{Operation: OpSend, CaseIndex: -1, Bytes: n, Error: errorClass(err)}) }()
 	if ctx == nil {
-		return 0, errors.New("expect: nil context")
+		return 0, &ConfigError{Option: "context", Reason: "nil context"}
 	}
 	if err = ctx.Err(); err != nil {
 		return 0, err
@@ -278,34 +313,18 @@ func (s *Session) Send(ctx context.Context, text string) (n int, err error) {
 	if s.isClosed() {
 		return 0, ErrClosed
 	}
+	deadline, _ := ctx.Deadline()
 	if s.opts.writeTimeout > 0 {
-		var cancel context.CancelFunc
-		ctx, cancel = context.WithTimeout(ctx, s.opts.writeTimeout)
-		defer cancel()
+		deadline = earlier(deadline, after(time.Now(), s.opts.writeTimeout))
 	}
-	if err = s.acquireWrite(ctx); err != nil {
+	if err = s.writeGate.acquire(ctx, s.done, deadline); err != nil {
 		return 0, err
 	}
 	defer func() { <-s.writeGate }()
 	if len(text) == 0 {
 		return 0, nil
 	}
-	result, err := s.startWrite(ctx, text, writeOnce)
-	if err != nil {
-		return 0, err
-	}
-	select {
-	case resultValue := <-result:
-		n, err = resultValue.n, resultValue.err
-	case <-ctx.Done():
-		cleanup := s.Close()
-		r := <-result
-		return r.n, &WriteError{Written: r.n, Cause: errors.Join(ctx.Err(), r.err, cleanup)}
-	case <-s.done:
-		r := <-result
-		return r.n, &WriteError{Written: r.n, Cause: errors.Join(ErrClosed, r.err, s.Close())}
-	}
-	return s.finishWrite(ctx, writeResult{n, err})
+	return s.writeOnce(ctx, text, deadline)
 }
 
 type writeResult struct {
@@ -321,11 +340,35 @@ func (s *Session) SendLine(ctx context.Context, text string) (int, error) {
 // publishRead is called only by the sole pump. The notification can collapse:
 // receivers always inspect the event channel under inputGate before waiting.
 func (s *Session) publishRead(event readEvent) bool {
+	if s.opts.removeNulls || s.opts.stripParity {
+		n := 0
+		for _, b := range event.data {
+			if s.opts.stripParity {
+				b &= 0x7f
+			}
+			if s.opts.removeNulls && b == 0 {
+				continue
+			}
+			event.data[n] = b
+			n++
+		}
+		event.data = event.data[:n]
+		if n == 0 && event.err == nil {
+			return !s.isClosed()
+		}
+	}
+
 	select {
-	case s.events <- event:
-		s.signalInput()
+	case s.mailbox.events <- event:
+		s.mailbox.signalInput()
 		return true
 	case <-s.done:
 		return false
 	}
 }
+
+// String formats the handle without exposing owned stream or command state.
+func (*Session) String() string { return "expect.Session" }
+
+// GoString formats the handle without exposing owned stream or command state.
+func (p *Session) GoString() string { return p.String() }

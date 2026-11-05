@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 package expect
 
 import (
@@ -35,7 +37,7 @@ func TestExpectContinueAndCaptures(t *testing.T) {
 		{Pattern: Literal("Password:"), Handler: func(ctx context.Context, s *Session, r Result) (Action, error) {
 			calls++
 			_, err := s.Send(ctx, "pw\r")
-			return ContinueWithoutReset, err
+			return ContinueKeepTimer, err
 		}},
 		{Pattern: mustPattern(t, `code=(\d+);`), Handler: func(_ context.Context, _ *Session, r Result) (Action, error) {
 			if r.Captures[0].Text != "42" || !r.Captures[0].Matched {
@@ -89,7 +91,7 @@ func TestExpectZeroWidthKeepsBuffer(t *testing.T) {
 	waitText(t, s, "ready")
 }
 func TestExpectContinueTimers(t *testing.T) {
-	for _, action := range []Action{Continue, ContinueWithoutReset} {
+	for _, action := range []Action{Continue, ContinueKeepTimer} {
 		t.Run(fmt.Sprint(action), func(t *testing.T) {
 			synctest.Test(t, func(t *testing.T) {
 				s, p := pair(t)
@@ -106,7 +108,7 @@ func TestExpectContinueTimers(t *testing.T) {
 				if action == Continue && err != nil {
 					t.Fatal(err)
 				}
-				if action == ContinueWithoutReset && !errors.Is(err, ErrTimeout) {
+				if action == ContinueKeepTimer && !errors.Is(err, ErrTimeout) {
 					t.Fatal(err)
 				}
 			})
@@ -142,15 +144,12 @@ func TestExpectHardDeadlineAndIdleTimeout(t *testing.T) {
 		}
 	})
 }
-func TestResponderRepeatedCommands(t *testing.T) {
+func TestRulesRepeatedCommands(t *testing.T) {
 	s, p := pair(t)
-	r, err := NewResponder(Rule{Pattern: Literal("confirm?"), Respond: Reply("y\r"), Limit: 2}, Rule{Pattern: Literal("--More--"), Respond: Reply(" ")}, Rule{Pattern: mustPattern(t, `code (\d+):`), Respond: func(ctx context.Context, s *Session, r Result) error {
+	r := WithRules(Case{Pattern: Literal("confirm?"), Handler: ReplyThenContinue("y\r"), Limit: 2}, Case{Pattern: Literal("--More--"), Handler: ReplyThenContinue(" ")}, Case{Pattern: mustPattern(t, `code (\d+):`), Handler: Then(func(ctx context.Context, s *Session, r Result) error {
 		_, e := s.Send(ctx, r.Captures[0].Text+"\r")
 		return e
-	}})
-	if err != nil {
-		t.Fatal(err)
-	}
+	})})
 	device := make(chan error, 1)
 	go func() {
 		defer p.Close()
@@ -175,7 +174,7 @@ func TestResponderRepeatedCommands(t *testing.T) {
 		device <- nil
 	}()
 	for i := 0; i < 2; i++ {
-		res, e := r.Expect(t.Context(), s, []Pattern{Literal("device>")})
+		res, e := s.Expect(t.Context(), []Case{{Pattern: Literal("device>")}}, r)
 		if e != nil || res.Match != "device>" {
 			t.Fatalf("%v %q", e, res.Match)
 		}
@@ -184,22 +183,20 @@ func TestResponderRepeatedCommands(t *testing.T) {
 		t.Fatal(err)
 	}
 }
-func TestResponderLimitAndCompletionTie(t *testing.T) {
+func TestRulesLimitAndCompletionTie(t *testing.T) {
 	s, p := pair(t)
 	go p.Write([]byte("xx"))
 	count := 0
-	r, err := NewResponder(Rule{Pattern: Literal("x"), Respond: func(context.Context, *Session, Result) error { count++; return nil }})
-	if err != nil {
-		t.Fatal(err)
-	}
-	_, err = r.Expect(t.Context(), s, []Pattern{Literal("done")})
+	var err error
+	r := WithRules(Case{Pattern: Literal("x"), Handler: Then(func(context.Context, *Session, Result) error { count++; return nil })})
+	_, err = s.Expect(t.Context(), []Case{{Pattern: Literal("done")}}, r)
 	var re *ResponseError
 	if !errors.As(err, &re) || count != 1 {
 		t.Fatalf("%v count=%d", err, count)
 	}
 	waitText(t, s, "x")
 	go p.Write([]byte("x"))
-	if _, err = r.Expect(t.Context(), s, []Pattern{Literal("x")}); err != nil || count != 1 {
+	if _, err = s.Expect(t.Context(), []Case{{Pattern: Literal("x")}}, r); err != nil || count != 1 {
 		t.Fatalf("%v count=%d", err, count)
 	}
 }
@@ -210,21 +207,175 @@ func TestResultFormattingIsSafe(t *testing.T) {
 	}
 }
 
-func TestResponderRejectedWaitNotifiesObservers(t *testing.T) {
+func TestRulesRejectedWaitNotifiesObservers(t *testing.T) {
 	calls := 0
 	s, _ := pair(t, WithObserver(func(e Event) {
 		if e.Operation == "expect" && e.Error != "" {
 			calls++
 		}
 	}))
-	r, err := NewResponder()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if _, err = r.Expect(t.Context(), s, nil); err == nil {
+	r := WithRules()
+	var err error
+	if _, err = s.Expect(t.Context(), nil, r); err == nil {
 		t.Fatal("accepted missing completion")
 	}
 	if calls != 1 {
 		t.Fatalf("observer calls=%d", calls)
 	}
+}
+
+func TestRulesEventsAndNoConsume(t *testing.T) {
+	t.Run("timeout wakes peer", func(t *testing.T) {
+		synctest.Test(t, func(t *testing.T) {
+			s, p := pair(t)
+			go func() {
+				b := make([]byte, 1)
+				if _, err := io.ReadFull(p, b); err == nil {
+					_, _ = p.Write([]byte("ready"))
+				}
+			}()
+			calls := 0
+			result, err := s.Expect(t.Context(), []Case{
+				{Pattern: Timeout(), Limit: 2, Handler: func(ctx context.Context, s *Session, _ Result) (Action, error) {
+					calls++
+					_, err := s.Send(ctx, "\r")
+					return Continue, err
+				}},
+				{Pattern: Literal("ready")},
+			}, WithTimeout(time.Second))
+			if err != nil || result.CaseIndex != 1 || calls != 1 {
+				t.Fatalf("result=%v calls=%d err=%v", result, calls, err)
+			}
+		})
+	})
+	t.Run("finite events", func(t *testing.T) {
+		synctest.Test(t, func(t *testing.T) {
+			s, _ := pair(t)
+			calls := 0
+			_, err := s.Expect(t.Context(), []Case{{Pattern: Timeout(), Handler: func(context.Context, *Session, Result) (Action, error) { calls++; return ContinueKeepTimer, nil }}}, WithTimeout(time.Second))
+			var limit *ResponseError
+			if !errors.As(err, &limit) || calls != 1 {
+				t.Fatalf("calls=%d err=%v", calls, err)
+			}
+		})
+	})
+	t.Run("parent cancellation bypasses default", func(t *testing.T) {
+		s, _ := pair(t)
+		ctx, cancel := context.WithCancel(t.Context())
+		cancel()
+		_, err := s.Expect(ctx, []Case{{Pattern: Default()}})
+		if !errors.Is(err, context.Canceled) {
+			t.Fatal(err)
+		}
+	})
+	t.Run("persistent priority and snapshots", func(t *testing.T) {
+		hits := 0
+		s, p := pair(t, WithBefore(Case{Pattern: Literal("before"), Limit: 2, Handler: func(context.Context, *Session, Result) (Action, error) { hits++; return ContinueKeepTimer, nil }}))
+		snapshot := s.Rules()
+		snapshot.Before[0].Pattern = Literal("broken")
+		go func() { _, _ = p.Write([]byte("done before")) }()
+		_, err := s.Expect(t.Context(), []Case{{Pattern: Literal("done")}}, WithTimeout(time.Millisecond))
+		if !errors.Is(err, ErrTimeout) || hits != 1 {
+			t.Fatalf("before priority: hits=%d err=%v", hits, err)
+		}
+	})
+	t.Run("glob fold captures and preview", func(t *testing.T) {
+		s, p := pair(t)
+		go func() { _, _ = p.Write([]byte("prefix LOGIN:alice!")) }()
+		pattern, err := Compile(`(?P<user>alice)(x)?!`)
+		if err != nil {
+			t.Fatal(err)
+		}
+		result, err := s.Expect(t.Context(), []Case{{Pattern: pattern}}, WithNoConsume())
+		if err != nil {
+			t.Fatal(err)
+		}
+		c, ok := result.Capture("user")
+		if !ok || c.Start != 13 || c.End != 18 || c.Text != "alice" {
+			t.Fatalf("capture=%+v", c)
+		}
+		if a, b, ok := result.Indices(2); ok || a != -1 || b != -1 {
+			t.Fatalf("optional=%d,%d,%v", a, b, ok)
+		}
+		if result.Buffer() != "prefix LOGIN:alice!" {
+			t.Fatal("buffer snapshot changed")
+		}
+		result, err = s.Expect(t.Context(), []Case{{Pattern: Glob("login:?????!").Fold()}})
+		if err != nil || result.Match != "LOGIN:alice!" {
+			t.Fatalf("%v %v", result, err)
+		}
+	})
+	t.Run("full buffer explicitly consumed", func(t *testing.T) {
+		s, p := pair(t, WithBufferLimit(4))
+		go func() { _, _ = p.Write([]byte("abcdef!")) }()
+		r, err := s.Expect(t.Context(), []Case{{Pattern: FullBuffer()}})
+		if err != nil || r.Buffer() != "abcd" {
+			t.Fatalf("%v %v", r, err)
+		}
+		r, err = s.Expect(t.Context(), []Case{{Pattern: Literal("!")}})
+		if err != nil || r.Before != "ef" {
+			t.Fatalf("%v %v", r, err)
+		}
+	})
+}
+
+func TestMultiAndBackgroundOwnership(t *testing.T) {
+	checkReleased := func(s *Session, e Event) {
+		if e.Operation == OpExpect && e.Error != ClassBusy && s.expecting.Load() {
+			t.Error("completion observer still owns receive reservation")
+		}
+	}
+	var first, second *Session
+	s1, p1 := pair(t, WithObserver(func(e Event) { checkReleased(first, e) }))
+	first = s1
+	s2, p2 := pair(t, WithObserver(func(e Event) { checkReleased(second, e) }))
+	second = s2
+	go func() { _, _ = p2.Write([]byte("ready")) }()
+	index, r, err := ExpectAny(t.Context(), []*Session{s1, s2}, []Case{{Pattern: Literal("ready")}})
+	if err != nil || index != 1 || r.Match != "ready" {
+		t.Fatalf("index=%d result=%v err=%v", index, r, err)
+	}
+	go func() { _, _ = p1.Write([]byte("both")) }()
+	go func() { _, _ = p2.Write([]byte("both")) }()
+	callbacks := 0
+	index, _, err = ExpectAny(t.Context(), []*Session{s1, s2}, []Case{{Pattern: Literal("both"), Handler: func(context.Context, *Session, Result) (Action, error) { callbacks++; return Return, nil }}})
+	if err != nil || callbacks != 1 {
+		t.Fatalf("callbacks=%d err=%v", callbacks, err)
+	}
+	waitText(t, []*Session{s1, s2}[1-index], "both")
+	go func() { _, _ = p1.Write([]byte("keep")) }()
+	waitText(t, s1, "keep")
+	b, err := s1.StartBackground(t.Context(), []Case{{Pattern: Literal("end")}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = s1.Expect(t.Context(), []Case{{Pattern: Literal("end")}}); !errors.Is(err, ErrBusy) {
+		t.Fatal(err)
+	}
+	b.Stop()
+	_, err = b.Wait()
+	if !errors.Is(err, context.Canceled) {
+		t.Fatal(err)
+	}
+	go func() { _, _ = p1.Write([]byte("end")) }()
+	waitText(t, s1, "end")
+}
+
+type matchOutputFunc func([]byte) (int, error)
+
+func (f matchOutputFunc) Write(data []byte) (int, error) { return f(data) }
+
+func TestExpectAnyPreservesIdleDeadlineWhileJoiningPreviews(t *testing.T) {
+	synctest.Test(t, func(t *testing.T) {
+		entered := make(chan struct{})
+		winner, p1 := pair(t)
+		loser, p2 := pair(t, WithOutput(matchOutputFunc(func(data []byte) (int, error) { close(entered); time.Sleep(2 * time.Second); return len(data), nil })))
+		go func() { _, _ = p2.Write([]byte("waiting")) }()
+		go func() { <-entered; _, _ = p1.Write([]byte("ready")) }()
+		index, _, err := ExpectAny(t.Context(), []*Session{winner, loser}, []Case{{Pattern: Literal("ready")}}, WithIdleTimeout(time.Second))
+		if index != 0 || !errors.Is(err, ErrIdleTimeout) {
+			t.Fatalf("index=%d err=%v", index, err)
+		}
+		waitText(t, winner, "ready")
+	})
 }

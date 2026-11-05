@@ -1,0 +1,141 @@
+{
+  "baseline": "v0.1.4 / b75ec0a",
+  "candidate": "working tree implementing /root/go-expect.md",
+  "toolchain": "go1.27.3 linux/amd64",
+  "gomaxprocs": 2,
+  "samples": 6,
+  "benchtime": "150ms",
+  "method": "sequential local runs; median comparison, no statistical significance claim",
+  "results": {
+    "BenchmarkFragmentedReceive/1-2": {
+      "before_ns_bytes_allocs": [
+        23923369.0,
+        135732.0,
+        16425.0
+      ],
+      "after_ns_bytes_allocs": [
+        24973283.5,
+        136174.0,
+        16427.0
+      ],
+      "time_change_percent": 4.4
+    },
+    "BenchmarkFragmentedReceive/32-2": {
+      "before_ns_bytes_allocs": [
+        853277.0,
+        135601.0,
+        547.0
+      ],
+      "after_ns_bytes_allocs": [
+        907113.5,
+        135971.5,
+        549.0
+      ],
+      "time_change_percent": 6.3
+    },
+    "BenchmarkFragmentedReceive/1024-2": {
+      "before_ns_bytes_allocs": [
+        104590.0,
+        126192.5,
+        43.0
+      ],
+      "after_ns_bytes_allocs": [
+        100597.0,
+        126560.0,
+        45.0
+      ],
+      "time_change_percent": -3.8
+    },
+    "BenchmarkFragmentedReceive/16384-2": {
+      "before_ns_bytes_allocs": [
+        46299.5,
+        72689.0,
+        22.0
+      ],
+      "after_ns_bytes_allocs": [
+        50800.0,
+        73056.0,
+        24.0
+      ],
+      "time_change_percent": 9.7
+    },
+    "BenchmarkPublicRedactor/safe/chunk_1-2": {
+      "before_ns_bytes_allocs": [
+        118915.0,
+        1056.0,
+        1022.0
+      ],
+      "after_ns_bytes_allocs": [
+        126106.0,
+        1056.0,
+        1022.0
+      ],
+      "time_change_percent": 6.0
+    },
+    "BenchmarkPublicRedactor/safe/chunk_1024-2": {
+      "before_ns_bytes_allocs": [
+        868.4000000000001,
+        1048.0,
+        4.0
+      ],
+      "after_ns_bytes_allocs": [
+        974.2,
+        1048.0,
+        4.0
+      ],
+      "time_change_percent": 12.2
+    },
+    "BenchmarkPublicRedactor/matches/chunk_1-2": {
+      "before_ns_bytes_allocs": [
+        86449.5,
+        2080.0,
+        259.0
+      ],
+      "after_ns_bytes_allocs": [
+        83205.0,
+        2080.0,
+        259.0
+      ],
+      "time_change_percent": -3.8
+    },
+    "BenchmarkPublicRedactor/matches/chunk_1024-2": {
+      "before_ns_bytes_allocs": [
+        8502.5,
+        4520.0,
+        8.0
+      ],
+      "after_ns_bytes_allocs": [
+        8629.5,
+        4520.0,
+        8.0
+      ],
+      "time_change_percent": 1.5
+    },
+    "BenchmarkSerializedSend/default-2": {
+      "before_ns_bytes_allocs": [
+        6438.5,
+        648.0,
+        9.0
+      ],
+      "after_ns_bytes_allocs": [
+        2734.0,
+        192.0,
+        3.0
+      ],
+      "time_change_percent": -57.5
+    },
+    "BenchmarkSerializedSend/unlimited-2": {
+      "before_ns_bytes_allocs": [
+        4942.0,
+        264.0,
+        4.0
+      ],
+      "after_ns_bytes_allocs": [
+        1911.5,
+        64.0,
+        1.0
+      ],
+      "time_change_percent": -61.3
+    }
+  }
+}

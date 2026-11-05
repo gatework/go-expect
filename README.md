@@ -1,160 +1,142 @@
 # go-expect
 
-A Go library for scripted conversations with interactive programs and duplex
-streams. It supports literal/regexp matching, `exp_continue`-style callbacks,
-reusable password/confirmation/paging rules, cancellation, bounded buffers and
-explicit secret redaction.
+Go 1.26+ conversations with interactive programs and duplex streams: bounded
+matching, continuations, reusable rules, process terminals and streaming secret
+redaction. Import `github.com/gatework/go-expect`.
 
+`NewSession` takes exclusive ownership of an `io.ReadWriteCloser` only on success.
+Its `Close` must interrupt concurrent reads and writes. Register secrets with
+`Redact` before sending or receiving them; matching results retain raw bytes.
+
+The example below is copied from [example_test.go](example_test.go), compiled and
+executed by `go test`. `script/readme.py` checks that the copy stays synchronized.
+
+<!-- example:start -->
 ```go
-import expect "github.com/gatework/go-expect"
-```
+// SPDX-License-Identifier: Apache-2.0
 
-Requires Go 1.26+. The PTY adapter is supported and tested on Linux and macOS.
-This is an API evolution of Netflix/go-expect; see [migration](docs/migration.md).
-The original Apache-2.0 license and copyright notices are retained.
+package expect_test
 
-## Network-device connector
+import (
+	"context"
+	"fmt"
+	"io"
+	"net"
 
-Device authentication, vendor profiles, commands and backups are maintained in
-[go-net-connector](https://github.com/gatework/go-net-connector). This module owns
-only matching, streams, PTYs, cancellation and secret filtering. See
-[the device-layer migration](docs/connector.md) for the breaking import change.
-
-## Password, confirmation and paging
-
-Start with an already connected `io.ReadWriteCloser` (for example `net.Conn`), or
-create a Console and attach its `TTY()` to a caller-owned `exec.Cmd`. A successful
-`NewSession` takes exclusive ownership of the stream, including closing it. The
-stream's `Close` must interrupt both `Read` and `Write`.
-
-```go
-s, err := expect.NewSession(conn)
-if err != nil {
-    return err // conn still belongs to the caller
-}
-defer s.Close()
-
-// Register before the secret can be sent or echoed.
-if err := s.Redact(password); err != nil {
-    return err
-}
-login, err := expect.NewResponder(expect.Rule{
-    Pattern: expect.Literal("Password:"),
-    Respond: expect.Reply(password + "\r"),
-})
-if err != nil {
-    return err
-}
-if _, err := login.Expect(ctx, s, []expect.Pattern{
-    expect.Literal("device>"),
-}); err != nil {
-    return err
-}
-
-rules, err := expect.NewResponder(
-    expect.Rule{
-        Pattern: expect.Literal("Apply change? [y/N] "),
-        Respond: expect.Reply("y\r"),
-        Limit: 2,
-    },
-    expect.Rule{
-        Pattern: expect.Literal("--More--"),
-        Respond: expect.Reply(" "),
-        Limit: 100,
-    },
+	expect "github.com/gatework/go-expect"
 )
-if err != nil {
-    return err
+
+func ExampleSession_Expect() {
+	local, remote := net.Pipe()
+	session, err := expect.NewSession(local, expect.WithLineEnding("\r"))
+	if err != nil {
+		panic(err)
+	}
+	defer session.Close()
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		defer remote.Close()
+		_, _ = remote.Write([]byte("Password:"))
+		b := make([]byte, 7)
+		_, _ = io.ReadFull(remote, b)
+		_, _ = remote.Write([]byte("router#"))
+	}()
+	if err = session.Redact("secret"); err != nil {
+		panic(err)
+	}
+	result, err := session.Expect(context.Background(), []expect.Case{
+		{Pattern: expect.Literal("Password:"), Handler: expect.ReplyThenContinue("secret\r"), Limit: 1},
+		{Pattern: expect.Line("router#")},
+	})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(result.CaseIndex, result.Match)
+	<-done
+	// Output: 1 router#
 }
-for _,command := range commands {
-    if _, err := s.Send(ctx, command + "\r"); err != nil {
-        return err
-    }
-    if _, err := rules.Expect(ctx, s, []expect.Pattern{
-        expect.Literal("device>"),
-    }); err != nil {
-        return err
-    }
-}
 ```
+<!-- example:end -->
 
-Use a parent context deadline to bound the entire operation. A returned prompt
-means the prompt matched; inspect device-specific failure output separately.
-The generic Session does not establish connections or retry commands. Use
-`go-net-connector/connector` for device operations. Neither library accepts
-unknown host keys or answers arbitrary confirmations automatically.
+Run the longer password, confirmation and paging example with
+`go run ./examples/dialogue`. Device authentication, vendor profiles and backup
+policy belong to [go-net-connector](https://github.com/gatework/go-net-connector),
+not to the stream engine.
 
-A complete runnable example, including dynamic regexp replies:
+| Task | API and behavior |
+| --- | --- |
+| Match text | `Literal`, `Line`, `Compile`, `FromRegexp`, `Glob`, `All` |
+| Case folding | `Pattern.Fold`; Unicode regexp folding, Go leftmost-first matching |
+| Preview | `WithNoConsume`; successful `Return` leaves input for the next wait |
+| Inspect match | `Result.Buffer`, `Capture(name)`, `Indices(group)`; half-open byte offsets |
+| Repeat | `Continue` resets the relative timer; `ContinueKeepTimer` preserves it; zero action is `Return` |
+| Recover timeout | `Timeout`, `Default`, `FullBuffer` cases with bounded `Case.Limit` |
+| Reuse rules | `WithBefore`, `WithAfter`, per-call `WithRules`; `Session.Rules` returns a copy |
+| Reply | `ReplyThenContinue`, or `Then(Response)` for dynamic replies |
+| Send | `Send` writes once; `SendAll` drains peer input while writing suffixes |
+| Slow devices | `SendSlow`, `SendNull`, transport-capability `SendBreak` |
+| Trace safely | `WithLogger(*slog.Logger)`, `WithObserver`, `WithTrace`; metadata only |
+| Record streams | `WithOutput` and `WithSendOutput`; independent redacted streams |
+| Take over | `Interact`, local escape/action keys, remote pattern actions; `InteractTerminal` for Unix raw input |
+| Watch several | `ExpectAny`; only the winner consumes input and invokes handlers |
+| Watch asynchronously | `StartBackground`; `Stop` cancels and joins the wait |
+| Normalize input | Opt-in `WithRemoveNulls(true)`, `WithStripParity(true)` |
 
-```sh
-go run ./examples/dialogue
-```
+Before rules take precedence over call cases, then After rules. Within a group,
+the earliest visible byte wins; declaration order breaks ties. Per-call rules
+follow foreground cases, so completion wins an exact tie. `WithMatchOrder(Declaration)`
+selects the first declared matching case within its group. Limits count per wait;
+rule/event defaults are one invocation, and ordinary cases default to unlimited.
 
-It simulates a local device with `net.Pipe`; it does not connect to a real device.
+`Timeout` handles only the relative wait timer; parent cancellation and idle
+timeouts remain errors. Its callback receives a fresh relative budget, allowing
+it to send and `Continue`. `Default` handles relative timeout or clean EOF.
+`FullBuffer` explicitly consumes the full unmatched snapshot; without it overflow
+returns `ErrBufferLimit` and preserves data. No automatic trimming occurs.
 
-## Continue matching
+Use a parent context to bound the whole dialogue. A matching prompt is not proof
+that a command succeeded. Sends are serialized, but callers must sequence commands
+and responses. Failures after write admission retire the session and return exact
+`WriteError.Written` progress; commands are never retried implicitly.
 
-```go
-result, err := s.Expect(ctx, []expect.Case{
-    {
-        Pattern: expect.Literal("Password:"),
-        Handler: func(ctx context.Context, s *expect.Session, r expect.Result) (expect.Action, error) {
-            _, err := s.Send(ctx, password + "\r")
-            return expect.ContinueWithoutReset, err
-        },
-    },
-    {Pattern: expect.Literal("device>")},
-}, expect.WithTimeout(30*time.Second))
-```
+`Interact` owns its input reader after admission and closes it on exit. Output is
+borrowed and filtered. Control-] exits by default. `InteractTerminal` borrows an
+`*os.File`, duplicates it, enables raw mode and restores the original terminal
+state. Interaction retains a bounded 64 KiB/32 KiB matching window, so patterns
+requiring arbitrary historical prefixes are unsuitable. `Stop` and interactive
+cleanup join cooperative callbacks; `Session.Close` does not wait for user code.
 
-`Continue` resets the relative timer. `ContinueWithoutReset` preserves it.
-Neither extends the parent context deadline. Responder uses the latter.
-`Result` contains the final segment only; install `WithOutput(writer)` to
-record the filtered receive history across intermediate responses.
+| Process adapter | Ownership and platform |
+| --- | --- |
+| `Console.Start(*exec.Cmd)` | New session and controlling terminal; caller must cancel and Wait |
+| `spawn.Start(ctx, program, args, ...)` | Linux/macOS; owns child and PTY; group SIGHUP, two-second direct-child kill fallback |
+| `conpty.Start(ctx, program, args, ...)` | Windows 10 1809+; owns pseudoconsole and kill-on-close job |
 
-## PTY and processes
+Unix PTYs default to 24 rows by 80 columns. `WithSize`, `SetSize` and `SetEcho`
+control dimensions/echo; `WithRaw` configures raw slave input. `Console.Start`
+closes the parent's slave after successful start. The Unix adapter also compiles
+for FreeBSD; runtime verification is pending. Windows ConPTY carries UTF-8/VT
+sequences; it does not expose POSIX echo or break controls. Consume process output
+before `Wait`, or call `Close` to interrupt an undrained process. Unix descendant
+processes must cooperate with SIGHUP.
 
-```go
-c, err := expect.NewConsole(
-    expect.WithSessionOptions(expect.WithDefaultTimeout(10*time.Second)),
-)
-if err != nil {
-    return err
-}
-defer c.Close()
-cmd := exec.CommandContext(ctx, "your-program", "literal-argument")
-cmd.Stdin, cmd.Stdout, cmd.Stderr = c.TTY(), c.TTY(), c.TTY()
-if err := cmd.Start(); err != nil {
-    return err
-}
-// The child has inherited the slave. Release the parent's copy for EOF.
-c.TTY().Close()
-// Use c.Session().Expect / Send; always arrange cmd.Wait and failure cleanup.
-```
+| Tcl expect convention | This library |
+| --- | --- |
+| Declaration order | Earliest byte by default; opt into `Declaration` |
+| 10-second timeout | 30-second wait, 10-second Send |
+| -1 means unlimited | `NoTimeout` (zero); negatives are invalid |
+| Unhandled timeout returns | `ErrTimeout` |
+| `match_max` may drop old data | Bounded input; overflow preserves it |
+| NUL removal by default | Bytes preserved unless filtering is enabled |
+| Tcl ARE expressions | Go RE2; no backreferences or lookahead |
+| Typical send terminator CR | `Send`/`Reply` verbatim, `SendLine` defaults to LF |
 
-Console does not own the child process. `WithRaw()` is available for applications
-requiring unbuffered keys and no terminal echo; canonical mode is the default.
-See the complete process cleanup and device dialogue in `console_test.go`.
+See [contracts](docs/contracts.md), [migration](docs/migration.md),
+[verification](docs/verification.md) and [release operations](docs/releasing.md).
+The source retains Netflix's Apache-2.0 license and copyright notices.
 
-## Contracts and verification
-
-[API contracts](docs/contracts.md) describe matching, deadlines, error recovery,
-ownership, thread safety and redaction. Test utilities live in `expecttest`.
-
-```sh
-bash script/ci
-```
-
-This runs format checks, module verification, vet, race tests (including local
-PTY), fuzz smokes, benchmarks, the dialogue example and a disposable source consumer
-module. CI covers Linux/macOS on Go 1.26 and 1.27. Local tests and CI runs are
-separate evidence; neither substitutes for real device interoperability.
-
-## Automatic releases
-
-Each push to `master` publishes a release after the complete CI gate passes.
-Versions start at `v0.1.0` and increment the patch number automatically. The
-publisher reuses the exact CI source artifact, verifies uploaded checksums and
-bytes, and resumes interrupted drafts without replacing published assets.
-PRs and feature branches do not publish. See [release operations](docs/releasing.md)
-for version policy, retries, queue behavior and local validation commands.
+Run `bash script/ci` for local checks. CI runs Linux/macOS Go 1.26/1.27 and Windows
+runtime tests. Default-branch pushes publish after all gates pass. Before v1,
+`BREAKING:` or `BREAKING CHANGE:` commit trailers select the next minor version;
+ordinary changes increment patch. No compatibility aliases are provided.

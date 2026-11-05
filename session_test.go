@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 package expect
 
 import (
@@ -220,3 +222,105 @@ func (p *finalReader) Read(b []byte) (int, error) {
 }
 func (p *finalReader) Write(b []byte) (int, error) { return len(b), nil }
 func (p *finalReader) Close() error                { return nil }
+
+func TestInteractiveRedactionAndInputFiltering(t *testing.T) {
+	s, p := pair(t, WithRemoveNulls(true), WithStripParity(true))
+	if err := s.Redact("secret"); err != nil {
+		t.Fatal(err)
+	}
+	inputR, inputW := io.Pipe()
+	var out bytes.Buffer
+	done := make(chan error, 1)
+	go func() {
+		done <- s.Interact(t.Context(), inputR, &out, WithInteractCases(Case{Pattern: Literal("DONE")}))
+	}()
+	// High bits and NUL removal happen before matching and diagnostic rendering.
+	_, err := p.Write([]byte{0xf3, 0, 0xe5, 0xe3, 0xf2, 0xe5, 0xf4, 'D', 'O', 'N', 'E'})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = <-done; err != nil {
+		t.Fatal(err)
+	}
+	_ = inputW.Close()
+	if out.String() != "******DONE" {
+		t.Fatalf("output=%q", out.String())
+	}
+}
+
+func TestInteractiveEscapeJoinsAndPreservesSession(t *testing.T) {
+	s, _ := pair(t)
+	inputR, inputW := io.Pipe()
+	done := make(chan error, 1)
+	go func() { done <- s.Interact(t.Context(), inputR, io.Discard) }()
+	if _, err := inputW.Write([]byte{0x1d}); err != nil {
+		t.Fatal(err)
+	}
+	if err := <-done; err != nil {
+		t.Fatal(err)
+	}
+	_ = inputW.Close()
+	if s.isClosed() {
+		t.Fatal("escape retired idle session")
+	}
+
+	t.Run("parent cancellation", func(t *testing.T) {
+		s, _ := pair(t)
+		inputR, inputW := io.Pipe()
+		defer inputW.Close()
+		ctx, cancel := context.WithCancel(t.Context())
+		defer cancel()
+		go func() { _, _ = inputW.Write([]byte("x")) }()
+		err := s.Interact(ctx, inputR, io.Discard, WithEscapeAction('x', func(context.Context, *Session, Result) error { cancel(); return nil }))
+		if !errors.Is(err, context.Canceled) {
+			t.Fatalf("parent cancellation lost: %v", err)
+		}
+	})
+	t.Run("handler panic joins local reader", func(t *testing.T) {
+		s, p := pair(t)
+		inputR, inputW := io.Pipe()
+		defer inputW.Close()
+		go func() { _, _ = p.Write([]byte("panic")) }()
+		func() {
+			defer func() {
+				if recover() != "handler panic" {
+					t.Error("handler panic lost")
+				}
+			}()
+			_ = s.Interact(t.Context(), inputR, io.Discard, WithInteractCases(Case{Pattern: Literal("panic"), Handler: func(context.Context, *Session, Result) (Action, error) { panic("handler panic") }}))
+		}()
+		if _, err := inputW.Write([]byte("x")); !errors.Is(err, io.ErrClosedPipe) {
+			t.Fatal("input ownership was not released")
+		}
+		if s.expecting.Load() {
+			t.Fatal("receive reservation leaked")
+		}
+	})
+}
+
+func TestSlowAndNullSendRecordedSafely(t *testing.T) {
+	synctest.Test(t, func(t *testing.T) {
+		var sent bytes.Buffer
+		s, p := pair(t, WithSendOutput(&sent))
+		if err := s.Redact("secret"); err != nil {
+			t.Fatal(err)
+		}
+		done := make(chan string, 1)
+		go func() { b := make([]byte, 8); _, _ = io.ReadFull(p, b); done <- string(b) }()
+		if n, err := s.SendSlow(t.Context(), "secret", 2, time.Second); n != 6 || err != nil {
+			t.Fatalf("n=%d err=%v", n, err)
+		}
+		if n, err := s.SendNull(t.Context(), 2); n != 2 || err != nil {
+			t.Fatalf("n=%d err=%v", n, err)
+		}
+		if got := <-done; got != "secret\x00\x00" {
+			t.Fatal("transport payload changed")
+		}
+		if err := s.Close(); err != nil {
+			t.Fatal(err)
+		}
+		if sent.String() != "******\x00\x00" {
+			t.Fatal("send recording leaked or changed bytes")
+		}
+	})
+}

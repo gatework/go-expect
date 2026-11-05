@@ -29,6 +29,22 @@ jobs:
           check-latest: true
           cache-dependency-path: go.sum
       - run: bash script/ci
+  windows:
+    strategy:
+      fail-fast: false
+      matrix:
+        go: ['1.26.x', '1.27.x']
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@v7
+        with:
+          go-version: ${{ matrix.go }}
+          check-latest: true
+      - run: go test -shuffle=on ./...
   quality:
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -51,7 +67,7 @@ jobs:
           go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.12 -ignore '^unexpected key "queue" for "concurrency" section\.'
           python3 -m unittest discover -s script/tests -v
   package:
-    needs: [test, quality]
+    needs: [test, windows, quality]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     outputs:
@@ -78,7 +94,7 @@ jobs:
           if-no-files-found: error
           retention-days: 30
   release:
-    needs: [test, quality, package]
+    needs: [test, windows, quality, package]
     if: >-
       github.repository == 'gatework/go-expect' &&
       (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&

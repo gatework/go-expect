@@ -1,4 +1,6 @@
-//go:build linux || darwin
+//go:build linux || darwin || freebsd
+
+// SPDX-License-Identifier: Apache-2.0
 
 package expect
 
@@ -12,23 +14,33 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"golang.org/x/sys/unix"
 )
 
 func TestConsoleDeviceDialogue(t *testing.T) {
 	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
 	defer cancel()
 	var transcript bytes.Buffer
-	c, err := NewConsole(WithRaw(), WithSessionOptions(WithOutput(&transcript)))
+	c, err := NewConsole(WithRaw(), WithSize(40, 200), WithSessionOptions(WithOutput(&transcript)))
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer c.Close()
+	if err = c.SetSize(24, 80); err != nil {
+		t.Fatal(err)
+	}
+	if err = c.SetEcho(false); err != nil {
+		t.Fatal(err)
+	}
 	s := c.Session()
 	if err = s.Redact("s3cr3t"); err != nil {
 		t.Fatal(err)
 	}
 	// Static shell program; no caller-controlled text enters the command string.
 	cmd := exec.CommandContext(ctx, "/bin/sh", "-c", `
+ exec </dev/tty >/dev/tty 2>&1
+ [ "$(stty size)" = "24 80" ] || exit 16
  printf 'Password:'
  IFS= read -r password
  [ "$password" = 's3cr3t' ] || exit 11
@@ -53,29 +65,28 @@ func TestConsoleDeviceDialogue(t *testing.T) {
 	cmd.Stdin = c.TTY()
 	cmd.Stdout = c.TTY()
 	cmd.Stderr = c.TTY()
-	if err = cmd.Start(); err != nil {
+	if err = c.Start(cmd); err != nil {
 		t.Fatal(err)
 	}
-	c.TTY().Close()
 	defer func() {
 		if cmd.ProcessState == nil {
 			cmd.Process.Kill()
 			cmd.Wait()
 		}
 	}()
-	login, _ := NewResponder(Rule{Pattern: Literal("Password:"), Respond: Reply("s3cr3t\n")})
-	if _, err = login.Expect(ctx, s, []Pattern{Literal("device>")}); err != nil {
+	login := WithRules(Case{Pattern: Literal("Password:"), Handler: ReplyThenContinue("s3cr3t\n")})
+	if _, err = s.Expect(ctx, []Case{{Pattern: Literal("device>")}}, login); err != nil {
 		t.Fatal(err)
 	}
-	rules, _ := NewResponder(Rule{Pattern: Literal("Apply? [y/N] "), Respond: Reply("y\n"), Limit: 2}, Rule{Pattern: Literal("--More--"), Respond: Reply(" ")}, Rule{Pattern: mustPattern(t, `Repeat code (\d+):`), Respond: func(ctx context.Context, s *Session, r Result) error {
+	rules := WithRules(Case{Pattern: Literal("Apply? [y/N] "), Handler: ReplyThenContinue("y\n"), Limit: 2}, Case{Pattern: Literal("--More--"), Handler: ReplyThenContinue(" ")}, Case{Pattern: mustPattern(t, `Repeat code (\d+):`), Handler: Then(func(ctx context.Context, s *Session, r Result) error {
 		_, err := s.SendLine(ctx, r.Captures[0].Text)
 		return err
-	}})
+	})})
 	for _, command := range []string{"show", "save"} {
 		if _, err = s.SendLine(ctx, command); err != nil {
 			t.Fatal(err)
 		}
-		result, e := rules.Expect(ctx, s, []Pattern{Literal("device>")})
+		result, e := s.Expect(ctx, []Case{{Pattern: Literal("device>")}}, rules)
 		if e != nil || !strings.Contains(result.Before, "applied:"+command) {
 			t.Fatalf("%s: %v %q", command, e, result.Before)
 		}
@@ -100,6 +111,49 @@ func TestConsoleCanonicalEchoAndRawClose(t *testing.T) {
 		t.Fatal(err)
 	}
 	waitText(t, c.Session(), "hello")
+	getState := func() unix.Termios {
+		t.Helper()
+		raw, e := c.master.SyscallConn()
+		if e != nil {
+			t.Fatal(e)
+		}
+		var value *unix.Termios
+		var inner error
+		if e = raw.Control(func(fd uintptr) { value, inner = unix.IoctlGetTermios(int(fd), termiosRead) }); e != nil || inner != nil {
+			t.Fatal(errors.Join(e, inner))
+		}
+		return *value
+	}
+	original := getState()
+	if err = c.SetEcho(false); err != nil {
+		t.Fatal(err)
+	}
+	expected := original
+	expected.Lflag &^= unix.ECHO
+	if got := getState(); got != expected {
+		t.Fatal("SetEcho changed unrelated terminal flags")
+	}
+	if err = c.SetEcho(true); err != nil {
+		t.Fatal(err)
+	}
+	expected.Lflag |= unix.ECHO
+	if got := getState(); got != expected {
+		t.Fatal("SetEcho did not restore echo")
+	}
+	// Exercise raw takeover on a borrowed canonical terminal and verify restore.
+	if _, err = io.ReadFull(c.TTY(), make([]byte, len("hello\n"))); err != nil {
+		t.Fatal(err)
+	}
+	if _, err = c.Session().Send(t.Context(), "\x1d\n"); err != nil {
+		t.Fatal(err)
+	}
+	remote, _ := pair(t)
+	if err = remote.InteractTerminal(t.Context(), c.TTY(), io.Discard); err != nil {
+		t.Fatal(err)
+	}
+	if got := getState(); got != expected {
+		t.Fatal("InteractTerminal did not restore the borrowed terminal")
+	}
 	if err = c.Close(); err != nil {
 		t.Fatal(err)
 	}

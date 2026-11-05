@@ -1,5 +1,27 @@
 # Changelog
 
+## v0.2.0
+
+- BREAKING: unify Case/rules; remove Rule, Responder and NewResponder. Use
+  WithRules, WithBefore/WithAfter and Case{Handler, Limit} directly.
+- BREAKING: Return is zero; replace ContinueWithoutReset with ContinueKeepTimer,
+  WithDeclarationPriority with WithMatchOrder, and log.Logger with slog.Logger.
+  No compatibility aliases or transition wrappers remain.
+- Add controlling-terminal Console.Start, owned spawn and Windows ConPTY adapters;
+  terminal size/echo controls, local terminal interaction and runtime Windows CI.
+- Add Timeout/Default/FullBuffer cases, Glob/Fold, no-consume preview, capture names
+  and byte offsets, background/multi-session waits, and opt-in input normalization.
+- Add slow/NUL/break sending, metadata-only candidate tracing and redacted send logs.
+  Redact retains uncompiled definitions for future interaction even without sinks.
+- Split the receive waiter, group Session state, share internal redaction mechanics,
+  and use synchronous deadline-capable sends with precise cancellation/progress.
+- Add typed diagnostics/configuration errors, safe regexp syntax categories,
+  compiled README examples, subject-based test organization and broader lint gates.
+- Compile-check the Unix adapter on FreeBSD; Linux/macOS remain the Unix runtime
+  matrix. Archive raw historical documentation outside the main tree.
+- Breaking commit markers select minor versions before v1; add SPDX headers and
+  remove the obsolete Netflix-internal OSSMETADATA marker.
+
 ## v0.1.4
 
 - Flatten per-wait All cursors, retain mixed literal progress and share immutable Line prefix tables.
@@ -20,7 +42,7 @@
 ## v0.1.1
 
 - BREAKING: rename Console.Tty to Console.TTY; update callers as described in
-  docs/migration.md. The module remains pre-v1 and uses automatic patch versions.
+  docs/migration.md. That release used the former automatic patch policy.
 - Add opt-in Poll, SendAll, declaration priority, bounded streaming fallback and
   standalone scoped redaction; default matching and single-write sends remain.
 - Preserve compiled regexp semantics through FromRegexp and cancel active handler

@@ -1,23 +1,21 @@
 # CI and automatic releases
 
 A push to the repository's default branch (`master` today) runs the Linux/macOS
-Go 1.26/1.27 matrix and quality checks. Only when every check and the source-package
+Go 1.26/1.27 matrix, native Windows tests and quality checks. Only when every check and the source-package
 consumer smoke pass does the same workflow publish a GitHub Release. Feature
 branches and pull requests run validation and packaging without release permission.
 A local commit alone does not start GitHub Actions: it must be pushed to GitHub.
 
 ## Version policy
 
-The first version is `v0.1.0`. Each subsequent unreleased default-branch snapshot
-increments the highest stable tag's patch number. For example, `v0.1.9` becomes
-`v0.1.10`. Prerelease tags do not change that sequence. A version tag already on
-the same commit is reused. A previously published commit is verified on rerun,
-without creating another version or replacing attachments.
-
-This is deliberate automatic patch versioning, not semantic inference from commit
-messages. Before an incompatible API change after stabilization, choose an
-appropriate minor/major release policy. Go major versions 2 and above require a
-matching module import path; the automatic incrementer rejects that transition.
+The first version is `v0.1.0`. Ordinary snapshots increment patch. Before v1,
+any commit since the latest stable tag with a line beginning `BREAKING:` or
+`BREAKING CHANGE:` selects the next minor and resets patch to zero. This update
+must therefore be committed with a breaking marker and released as v0.2.0 after
+v0.1.4. There are no compatibility aliases. A breaking change at v1 requires an
+explicit major-version/module-path migration; automatic publication rejects it.
+Prereleases do not affect stable selection. Reruns reuse the same commit's tag
+and verify existing assets without replacement.
 
 The workflow queues default-branch pushes, and the publisher also serializes
 publication. GitHub orders waiting runs by queue arrival, which can differ from
@@ -28,12 +26,12 @@ Queue capacity is GitHub's documented maximum of 100 pending runs.
 
 ## Gates and artifacts
 
-- Four test jobs run formatting, module verification/tidy checks, vet, shuffled
-  race tests with goleak, three fuzz smokes, benchmarks, the dialogue example and
-  the independent stream/PTY consumer.
+- Four Unix test jobs run formatting, module verification/tidy checks, vet, shuffled
+  race tests with goleak, eight fuzz smokes, benchmarks, the dialogue example and
+  the independent stream/PTY consumer. Two Windows jobs run native generic/ConPTY tests.
 - The quality job runs pinned golangci-lint and govulncheck, actionlint and release
-  regression tests. The static linters are govet, ineffassign, staticcheck and
-  unused. Tool versions live in the workflow, separate from library dependencies.
+  regression tests. Static checks also cover error wrapping, context propagation, naming
+  and production function complexity. Tool versions live in the workflow, separate from library dependencies.
 - The package job archives the exact checked-out commit, embeds its SHA and
   computes SHA-256 checksums. It runs the consumer against the extracted archive.
 - The publisher downloads that artifact by its immutable ID from the same run.

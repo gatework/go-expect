@@ -1,4 +1,6 @@
-//go:build linux || darwin
+//go:build linux || darwin || freebsd
+
+// SPDX-License-Identifier: Apache-2.0
 
 package expect
 
@@ -138,9 +140,9 @@ func TestPollCanceledRequestKeepsPumpOwnershipUntilAcknowledged(t *testing.T) {
 	if err := <-first; !errors.Is(err, context.Canceled) {
 		t.Fatalf("canceled poll=%v", err)
 	}
-	s.pollMu.Lock()
-	request := s.pollRequest
-	s.pollMu.Unlock()
+	s.osIO.mu.Lock()
+	request := s.osIO.request
+	s.osIO.mu.Unlock()
 	if request == nil {
 		t.Fatal("caller cancellation relinquished the pump-owned request")
 	}
@@ -195,11 +197,11 @@ func TestPollPublishesReadBeforeImmediateReadAndAck(t *testing.T) {
 		t.Fatal(err)
 	}
 	close(observed.release)
-	first := <-s.events
+	first := <-s.mailbox.events
 	if string(first.data) != "before" || first.err != nil {
 		t.Fatalf("first=%q err=%v", first.data, first.err)
 	}
-	second := <-s.events
+	second := <-s.mailbox.events
 	if string(second.data) != "after" || second.err != nil {
 		t.Fatalf("second=%q err=%v", second.data, second.err)
 	}
@@ -251,9 +253,9 @@ func TestPollAfterPumpExitDoesNotPublishUnownedRequest(t *testing.T) {
 	if _, err := s.Poll(t.Context(), []Case{{Pattern: EOF()}}); err != nil {
 		t.Fatal(err)
 	}
-	s.pollMu.Lock()
-	request := s.pollRequest
-	s.pollMu.Unlock()
+	s.osIO.mu.Lock()
+	request := s.osIO.request
+	s.osIO.mu.Unlock()
 	if request != nil {
 		t.Fatal("Poll published a request after its owning pump exited")
 	}

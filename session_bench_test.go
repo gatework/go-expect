@@ -1,10 +1,16 @@
+// SPDX-License-Identifier: Apache-2.0
+
 package expect
 
 import (
 	"bytes"
 	"context"
+	"io"
+	"net"
 	"strconv"
+	"strings"
 	"testing"
+	"time"
 )
 
 func BenchmarkFragmentedReceive(b *testing.B) {
@@ -22,6 +28,34 @@ func BenchmarkFragmentedReceive(b *testing.B) {
 				s.Close()
 				if err != nil || len(result.Before) != 16<<10 {
 					b.Fatalf("match failed: %v", err)
+				}
+			}
+		})
+	}
+}
+
+// BenchmarkSerializedSend measures the admission/deadline path on a long-lived
+// session, independently of connection establishment and receive matching.
+func BenchmarkSerializedSend(b *testing.B) {
+	for _, entry := range []struct {
+		name    string
+		timeout time.Duration
+	}{{"default", 10 * time.Second}, {"unlimited", 0}} {
+		b.Run(entry.name, func(b *testing.B) {
+			local, remote := net.Pipe()
+			s, err := NewSession(local, WithWriteTimeout(entry.timeout))
+			if err != nil {
+				b.Fatal(err)
+			}
+			done := make(chan struct{})
+			go func() { _, _ = io.Copy(io.Discard, remote); close(done) }()
+			defer func() { _ = s.Close(); _ = remote.Close(); <-done }()
+			text := strings.Repeat("command ", 8)
+			b.ReportAllocs()
+			b.SetBytes(int64(len(text)))
+			for b.Loop() {
+				if n, err := s.Send(context.Background(), text); n != len(text) || err != nil {
+					b.Fatalf("n=%d err=%v", n, err)
 				}
 			}
 		})

@@ -1,4 +1,6 @@
-//go:build linux || darwin
+//go:build linux || darwin || freebsd
+
+// SPDX-License-Identifier: Apache-2.0
 
 package expect
 
@@ -104,7 +106,7 @@ func TestPollEOFAndPriority(t *testing.T) {
 	defer s.Close()
 	b.Write([]byte("first last"))
 	b.Close()
-	r, e := s.Poll(t.Context(), []Case{{Pattern: Literal("last")}, {Pattern: Literal("first")}}, WithDeclarationPriority())
+	r, e := s.Poll(t.Context(), []Case{{Pattern: Literal("last")}, {Pattern: Literal("first")}}, WithMatchOrder(Declaration))
 	if e != nil || r.CaseIndex != 0 {
 		t.Fatalf("case=%d err=%v", r.CaseIndex, e)
 	}

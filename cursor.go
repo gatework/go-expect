@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 package expect
 
 // matchCursor owns progress for one wait. Only literal hits are monotonic:

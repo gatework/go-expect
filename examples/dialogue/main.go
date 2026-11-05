@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 // Command dialogue runs a local simulated device; no network connection is made.
 package main
 
@@ -37,11 +39,8 @@ func run() error {
 	go func() { defer device.Close(); done <- simulate(device) }()
 	// Always join the simulated peer, including early failure paths.
 	defer func() { s.Close(); device.Close(); <-done }()
-	login, err := expect.NewResponder(expect.Rule{Pattern: expect.Literal("Password:"), Respond: expect.Reply("example-password\n")})
-	if err != nil {
-		return err
-	}
-	if _, err = login.Expect(ctx, s, []expect.Pattern{expect.Literal("device>")}); err != nil {
+	login := expect.WithRules(expect.Case{Pattern: expect.Literal("Password:"), Handler: expect.ReplyThenContinue("example-password\n")})
+	if _, err = s.Expect(ctx, []expect.Case{{Pattern: expect.Literal("device>")}}, login); err != nil {
 		return err
 	}
 	fmt.Println("logged in")
@@ -49,22 +48,15 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	rules, err := expect.NewResponder(
-		expect.Rule{Pattern: expect.Literal("Apply? [y/N] "), Respond: expect.Reply("y\n"), Limit: 2},
-		expect.Rule{Pattern: expect.Literal("--More--"), Respond: expect.Reply(" ")},
-		expect.Rule{Pattern: code, Respond: func(ctx context.Context, s *expect.Session, r expect.Result) error {
-			_, err := s.SendLine(ctx, r.Captures[0].Text)
-			return err
-		}},
-	)
-	if err != nil {
+	rules := expect.WithRules(expect.Case{Pattern: expect.Literal("Apply? [y/N] "), Handler: expect.ReplyThenContinue("y\n"), Limit: 2}, expect.Case{Pattern: expect.Literal("--More--"), Handler: expect.ReplyThenContinue(" ")}, expect.Case{Pattern: code, Handler: expect.Then(func(ctx context.Context, s *expect.Session, r expect.Result) error {
+		_, err := s.SendLine(ctx, r.Captures[0].Text)
 		return err
-	}
+	})})
 	for _, command := range []string{"show status", "save configuration"} {
 		if _, err = s.SendLine(ctx, command); err != nil {
 			return err
 		}
-		if _, err = rules.Expect(ctx, s, []expect.Pattern{expect.Literal("device>")}); err != nil {
+		if _, err = s.Expect(ctx, []expect.Case{{Pattern: expect.Literal("device>")}}, rules); err != nil {
 			return err
 		}
 		fmt.Println("completed:", command)

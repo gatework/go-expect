@@ -1,12 +1,15 @@
+// SPDX-License-Identifier: Apache-2.0
+
 package main
 
 import (
 	"context"
 	"fmt"
-	expect "github.com/gatework/go-expect"
 	"net"
 	"os"
 	"time"
+
+	expect "github.com/gatework/go-expect"
 )
 
 func main() {

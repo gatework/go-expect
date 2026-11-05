@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 package expect
 
 import (
@@ -62,8 +64,8 @@ func TestRedactorCloseMasksPendingPrefix(t *testing.T) {
 }
 func TestDiagnosticFormatting(t *testing.T) {
 	p := Literal("secret")
-	r, _ := NewResponder(Rule{Pattern: p, Respond: Reply("secret")})
-	for _, v := range []any{p, r, Rule{Pattern: p, Respond: Reply("secret")}, Capture{Text: "secret", Matched: true}, Case{Pattern: p}, &WriteError{Cause: fmt.Errorf("secret")}} {
+	r := WithRules(Case{Pattern: p, Handler: ReplyThenContinue("secret")})
+	for _, v := range []any{p, r, Case{Pattern: p, Handler: ReplyThenContinue("secret")}, Capture{Text: "secret", Matched: true}, Case{Pattern: p}, &WriteError{Cause: fmt.Errorf("secret")}} {
 		if strings.Contains(fmt.Sprintf("%v %+v %#v", v, v, v), "secret") {
 			t.Fatalf("formatting leaked %T", v)
 		}

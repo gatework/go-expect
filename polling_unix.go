@@ -1,4 +1,6 @@
-//go:build linux || darwin
+//go:build linux || darwin || freebsd
+
+// SPDX-License-Identifier: Apache-2.0
 
 package expect
 
@@ -6,13 +8,19 @@ import (
 	"errors"
 	"io"
 	"os"
+	"sync"
 	"syscall"
 	"time"
 
 	"golang.org/x/sys/unix"
 )
 
+type pollRequest struct{ ack chan struct{} }
+
 type osAccess struct {
+	mu        sync.Mutex
+	request   *pollRequest
+	stopped   bool
 	raw       syscall.RawConn
 	normalize func(error) error
 	deadline  func(time.Time) error
@@ -82,11 +90,11 @@ func (a *osAccess) readReady(fd uintptr, scratch *[]byte) ([]byte, error, bool) 
 	var err error
 	for {
 		n, err = unix.Read(int(fd), *scratch)
-		if err != unix.EINTR {
+		if !errors.Is(err, unix.EINTR) {
 			break
 		}
 	}
-	if err == unix.EAGAIN || err == unix.EWOULDBLOCK {
+	if errors.Is(err, unix.EAGAIN) || errors.Is(err, unix.EWOULDBLOCK) {
 		return nil, nil, false
 	}
 	var data []byte
@@ -124,7 +132,7 @@ func (a *osAccess) readWait(scratch *[]byte) ([]byte, error, bool) {
 			var count int
 			for {
 				count, err = unix.Poll(fds, 0)
-				if err != unix.EINTR {
+				if !errors.Is(err, unix.EINTR) {
 					break
 				}
 			}
@@ -162,7 +170,7 @@ func (a *osAccess) writeNow(data []byte) (int, error) {
 		if n < 0 {
 			n = 0
 		}
-		if err == unix.EAGAIN || err == unix.EWOULDBLOCK {
+		if errors.Is(err, unix.EAGAIN) || errors.Is(err, unix.EWOULDBLOCK) {
 			err = ErrTimeout
 		}
 	})
@@ -170,8 +178,7 @@ func (a *osAccess) writeNow(data []byte) (int, error) {
 }
 
 func (s *Session) osReadLoop() {
-	defer s.workers.Done()
-	defer close(s.events)
+	defer close(s.mailbox.events)
 	defer s.stopPoll()
 	// Only this pump touches scratch; compact events never borrow its storage.
 	var scratch []byte
@@ -179,15 +186,15 @@ func (s *Session) osReadLoop() {
 		if s.isClosed() {
 			return
 		}
-		s.pollMu.Lock()
-		request := s.pollRequest
+		s.osIO.mu.Lock()
+		request := s.osIO.request
 		var wakeErr error
 		if request != nil && s.osIO.deadline != nil {
 			// Publication and deadline wake use the same mutex. The request
 			// remains owned until its immediate read and event publication finish.
 			wakeErr = s.osIO.deadline(time.Time{})
 		}
-		s.pollMu.Unlock()
+		s.osIO.mu.Unlock()
 		var data []byte
 		var err error
 		var ready bool
@@ -219,16 +226,16 @@ func (s *Session) osReadLoop() {
 // requestPoll publishes at most one request. Cancellation relinquishes only the
 // caller's wait: the pump keeps the request and wake deadline until its ack.
 func (s *Session) requestPoll() (chan struct{}, bool, error) {
-	s.pollMu.Lock()
-	defer s.pollMu.Unlock()
-	if s.pollStopped {
+	s.osIO.mu.Lock()
+	defer s.osIO.mu.Unlock()
+	if s.osIO.stopped {
 		return nil, false, nil
 	}
-	if s.pollRequest != nil {
-		return s.pollRequest.ack, false, nil
+	if s.osIO.request != nil {
+		return s.osIO.request.ack, false, nil
 	}
 	request := &pollRequest{ack: make(chan struct{})}
-	s.pollRequest = request
+	s.osIO.request = request
 	if s.osIO.deadline != nil {
 		if err := s.osIO.deadline(time.Now()); err != nil {
 			return request.ack, true, err
@@ -238,21 +245,21 @@ func (s *Session) requestPoll() (chan struct{}, bool, error) {
 }
 
 func (s *Session) finishPoll() {
-	s.pollMu.Lock()
-	defer s.pollMu.Unlock()
+	s.osIO.mu.Lock()
+	defer s.osIO.mu.Unlock()
 	s.acknowledgePoll()
 }
 
 func (s *Session) stopPoll() {
-	s.pollMu.Lock()
-	defer s.pollMu.Unlock()
-	s.pollStopped = true
+	s.osIO.mu.Lock()
+	defer s.osIO.mu.Unlock()
+	s.osIO.stopped = true
 	s.acknowledgePoll()
 }
 
 func (s *Session) acknowledgePoll() {
-	if s.pollRequest != nil {
-		close(s.pollRequest.ack)
-		s.pollRequest = nil
+	if s.osIO.request != nil {
+		close(s.osIO.request.ack)
+		s.osIO.request = nil
 	}
 }

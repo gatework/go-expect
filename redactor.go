@@ -1,23 +1,20 @@
+// SPDX-License-Identifier: Apache-2.0
+
 package expect
 
-import "bytes"
+import (
+	"bytes"
+
+	"github.com/gatework/go-expect/internal/redact"
+)
 
 // redactor retains only an ambiguous suffix. Hidden flags survive overlap and
 // rule additions, so a byte once suppressed can never become visible again.
 // The owning Session serializes access; raw protocol buffers never enter it.
 type redactor struct {
+	buffer  redact.Buffer
 	secrets [][]byte
-	rules   []sessionRedactionRule
-	pending []byte
-	hidden  []bool
-	storage []byte
-	marks   []bool
-}
-
-type sessionRedactionRule struct {
-	failure []int
-	matched int
-	covered int
+	rules   []redact.Rule
 }
 
 func (r *redactor) add(secrets []string) {
@@ -33,13 +30,13 @@ func (r *redactor) add(secrets []string) {
 			continue
 		}
 		secret := []byte(s)
-		rule := sessionRedactionRule{}
+		rule := redact.Rule{}
 		if len(secret) > literalKMPThreshold {
-			rule.failure = literalPrefix(s)
+			rule.Failure = redact.Prefix(s)
 		}
 		// Only a new rule scans the existing suffix. It cannot reach bytes already
 		// emitted; existing rules keep both their prefix state and hidden coverage.
-		r.scan(&rule, secret, r.pending, 0)
+		rule.Scan(secret, r.buffer.Pending, &r.buffer, 0, false, true)
 		r.secrets = append(r.secrets, secret)
 		r.rules = append(r.rules, rule)
 	}
@@ -49,7 +46,7 @@ func (r *redactor) append(data []byte, finish bool) []byte {
 	if len(r.secrets) == 0 {
 		return data
 	}
-	if len(r.pending) == 0 && !finish {
+	if len(r.buffer.Pending) == 0 && !finish {
 		safe := true
 		for _, secret := range r.secrets {
 			if bytes.IndexByte(data, secret[0]) >= 0 {
@@ -61,122 +58,49 @@ func (r *redactor) append(data []byte, finish bool) []byte {
 			return data
 		}
 	}
-	prior := len(r.pending)
-	r.grow(prior + len(data))
-	r.pending = append(r.pending, data...)
-	r.hidden = r.hidden[:len(r.pending)]
-	clear(r.hidden[prior:])
+	prior := len(r.buffer.Pending)
+	r.buffer.Grow(prior+len(data), 2*len(r.buffer.Pending))
+	r.buffer.Pending = append(r.buffer.Pending, data...)
+	r.buffer.Hidden = r.buffer.Hidden[:len(r.buffer.Pending)]
+	clear(r.buffer.Hidden[prior:])
 	keep := 0
 	for i, secret := range r.secrets {
 		rule := &r.rules[i]
-		r.scan(rule, secret, data, prior)
-		keep = max(keep, rule.matched)
+		rule.Scan(secret, data, &r.buffer, prior, false, true)
+		keep = max(keep, rule.Matched)
 	}
-	end := len(r.pending) - keep
+	end := len(r.buffer.Pending) - keep
 	if finish {
-		for i := end; i < len(r.pending); i++ {
-			r.hidden[i] = true
+		for i := end; i < len(r.buffer.Pending); i++ {
+			r.buffer.Hidden[i] = true
 		}
-		end = len(r.pending)
+		end = len(r.buffer.Pending)
 	}
-	out := bytes.Clone(r.pending[:end])
+	out := bytes.Clone(r.buffer.Pending[:end])
 	for i := range out {
-		if r.hidden[i] {
+		if r.buffer.Hidden[i] {
 			out[i] = '*'
 		}
 	}
-	r.pending = r.pending[end:]
-	r.hidden = r.hidden[end:]
+	r.buffer.Pending = r.buffer.Pending[end:]
+	r.buffer.Hidden = r.buffer.Hidden[end:]
 	for i := range r.rules {
-		r.rules[i].covered = max(0, r.rules[i].covered-end)
+		r.rules[i].Covered = max(0, r.rules[i].Covered-end)
 	}
 	switch {
 	case finish:
 		r.resetStream()
-	case cap(r.storage) > max(64<<10, 4*len(r.pending)):
+	case cap(r.buffer.Storage) > max(64<<10, 4*len(r.buffer.Pending)):
 		// Detach a small suffix from a large transient input. Cold retention needs
 		// no speculative spare capacity; grow reserves room on the next append.
-		r.detach(len(r.pending))
+		r.buffer.Detach(len(r.buffer.Pending))
 	}
 	return out
 }
 
 func (r *redactor) resetStream() {
-	r.pending, r.hidden, r.storage, r.marks = nil, nil, nil, nil
+	r.buffer.Pending, r.buffer.Hidden, r.buffer.Storage, r.buffer.Marks = nil, nil, nil, nil
 	for i := range r.rules {
-		r.rules[i].matched, r.rules[i].covered = 0, 0
+		r.rules[i].Matched, r.rules[i].Covered = 0, 0
 	}
-}
-
-func (r *redactor) scan(rule *sessionRedactionRule, secret, data []byte, prior int) {
-	mark := func(start, end int) {
-		// Match intervals arrive in order, including overlapping occurrences.
-		// Each covered byte is marked at most once per rule, not per occurrence.
-		for i := max(start, rule.covered); i < end; i++ {
-			r.hidden[i] = true
-		}
-		rule.covered = max(rule.covered, end)
-	}
-	if len(rule.failure) > 0 {
-		for i, value := range data {
-			for rule.matched > 0 && value != secret[rule.matched] {
-				rule.matched = rule.failure[rule.matched-1]
-			}
-			if value == secret[rule.matched] {
-				rule.matched++
-			}
-			if rule.matched == len(secret) {
-				end := prior + i + 1
-				mark(end-len(secret), end)
-				rule.matched = rule.failure[rule.matched-1]
-			}
-		}
-		return
-	}
-	// Old pending candidates are already scanned. A short rule only searches
-	// newly completed candidates and the bounded boundary overlap.
-	for start := max(0, prior-len(secret)+1); start <= len(r.pending)-len(secret); {
-		i := bytes.Index(r.pending[start:], secret)
-		if i < 0 {
-			break
-		}
-		i += start
-		mark(i, i+len(secret))
-		start = i + 1
-	}
-	rule.matched = 0
-	for n := min(len(secret)-1, len(r.pending)); n > 0; n-- {
-		if bytes.Equal(r.pending[len(r.pending)-n:], secret[:n]) {
-			rule.matched = n
-			break
-		}
-	}
-}
-
-func (r *redactor) grow(size int) {
-	if cap(r.pending) >= size {
-		return
-	}
-	if cap(r.storage) >= size {
-		n := copy(r.storage[:size], r.pending)
-		copy(r.marks[:size], r.hidden)
-		r.pending = r.storage[:n]
-		r.hidden = r.marks[:n]
-		return
-	}
-	// A second suffix of room amortizes compaction for byte-at-a-time input.
-	r.detach(max(size, 2*len(r.pending)))
-}
-
-func (r *redactor) detach(capacity int) {
-	if capacity == 0 {
-		r.pending, r.hidden, r.storage, r.marks = nil, nil, nil, nil
-		return
-	}
-	pending := make([]byte, len(r.pending), capacity)
-	copy(pending, r.pending)
-	hidden := make([]bool, len(r.hidden), capacity)
-	copy(hidden, r.hidden)
-	r.pending, r.storage = pending, pending
-	r.hidden, r.marks = hidden, hidden
 }

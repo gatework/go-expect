@@ -24,6 +24,11 @@ class VersionTests(unittest.TestCase):
         self.assertEqual(release.select_version("new", {}, [], lambda a, b: False)[0], "v0.1.0")
         self.assertEqual(release.select_version("new", {"v0.1.9": "old", "v0.1.10": "newer", "v0.2.0-rc.1": "rc"}, [], lambda a, b: b == "new")[0], "v0.1.11")
 
+    def test_breaking_changes_bump_minor_before_stable(self):
+        self.assertEqual(release.select_version("new", {"v0.1.4": "old"}, [], lambda a, b: b == "new", lambda a, b: True)[0], "v0.2.0")
+        with self.assertRaises(ValueError):
+            release.select_version("new", {"v1.2.3": "old"}, [], lambda a, b: b == "new", lambda a, b: True)
+
     def test_rerun_reuses_published_or_partial_draft(self):
         for draft in [False, True]:
             existing = {"tag_name": "v0.1.0", "draft": draft, "target_commitish": "sha"}

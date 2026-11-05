@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 package expect
 
 import (
@@ -8,10 +10,11 @@ import (
 	"strings"
 	"sync"
 	"testing"
+	"testing/synctest"
 	"time"
 )
 
-func TestDeclarationPriorityOptIn(t *testing.T) {
+func TestMatchOrderOptIn(t *testing.T) {
 	for _, priority := range []bool{false, true} {
 		t.Run(map[bool]string{false: "default", true: "declaration"}[priority], func(t *testing.T) {
 			a, b := net.Pipe()
@@ -21,7 +24,7 @@ func TestDeclarationPriorityOptIn(t *testing.T) {
 			go func() { _, _ = io.WriteString(b, "early late") }()
 			var opts []ExpectOption
 			if priority {
-				opts = append(opts, WithDeclarationPriority())
+				opts = append(opts, WithMatchOrder(Declaration))
 			}
 			r, e := s.Expect(t.Context(), []Case{{Pattern: Literal("late")}, {Pattern: Literal("early")}}, opts...)
 			want := 1
@@ -154,23 +157,25 @@ func TestPollUnsupported(t *testing.T) {
 func TestSendAllCancellationAndBackpressureLimit(t *testing.T) {
 	for _, overflow := range []bool{false, true} {
 		t.Run(map[bool]string{false: "canceled", true: "overflow"}[overflow], func(t *testing.T) {
-			a, b := net.Pipe()
-			s, _ := NewSession(a, WithBufferLimit(16<<10))
-			defer s.Close()
-			defer b.Close()
-			ctx, cancel := context.WithTimeout(t.Context(), 30*time.Millisecond)
-			defer cancel()
-			if overflow {
-				go func() { _, _ = io.WriteString(b, strings.Repeat("o", 128<<10)) }()
-			}
-			n, e := s.SendAll(ctx, strings.Repeat("i", 128<<10))
-			want := error(context.DeadlineExceeded)
-			if overflow {
-				want = ErrBufferLimit
-			}
-			if n != 0 || !errors.Is(e, want) || !s.isClosed() {
-				t.Fatalf("n=%d err=%v", n, e)
-			}
+			synctest.Test(t, func(t *testing.T) {
+				a, b := net.Pipe()
+				s, _ := NewSession(a, WithBufferLimit(16<<10))
+				defer s.Close()
+				defer b.Close()
+				ctx, cancel := context.WithTimeout(t.Context(), time.Second)
+				defer cancel()
+				if overflow {
+					go func() { _, _ = io.WriteString(b, strings.Repeat("o", 128<<10)) }()
+				}
+				n, e := s.SendAll(ctx, strings.Repeat("i", 128<<10))
+				want := error(context.DeadlineExceeded)
+				if overflow {
+					want = ErrBufferLimit
+				}
+				if n != 0 || !errors.Is(e, want) || !s.isClosed() {
+					t.Fatalf("n=%d err=%v", n, e)
+				}
+			})
 		})
 	}
 }

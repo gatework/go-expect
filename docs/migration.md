@@ -1,54 +1,34 @@
-# Migrating from Netflix/go-expect
+# Migration to the next minor API
 
-This is a deliberate API change, not a drop-in module replacement. Change imports
-to `github.com/gatework/go-expect` and use Go 1.26 or newer. No parallel legacy
-reader/matcher remains.
+This update intentionally removes old interfaces. There are no aliases or
+transition wrappers. Move callers directly to the unified Case/Session model.
 
-| Old API | New API / responsibility |
+| Previous API | Current API |
 | --- | --- |
-| `Console.Expect(opts...) (string,error)` | `Console.Session().Expect(ctx, []Case, opts...) (Result,error)` |
-| `ExpectString` / `Expectf` | A Case with `Literal(text)`; format strings with `fmt.Sprintf` |
-| `String(...)` | One `Literal` Pattern per Case |
-| `Regexp` / `RegexpPattern` | `Compile(expr)`; check the compile error |
-| `Then(func(*bytes.Buffer)error)` | Case.Handler receives context, Session and detached Result; returns Action/error |
-| `All(opts...)` | `All(patterns...)`, text patterns only; attach one handler to its outer Case |
-| `ExpectEOF` / `EOF` / `PTSClosed` | Case with `EOF()`; PTY EIO normalization is inside Console |
-| `Error(err)` | Handle the returned error with `errors.Is`/`errors.As` |
-| `Console.Send` / `SendLine` | Corresponding Session method with context |
-| Console configuration | `WithSessionOptions(...)` inside NewConsole |
-| `WithStdout` | Session `WithOutput`; optional Redact filter applies |
-| Payload observers | `WithObserver`, metadata only; inspect explicit Result fields for raw data |
-| `WithStdin`, `Console.Read/Write/Fd` | No implicit relay or raw competing reader; drive Send explicitly with managed lifetime |
-| `WithCloser` | Compose ownership in the supplied duplex transport; caller owns external sinks/processes |
-| `ReaderLease` / `NewChanReader` / `PassthroughPipe` | Replaced by Session's cancellable waits and single owned pump |
-| `NewTestConsole` / `NewTestWriter` | `expecttest.NewConsole` / `expecttest.NewWriter`, cleanup registered on testing.TB |
-| `StripTrailingEmptyLines` | Application-specific presentation; not part of the interaction kernel |
+| Rule / NewResponder / Responder.Expect | Case{Limit, Handler}, Session.Expect with WithRules |
+| Rule.Respond | Case.Handler = Then(response), or ReplyThenContinue(text) |
+| ContinueWithoutReset | ContinueKeepTimer |
+| WithDeclarationPriority | WithMatchOrder(Declaration) |
+| WithLogger(*log.Logger) | WithLogger(*slog.Logger) |
+| Nonzero Return | Return is zero; use named Action values |
 
-Timing changed: legacy WithTimeout was effectively an idle timer reset for every
-rune. New WithTimeout bounds a whole wait, WithIdleTimeout is explicit, and zero
-means disabled. Use a parent context for an absolute operation deadline.
+Before/After rules take precedence by group. Ordinary call cases default to no
+limit, reusable rules default to one per wait, and completion wins a scoped-rule
+tie. WithRules validates through Expect, not a separate responder constructor.
+EOF rules are supported. Rule outcomes expose Scope and RuleIndex; CaseIndex is
+reserved for foreground cases. ConfigError and CompileError support errors.As;
+ErrInvalidPattern supports errors.Is.
 
-Matching changed: compare currently visible candidates by byte start position,
-then declaration order. Captured input remains binary-safe. Buffers persist after
-read timeouts, and successful matches retain their unread tail. Results from
-continued conversations describe the final segment, so use a transcript for the
-whole receive history.
+Result now exposes byte offsets and named captures. Registering Redact without an
+output retains secret definitions for future Interact; matching tables are still
+lazy, and Close clears the definitions. Fold selects Go leftmost-first regexp
+semantics, including for imported POSIX/Longest patterns.
 
-Always check Send errors. A failed in-flight send closes the session and must not
-be retried automatically: a device may have already received part of the reply.
+Replace manual child stdio attachment with Console.Start to obtain a controlling
+terminal, or use spawn.Start for owned process cleanup. A successful Start closes
+the parent's slave. Windows uses the dedicated conpty package. Neither process
+adapter changes the core transport ownership contract.
 
-Console still does not start or own processes. Attach TTY to exec.Cmd, Start,
-close the parent's slave when appropriate, and arrange Wait and failure cleanup.
-
-## v0.1.1
-
-Rename `Console.Tty()` calls to `Console.TTY()`. The ownership contract is unchanged.
-The device package introduced on a development branch was not part of v0.1.0; it
-is removed from this generic library. Device migration is described in connector.md.
-
-## Receive retirement and write admission
-
-Close now releases receive storage; later calls no longer return historical
-input in Before. An active operation retains its own result snapshot. Cancellation
-before worker write admission leaves the session usable and returns the context
-error directly, rather than WriteError.
+The earlier device connector was moved to
+[go-net-connector](https://github.com/gatework/go-net-connector). Historical release
+behavior and benchmark evidence remain available in Git at v0.1.4.

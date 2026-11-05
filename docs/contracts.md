@@ -1,226 +1,159 @@
 # API contracts
 
-## Session ownership and concurrency
+## Ownership and concurrency
 
-`NewSession(io.ReadWriteCloser, ...SessionOption)` validates options before
-starting I/O. Nil and typed-nil transports/output writers are rejected. On success
-it owns the transport; on failure ownership remains with
-the caller. The transport must allow concurrent Read/Write and make Close unblock
-both. A `net.Conn` satisfies this; an SSH adapter must implement the same lifetime
-contract. An arbitrary Reader/Writer without interruptible Close does not.
+A successful `NewSession` owns the transport exclusively. Failed construction
+performs no I/O and leaves ownership with the caller. Nil and typed-nil streams
+and writers are rejected. Transports must support concurrent Read/Write and make
+Close interrupt both. Sinks are borrowed, synchronous, never closed or retried,
+and must not reenter Session. Observers may execute concurrently and must protect
+shared application state. Constructors are required; do not copy Session or Process.
 
-Use constructors, not zero-valued Session or Console. Do not copy these objects.
-Session permits one active Expect; another or nested Expect returns `ErrBusy`.
-A handler may call Send, Redact or Close. Sends serialize with cancellable lock
-acquisition. This prevents interleaved writes, but does not assign concurrent
-commands to their responses: command sequencing belongs to the caller.
+One receive pump owns Read. Expect, Poll, Interact and background waits reserve
+one exclusive receiver; overlapping operations return `ErrBusy`. `ExpectAny`
+reserves all sessions atomically from the caller's perspective, releases every
+reservation on failure, previews without handlers or consumption, joins previews,
+and dispatches only the first ready winner. Simultaneous winners are unspecified.
+Losers retain their accepted input. Receive output recording can run on losers.
+The winner retains its preview idle deadline while other previews are joined.
+Receive reservations are released before completion observers run.
 
-Close marks the session closed, closes the transport, waits for I/O workers and
-finishes pending secret-filter output. It is idempotent and retains cleanup
-errors. It does not wait for user handlers or observers. Output sinks and logs
-are borrowed and never closed. Sinks must not reenter Session; observers run
-outside internal locks, may be called concurrently by different operations, and
-must synchronize any shared state. User code and synchronous sinks must cooperate
-with cancellation; a context cannot forcibly stop them.
+Sends serialize across entire operations. This prevents byte interleaving, not
+command/response misassociation. Close marks the session closed, interrupts I/O,
+joins owned I/O workers and flushes secret filters. It is idempotent and returns
+stable joined cleanup errors. It cancels the active handler context but does not
+wait for user callbacks. Background.Stop and Interact cleanup do join callbacks;
+callbacks must cooperate. Handler panic/Goexit propagates with deferred cleanup.
 
-The single receive pump uses 16 KiB blocks and a bounded queue. The match buffer
-(default 8 MiB) has a separate bound; a staged block and the pump's fixed-size
-blocks are additional bounded storage.
-Small reads copy only received bytes so the pump can reuse its private scratch
-block; larger reads transfer block ownership. Neither path reuses queued bytes.
-`ErrBufferLimit` preserves input. A later Expect can consume already buffered text
-and resume reading. At exactly the limit,
-a bounded next read event distinguishes EOF from overflow; if no event arrives,
-the ordinary wait deadline applies. No automatic tail
-trimming or search window silently changes matching semantics.
-Exhausted receive slices release their storage. At an operation boundary a
-remaining slice detaches if its original allocation is at least 64 KiB and the
-remainder uses at most one quarter of it. Continuations do not copy the entire
-remaining burst; returned Results remain independently owned.
+## Matching, rules and bounds
 
-## Matching and results
+Literal and Line match raw bytes, including invalid UTF-8. Line matches the final
+line with optional space/tab/NUL padding and includes CR/LF delimiters. Regexp and
+Glob use Go Unicode/RE2 semantics. Glob is unanchored, uses `*`, `?`, ranges and
+backslash escapes; stars cross newlines. A glob that matches empty input is
+rejected when selected, like any zero-width regexp. Incomplete trailing UTF-8
+waits for more bytes or EOF before regexp inspection.
 
-`Literal` matches nonempty raw byte strings. `Compile` accepts Go regexp syntax;
-compilation errors do not echo the expression. Patterns are immutable.
-`All` accepts one or more text patterns, in any order, consuming from the first
-match through the last; repeated patterns can match the same occurrence and
-aggregate captures are omitted. EOF is not a text pattern and cannot occur in All
-or a responder rule.
+FromRegexp snapshots the original expression including POSIX/Longest settings.
+Fold recompiles into Go's Unicode case-insensitive, leftmost-first regexp mode;
+it deliberately selects that mode even for an imported Longest expression.
+All is a conjunction of text patterns in any order; repeated leaves may share
+an occurrence, and aggregate captures are omitted. Event patterns are not text.
+Invalid patterns return ErrInvalidPattern; CompileError retains only syntax code.
 
-The earliest start position in the currently available buffer wins. Declaration
-order breaks ties. This differs from legacy rune-by-rune matching. A short pattern
-can match before a longer alternative has arrived. Regex greediness and end
-anchors see the currently available buffer, not future bytes. Use complete,
-unambiguous prompts; do not rely on packet boundaries or future alternatives.
-Trailing incomplete UTF-8 is held back from regex inspection until more input or
-EOF. Invalid complete encodings follow Go regexp behavior; stored bytes are never
-rewritten. Literals can match arbitrary binary sequences.
+Selection priority is Before, call cases/rules, After. Within a group the earliest
+visible start wins and declaration order breaks ties; Declaration order mode
+chooses the first matching declaration. Foreground cases precede scoped rules.
+Persistent rules and WithRules declarations are immutable snapshots; returned
+Rules slices can be edited without changing the Session. Foreground Case slices
+must remain unchanged until Expect returns. Callback closures remain
+borrowed. Case.Limit is per wait and checked before consumption/side effects.
+Ordinary cases default to unlimited; rules and Timeout/Default/FullBuffer default
+to one. Negative limits are invalid. ResponseError exposes the exhausted rule index.
 
-A successful match consumes Before and Match. The tail remains for the next
-iteration/call. Empty/zero-width matches fail before consumption or callbacks.
-Handlers run after consumption; a handler error preserves the tail and never
-replays the completed action. Invalid handler actions return an error.
-Handler panics and `runtime.Goexit` propagate normally; derived context cleanup
-and exclusive-wait release still run. Such exits do not emit a completion event.
+A match normally consumes Before and Match. WithNoConsume preserves them and
+requires handlers to Return. Result contains detached raw strings, final segment
+only, and half-open byte Start/End offsets relative to the buffer seen by that
+match. Capture holds Name, Text, Matched and Start/End; absent groups use -1/-1.
+Indices(0) addresses the whole match. Result.RuleIndex plus Scope identify a rule;
+CaseIndex is -1 for rule matches and failures. Explicit access/serialization is
+raw; String/GoString formatting omits payloads, as do Pattern and Capture.
 
-Result contains `CaseIndex`, `Before`, `Match` and `Captures`. A Capture has `Text`
-and `Matched`, distinguishing an unmatched optional group from an empty match.
-Result fields are detached snapshots with raw input. Formatting (`%v`, `%+v`,
-`%#v`) omits contents. Explicit field access or serialization is raw by design.
-Result describes only the final segment, not all the intermediate replies.
+Continue resets the relative timer. ContinueKeepTimer preserves it; Return is
+zero. ReplyThenContinue and Then use ContinueKeepTimer. Parent deadlines are never
+extended. Handler errors preserve the remaining tail and never replay responses.
+EOF matches after buffered text and carries remaining input in Before; continuing
+EOF handlers run once then return io.EOF. Invalid read counts remain failures,
+even if their cause contains EOF. Unix PTY EIO alone is normalized by the adapter.
 
-Regexp candidates keep capture offsets until a winning case is selected. Its
-capture strings detach before guard evaluation or input consumption; losing
-cases and `All` children do not materialize capture strings. Selection order,
-empty/unmatched group semantics and copied POSIX/Longest modes are unchanged.
+The match buffer defaults to 8 MiB, plus bounded staged/pump storage. Small reads
+copy their used bytes, large reads transfer exclusive blocks. Overflow preserves
+input and returns ErrBufferLimit. Exactly-full input waits for one bounded
+lookahead to distinguish EOF from overflow. A FullBuffer case explicitly consumes
+the full snapshot; there is no implicit drop. WithStreamingFallback, and Interact,
+explicitly transfer 32 KiB when 64 KiB remains unmatched. These modes cannot
+promise matches across arbitrary historical prefixes. Empty slices release
+storage; operation return detaches small tails of allocations at least 64 KiB.
 
-Input arriving together with an error is processed before that error. Buffered
-text matches precede EOF. An explicit EOF case returns success with remaining
-input in Before; otherwise Expect returns `io.EOF`. A continuing EOF handler runs
-once and returns EOF, never spins. EOF is distinct from Session.Close and from a
-child process exit status. Linux PTY EIO is normalized to EOF only in the PTY
-adapter. Other errors retain `errors.Is`/`errors.As` access.
+## Deadlines and writes
 
-## Timing, sending and failure recovery
+Wait defaults to 30 seconds; Send defaults to 10 seconds including lock admission.
+NoTimeout=0 disables the relative timer; negative durations are ConfigError.
+Idle timing is disabled by default and resets only on accepted nonempty input.
+Parent cancellation, relative expiry and idle expiry have distinct errors.
+Timeout cases handle only the relative timer, with a fresh callback budget so a
+send is possible. Continue rearms that timer; ContinueKeepTimer can immediately
+fire it again, subject to Limit. Default handles relative timeout or clean EOF,
+never parent cancellation or arbitrary transport errors. Read-side cancellation
+preserves the session and pending input. Invalid/pre-canceled exclusive waits
+also snapshot pending input; ErrBusy exposes none.
 
-Default Expect timeout: 30 seconds. Default Send timeout: 10 seconds. Zero
-explicitly disables either relative timeout; negative durations are invalid.
-`WithIdleTimeout` is disabled by default and resets when input is accepted by the
-matching engine. Buffer inspection and handlers do not reset it.
+Send attempts exactly one Write. Deadline-capable transports use synchronous
+writes; unsupported transports use a joined worker. Cancellation before admission
+preserves the session. Any failure after transport entry retires it, joins the
+write and returns WriteError with exact transport progress and all causes.
+Invalid counts are rejected as zero; short nil-error writes become io.ErrShortWrite.
+A ready cancellation wins over a simultaneous write result. Written bytes do not
+prove remote execution. Empty sends perform no transport Write.
 
-`Continue` resets the relative Expect timeout after the handler.
-`ContinueWithoutReset` keeps the original deadline. The parent context deadline
-is never extended. A handler receives a context bounded by the current relative,
-idle and parent deadlines. Sends inside handlers also have the write timeout.
-Context checks are cooperative; expensive regex calls and user code are not
-forcibly interrupted. Match timeout and idle timeout return `ErrTimeout` and
-`ErrIdleTimeout`; parent cancellation returns its context error.
+SendAll writes only positive-progress unsent suffixes while draining bounded peer
+input to avoid duplex backpressure deadlock. Its parent context bounds the whole
+operation; WithWriteTimeout applies only to Send. SendSlow holds serialization
+across chunks and delays; cancellation after progress retires the session.
+SendNull sends literal NULs. SendBreak requires an interruptible transport break
+capability; Unix PTYs implement it. Send and Reply are verbatim; SendLine appends
+the configured LF (default), CR or CRLF.
 
-Read timeout/cancellation preserves the session and unconsumed buffer. Result.Before
-contains the current unmatched prefix. Zero timeout is unlimited, not polling.
-Pre-canceled and invalid calls also report an existing pending prefix when they
-acquire the exclusive wait. ErrBusy returns no input because another wait owns it.
+Poll/SendAllPoll require WithOSPolling and a nonblocking OS-backed stream. The sole
+pump uses runtime deadline coordination when available, native readiness otherwise.
+Canceled polls leave their request pump-owned until acknowledgement; a later Poll
+establishes a fresh readiness boundary. No second transport reader is created.
 
-Send attempts one transport Write. It never retries a short write, the remaining
-suffix or a failed confirmation. Cancellation while waiting for the send lock
-leaves the session open. Once a write starts, cancellation, short write or failure
-closes the session, joins the write and returns `WriteError{Written, Cause}`.
-`Written` is an actual transport byte count, not evidence the device executed a
-command. Out-of-range transport counts are rejected and reported as zero on every
-exit path. Cancellation retains both its context cause and the transport failure.
-Cancellation and Close are checked again when a write result is received, so an
-already observable stop is not hidden by a simultaneously ready result.
-`errors.Is` unwraps the original cause; a short nil-error write becomes
-`io.ErrShortWrite`. A successful zero-length Send performs no transport write.
+## Diagnostics and redaction
 
-Send is verbatim. SendLine appends LF by default; WithLineEnding accepts LF, CR or
-CRLF. Reply never appends a line ending implicitly.
+Redact validates nonempty literal secrets and registers append-only definitions
+before they can appear. It never retracts delivered output. Definitions remain
+available for future Interact even without sinks; scanning tables are created
+only for active outputs. Close clears all private definitions and filter storage.
+WithOutput records receive bytes on acceptance, WithSendOutput records actual
+transport-accepted bytes. Each stream has independent prefix state. Overlaps and
+unfinished secret prefixes are masked conservatively; EOF/Close flush them.
+Adding rules also scans un-emitted suffixes. Raw matching/results stay unchanged.
 
-## Responder
+Sink failures retire the Session, retain their cause and are never retried.
+Previously delivered outputs and actions are not replayed. Diagnostic callbacks,
+slog records and TraceEvent contain metadata only, never input, regex source or
+raw error text. ConfigError does not retain caller option values. WriteError's
+formatted message includes progress/class only; errors.Is/As explicitly unwraps
+causes. Standalone Redactor supports replacement strings and scoped rules; its
+Finish resets stream state while retaining its rules.
 
-NewResponder copies and validates immutable rules. Rule callbacks are borrowed
-closures and must synchronize their own state if shared. Limit=0 means one
-response, a positive value sets the per-call limit, and negative values are
-invalid. Counts are independent across calls and sessions.
+## Interaction and processes
 
-Responder.Expect explicitly activates the rules for that call. Completion
-patterns win only at the same start position; otherwise earliest position wins.
-A dynamic Response reads the matched Result and returns an error on failure.
-All responses continue without resetting the timer. Limit checks run before
-consuming or replying; `ResponseError.RuleIndex` is zero-based. On a response
-failure, Result.CaseIndex is -1; on completion it indexes the completion slice.
-EOF and timeout return through the same matching engine. Register failure prompts
-as completion patterns and inspect their index; the library does not infer
-business success, unknown answers, credentials or command retries.
+Interact owns its input reader after receive admission; Close must interrupt its
+Read. It closes and joins input on EOF, escape, remote completion, cancellation or
+panic. Output is borrowed and redacted, including the already pending prefix.
+The default escape is control-]; escape actions intercept individual local bytes,
+and remote cases use the same waiter as Expect. Input errors and parent
+cancellation propagate. InteractTerminal duplicates a borrowed terminal, changes
+raw mode/nonblocking flags temporarily and restores them after joining input.
+The caller must not concurrently read/change that terminal.
 
-## Diagnostics and secrets
+Console.Start attaches stdio to the slave with Setsid/Setctty/Ctty=0, rejects
+conflicting terminal attributes, and closes the parent's slave after successful
+start. The caller still owns cancellation and Wait. Console.Close closes handles.
+SetSize and SetEcho use RawConn.Control, preserving descriptor blocking state.
 
-Call Redact with nonempty secrets before sending or receiving them. Registration
-is append-only and cannot retract earlier output. Password replies are not guessed
-or automatically registered; the caller decides what is secret. Register the
-password itself, without its line terminator, to mask common echo behavior.
+spawn.Start owns the child and PTY. Context cancellation signals the process group
+with SIGHUP; a two-second WaitDelay kills an unresponsive direct child. Descendants
+must cooperate with SIGHUP. Close joins the sole child waiter; Wait reports exit
+status independently of Close. Unix sizes are 1..65535, default 24 by 80.
 
-WithOutput receives the same receive-only filtered stream,
-as input is accepted by the matcher. Continued matches and subsequent Expect
-calls do not replay it. The transcript includes received tails beyond a match
-that were already accepted, but not unread data discarded by Close. To drain to
-the peer's end, Expect EOF before Close.
-
-The filter masks every byte of literal secrets with `*`, including overlapping
-matches. It retains possible secret prefixes across chunks; EOF and Close mask
-unfinished prefixes conservatively. Added rules also apply to pending un-emitted
-bytes. Masked output is not necessarily immediate or suitable as a transparent
-protocol relay. Raw matching input and Result fields are unaffected.
-
-The private Session filter uses incremental prefix state for rules longer than
-256 bytes and bounded boundary scans for short rules. It retains only an
-ambiguous suffix, detaches oversized input storage, and releases pending storage
-at EOF/Close. Adding a rule scans the un-emitted suffix once; previously hidden
-bytes stay hidden. Without output/transcript sinks, receive filtering is skipped;
-rule validation and session state checks still apply. This resource policy does
-not change the standalone `Redactor` replacement or rule-scope contracts.
-
-Logs and Observer Events contain operation, case index, byte count and error
-classification only. All registered observers receive each completion, including
-failed/rejected waits. They do not receive raw error messages or payloads.
-Responder event case indices match the public result, never internal rule indices.
-A sink failure stops processing and closes the session; previously delivered output and
-response effects are not retried.
-
-## Explicit compatibility operations
-
-`FromRegexp` takes an isolated snapshot including POSIX/Longest matching settings.
-`WithDeclarationPriority` chooses the first declared matching case instead of the
-earliest byte. Without the option, earliest-byte ordering is unchanged.
-`WithStreamingFallback` explicitly consumes 32 KiB when 64 KiB is pending and no
-ordinary case matches. Its retained tail is bounded; it is not a guarantee for
-patterns spanning arbitrarily long prefixes. Its callbacks do not reset timers.
-`Poll` and `SendAllPoll` require `WithOSPolling` and an OS-backed nonblocking stream;
-zero relative timeout still means wait without that timer, never poll.
-When the transport also supports working `SetReadDeadline(time.Time) error`, the
-sole read pump waits in the Go runtime poller. Otherwise construction selects the
-native poll fallback. This choice never changes midstream. Each explicit Poll
-publishes one request and wakes the runtime reader with a deadline. The pump
-publishes earlier bytes, clears that deadline, performs an immediate readiness
-read, publishes its bytes, and acknowledges the request. A canceled caller leaves
-that request owned by the pump until acknowledgment; the next Poll establishes
-its own readiness boundary. Close joins the pump without adding wake descriptors.
-Adapters may forward `NormalizeReadError(error) error` for raw read errors. PTY
-adapters use it to translate EIO into EOF; ordinary EIO and control errors retain
-their original meaning.
-`SendAll` sends only positive-progress unsent suffixes, queues bounded peer input
-to prevent duplex backpressure deadlock, and retires on any subsequent failure.
-Its parent context owns the deadline; WithWriteTimeout applies to Send only.
-`NewRedactor` supports a chosen replacement and scoped secret changes without
-allowing previously hidden bytes to reappear. Session filtering keeps per-byte
-`*` masking independently of this custom replacement API.
-Public redaction compiles rules longer than 256 bytes once per rule scope and
-maintains their incremental KMP state. It merges ordered covered intervals,
-reuses a bounded retained suffix, and detaches oversized transient storage.
-
-Close releases idle receive buffers and queued input. An active receive owner
-releases its buffers on exit; results already returned remain independent.
-Calls after Close do not expose historical receive buffers.
-Cancellation before write admission returns the context error without retiring
-the transport; admission is checked by the worker immediately before transport entry.
-
-Close cancels the active handler context but does not wait for user code. Handlers
-must cooperate with cancellation. Automatic retirement preserves independent
-cleanup causes through errors.Is/As; writes still expose exact Written progress.
-
-## Preparation and retired rule storage
-
-Line patterns compile immutable byte-prefix tables once. Wait cursors own all
-mutable progress. Nested All declarations are traversed in their original order
-and flattened for per-wait matching; captures remain omitted. Mixed literal
-leaves retain their first hits until consumption resets the cursor.
-
-Without output sinks, Redact still validates all secrets and session state but
-does not compile or retain rules. Close finishes filtered output before dropping
-private rule references, including on output failure. Standalone Redactor.Finish
-continues to retain its rules for a fresh stream.
-
-An invalid transport read count discards that read's untrusted bytes and preserves
-the underlying cause through errors.Is/As. It remains a validation failure even
-when the cause includes io.EOF: an EOF case cannot turn it into success, and the
-observer classification is error.
+conpty.Start owns a Windows job and pseudoconsole, creates the child suspended,
+assigns it to the kill-on-close job, then resumes it. Close closes output/input
+pipes before closing the pseudoconsole to avoid old-Windows teardown deadlock,
+kills the job and joins the child. Normal Wait drains final console output and
+may wait for the caller to consume it; Close interrupts this. ExitError reports
+nonzero status. ConPTY sizes are 1..32767 and streams contain UTF-8/VT sequences.
+Unix-only echo/break controls and OS polling are not provided by this adapter.
+EOF is never a substitute for checking process Wait.

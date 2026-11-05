@@ -1,30 +1,22 @@
+// SPDX-License-Identifier: Apache-2.0
+
 package expect
 
 import (
 	"context"
 	"errors"
 	"io"
+	"net"
+	"os"
+	"time"
 )
+
+var errInvalidWriteCount = errors.New("expect: invalid write count")
 
 // acquireWrite owns admission only; cancellation before transport entry does not
 // retire the session. The caller releases the gate after the complete operation.
 func (s *Session) acquireWrite(ctx context.Context) error {
-	select {
-	case s.writeGate <- struct{}{}:
-	case <-ctx.Done():
-		return ctx.Err()
-	case <-s.done:
-		return ErrClosed
-	}
-	if err := ctx.Err(); err != nil {
-		<-s.writeGate
-		return err
-	}
-	if s.isClosed() {
-		<-s.writeGate
-		return ErrClosed
-	}
-	return nil
+	return s.writeGate.acquire(ctx, s.done, time.Time{})
 }
 
 type writeMode uint8
@@ -45,9 +37,7 @@ func (s *Session) startWrite(ctx context.Context, text string, mode writeMode) (
 		return nil, err
 	}
 	result := make(chan writeResult, 1)
-	s.workers.Add(1)
-	go func() {
-		defer s.workers.Done()
+	s.workers.Go(func() {
 		if err := ctx.Err(); err != nil {
 			result <- writeResult{err: err}
 			return
@@ -76,7 +66,10 @@ func (s *Session) startWrite(ctx context.Context, text string, mode writeMode) (
 			}
 			if count < 0 || count > len(data)-total {
 				count = 0
-				err = errors.Join(errors.New("expect: invalid write count"), err)
+				err = errors.Join(errInvalidWriteCount, err)
+			}
+			if count > 0 {
+				err = errors.Join(err, s.emitSent(data[total:total+count], false))
 			}
 			total += count
 			if mode == writeOnce {
@@ -94,7 +87,7 @@ func (s *Session) startWrite(ctx context.Context, text string, mode writeMode) (
 			}
 		}
 		result <- writeResult{total, err}
-	}()
+	})
 	if admission := <-result; admission.err != nil {
 		return nil, admission.err
 	}
@@ -113,4 +106,111 @@ func (s *Session) finishWrite(ctx context.Context, r writeResult) (int, error) {
 		return r.n, &WriteError{Written: r.n, Cause: errors.Join(err, s.Close())}
 	}
 	return r.n, nil
+}
+
+// abortWrite retires the transport, joins the admitted write and preserves all causes.
+func (s *Session) abortWrite(results <-chan writeResult, cause error) (int, error) {
+	cleanup := s.Close()
+	r := <-results
+	return r.n, &WriteError{Written: r.n, Cause: errors.Join(cause, r.err, cleanup)}
+}
+
+// deadlineWriter can interrupt a synchronous write without an owned worker.
+type deadlineWriter interface{ SetWriteDeadline(time.Time) error }
+
+// writeSync falls back before transport entry if deadlines are unsupported.
+// The lifecycle counter includes the syscall, so Close still joins all I/O.
+func (s *Session) writeSync(ctx context.Context, text string, deadline time.Time) (writeResult, bool, error) {
+	d, ok := s.transport.(deadlineWriter)
+	if !ok {
+		return writeResult{}, false, nil
+	}
+	if err := d.SetWriteDeadline(deadline); err != nil {
+		return writeResult{}, false, nil
+	}
+	data := []byte(text)
+	s.lifeMu.Lock()
+	if s.isClosed() {
+		s.lifeMu.Unlock()
+		return writeResult{}, true, ErrClosed
+	}
+	if err := writeAdmissionError(ctx, deadline); err != nil {
+		s.lifeMu.Unlock()
+		_ = d.SetWriteDeadline(time.Time{})
+		return writeResult{}, true, err
+	}
+	s.workers.Add(1)
+	s.lifeMu.Unlock()
+	// Join a running cancellation callback before resetting the deadline.
+	var canceled chan struct{}
+	var stop func() bool
+	if ctx.Done() != nil {
+		canceled = make(chan struct{})
+		stop = context.AfterFunc(ctx, func() { _ = d.SetWriteDeadline(time.Now()); close(canceled) })
+	}
+	n, err := s.transport.Write(data)
+	if n < 0 || n > len(data) {
+		n = 0
+		err = errors.Join(errInvalidWriteCount, err)
+	}
+	if err == nil && n != len(data) {
+		err = io.ErrShortWrite
+	}
+	if n > 0 {
+		err = errors.Join(err, s.emitSent(data[:n], false))
+	}
+	if stop != nil && !stop() {
+		<-canceled
+	}
+	if cause := ctx.Err(); cause != nil {
+		err = errors.Join(cause, err)
+	} else if !deadline.IsZero() && !time.Now().Before(deadline) {
+		err = errors.Join(context.DeadlineExceeded, err)
+	}
+	resetErr := d.SetWriteDeadline(time.Time{})
+	if errors.Is(resetErr, io.ErrClosedPipe) || errors.Is(resetErr, net.ErrClosed) || errors.Is(resetErr, os.ErrClosed) {
+		resetErr = nil
+	}
+	// Do not enter Close while holding our own lifecycle reference.
+	s.workers.Done()
+	err = errors.Join(err, resetErr)
+	return writeResult{n, err}, true, nil
+}
+
+// writeOnce runs under writeGate and preserves pre-admission cancellation.
+func (s *Session) writeOnce(ctx context.Context, text string, deadline time.Time) (n int, err error) {
+	if r, ok, admission := s.writeSync(ctx, text, deadline); ok {
+		if admission != nil {
+			return 0, admission
+		}
+		return s.finishWrite(ctx, r)
+	}
+	if !deadline.IsZero() {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithDeadline(ctx, deadline)
+		defer cancel()
+	}
+	result, err := s.startWrite(ctx, text, writeOnce)
+	if err != nil {
+		return 0, err
+	}
+	select {
+	case resultValue := <-result:
+		n, err = resultValue.n, resultValue.err
+	case <-ctx.Done():
+		return s.abortWrite(result, ctx.Err())
+	case <-s.done:
+		return s.abortWrite(result, ErrClosed)
+	}
+	return s.finishWrite(ctx, writeResult{n, err})
+}
+
+func writeAdmissionError(ctx context.Context, deadline time.Time) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	if !deadline.IsZero() && !time.Now().Before(deadline) {
+		return context.DeadlineExceeded
+	}
+	return nil
 }

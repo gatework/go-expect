@@ -118,7 +118,9 @@ func Start(ctx context.Context, program string, args []string, opts ...Option) (
 	if result, _, callErr := updateAttribute.Call(uintptr(unsafe.Pointer(attributes.List())), 0, windows.PROC_THREAD_ATTRIBUTE_PSEUDOCONSOLE, uintptr(t.console), unsafe.Sizeof(t.console), 0, 0); result == 0 {
 		return nil, callErr
 	}
-	si := windows.StartupInfoEx{StartupInfo: windows.StartupInfo{Cb: uint32(unsafe.Sizeof(windows.StartupInfoEx{}))}, ProcThreadAttributeList: attributes.List()}
+	// Null standard handles with STARTF_USESTDHANDLES request console handles,
+	// rather than inheriting a host's redirected pipes (for example go test/CI).
+	si := windows.StartupInfoEx{StartupInfo: windows.StartupInfo{Cb: uint32(unsafe.Sizeof(windows.StartupInfoEx{})), Flags: windows.STARTF_USESTDHANDLES}, ProcThreadAttributeList: attributes.List()}
 	var pi windows.ProcessInformation
 	if err = ctx.Err(); err != nil {
 		return nil, err

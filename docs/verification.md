@@ -141,3 +141,10 @@ about 4.20MB/65 allocations before and 1792B/one allocation after, excluding the
 common Match snapshot. Buffered Expect falls from 488B/seven allocations to
 352B/three allocations. No receive/public-redactor control has both a median
 slowdown above 5% and paired log-ratio sign-flip p<0.05 in these ten samples.
+
+Release follow-up: the first remote candidate, 896ce5e, failed the pinned
+golangci-lint v2.15.0 gate on QF1001, two QF1008 selectors, and an unused capture
+wrapper. The same four diagnostics reproduced locally. Removing the wrapper and
+simplifying those expressions gives zero issues with that exact linter, and the
+full race/shuffle suite passes again. The recorded performance samples and Go
+file digests identify the measured source before this nonsemantic lint cleanup.

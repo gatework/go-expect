@@ -247,11 +247,8 @@ func (p Pattern) findLocation(data []byte, terminal bool, scanFrom int, captures
 	return location{}, false, nil
 }
 
-// materializeCaptures runs once for the winner before guards or consumption.
+// capturesFromSnapshot runs once for the winner before guards or consumption.
 // Each string owns its bytes independently of the session receive storage.
-func (loc location) materializeCaptures(data []byte) []Capture {
-	return loc.capturesFromSnapshot(data, "")
-}
 func (loc location) capturesFromSnapshot(data []byte, match string) []Capture {
 	if len(loc.submatches) == 0 {
 		return nil
@@ -310,7 +307,7 @@ type literalScan struct {
 }
 
 func newPatternScan(p Pattern) patternScan {
-	if p.kind != allPattern && !(p.kind == literalPattern && len(p.failure) > 0) {
+	if p.kind != allPattern && (p.kind != literalPattern || len(p.failure) == 0) {
 		return patternScan{}
 	}
 	count := literalCount(p)

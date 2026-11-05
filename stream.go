@@ -131,5 +131,5 @@ func (s *Session) queueEvent(event readEvent) error {
 	if s.isClosed() {
 		return ErrClosed
 	}
-	return s.inputMailbox.enqueue(event, s.opts.limit)
+	return s.enqueue(event, s.opts.limit)
 }

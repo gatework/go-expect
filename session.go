@@ -170,7 +170,7 @@ func (s *Session) Close() error {
 			s.releaseReceiveStorage()
 			s.expecting.Store(false)
 		}
-		s.inputMailbox.retire()
+		s.retire()
 		outputErr := s.emit(nil, true)
 		s.closeErr = errors.Join(transportErr, outputErr)
 	})

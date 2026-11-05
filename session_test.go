@@ -8,6 +8,7 @@ import (
 	"errors"
 	"io"
 	"net"
+	"strings"
 	"sync"
 	"testing"
 	"testing/synctest"
@@ -232,7 +233,7 @@ func TestInteractiveRedactionAndInputFiltering(t *testing.T) {
 	var out bytes.Buffer
 	done := make(chan error, 1)
 	go func() {
-		done <- s.Interact(t.Context(), inputR, &out, WithInteractCases(Case{Pattern: Literal("DONE")}))
+		done <- s.Interact(t.Context(), inputR, &out, WithInteractOutputCases(Case{Pattern: Literal("DONE")}))
 	}()
 	// High bits and NUL removal happen before matching and diagnostic rendering.
 	_, err := p.Write([]byte{0xf3, 0, 0xe5, 0xe3, 0xf2, 0xe5, 0xf4, 'D', 'O', 'N', 'E'})
@@ -271,7 +272,7 @@ func TestInteractiveEscapeJoinsAndPreservesSession(t *testing.T) {
 		ctx, cancel := context.WithCancel(t.Context())
 		defer cancel()
 		go func() { _, _ = inputW.Write([]byte("x")) }()
-		err := s.Interact(ctx, inputR, io.Discard, WithEscapeAction('x', func(context.Context, *Session, Result) error { cancel(); return nil }))
+		err := s.Interact(ctx, inputR, io.Discard, WithInteractInputCases(Case{Pattern: Literal("x"), Handler: Then(func(context.Context, *Session, Result) error { cancel(); return nil })}))
 		if !errors.Is(err, context.Canceled) {
 			t.Fatalf("parent cancellation lost: %v", err)
 		}
@@ -287,7 +288,7 @@ func TestInteractiveEscapeJoinsAndPreservesSession(t *testing.T) {
 					t.Error("handler panic lost")
 				}
 			}()
-			_ = s.Interact(t.Context(), inputR, io.Discard, WithInteractCases(Case{Pattern: Literal("panic"), Handler: func(context.Context, *Session, Result) (Action, error) { panic("handler panic") }}))
+			_ = s.Interact(t.Context(), inputR, io.Discard, WithInteractOutputCases(Case{Pattern: Literal("panic"), Handler: func(context.Context, *Session, Result) (Action, error) { panic("handler panic") }}))
 		}()
 		if _, err := inputW.Write([]byte("x")); !errors.Is(err, io.ErrClosedPipe) {
 			t.Fatal("input ownership was not released")
@@ -324,3 +325,149 @@ func TestSlowAndNullSendRecordedSafely(t *testing.T) {
 		}
 	})
 }
+
+func TestInteractionEvolution(t *testing.T) {
+	t.Run("invalid configuration leaves input untouched", func(t *testing.T) {
+		s, _ := pair(t)
+		input := &interactionProbe{}
+		err := s.Interact(t.Context(), input, io.Discard, WithInteractExpectOptions(WithTimeout(-1)))
+		var config *ConfigError
+		if !errors.As(err, &config) || input.reads != 0 || input.closes != 0 || s.expecting.Load() {
+			t.Fatalf("err=%v reads=%d closes=%d busy=%v", err, input.reads, input.closes, s.expecting.Load())
+		}
+	})
+	t.Run("local callback panic propagates and releases ownership", func(t *testing.T) {
+		s, _ := pair(t)
+		input := &interactionProbe{Reader: strings.NewReader("~~")}
+		func() {
+			defer func() {
+				if recover() != "local callback" {
+					t.Error("callback panic did not reach caller")
+				}
+			}()
+			_ = s.Interact(t.Context(), input, io.Discard, WithInteractInputCases(Case{Pattern: Literal("~~"), Handler: func(context.Context, *Session, Result) (Action, error) { panic("local callback") }}))
+		}()
+		if s.expecting.Load() || input.closes != 1 {
+			t.Fatalf("busy=%v closes=%d", s.expecting.Load(), input.closes)
+		}
+	})
+	t.Run("local declaration priority and metadata", func(t *testing.T) {
+		for _, text := range []string{"ab", "abc"} {
+			s, _ := pair(t)
+			seen := -1
+			handler := func(_ context.Context, _ *Session, r Result) (Action, error) {
+				if r.Source != SourceInput || r.Scope != ScopeCall || r.RuleIndex != -1 {
+					t.Errorf("metadata=%+v", r)
+				}
+				seen = r.CaseIndex
+				return Return, nil
+			}
+			input := io.NopCloser(&chunkStream{Reader: bytes.NewReader([]byte(text)), chunk: 1})
+			err := s.Interact(t.Context(), input, io.Discard, WithInteractInputCases(Case{Pattern: Literal("abc"), Handler: handler}, Case{Pattern: Literal("ab"), Handler: handler}))
+			want := 0
+			if text == "ab" {
+				want = 1
+			}
+			if err != nil || seen != want {
+				t.Fatalf("input=%q selected=%d want=%d err=%v", text, seen, want, err)
+			}
+		}
+	})
+	t.Run("remote completion preserves admitted write failure", func(t *testing.T) {
+		s, p := pair(t)
+		input := io.NopCloser(strings.NewReader("request"))
+		go func() {
+			b := make([]byte, 1)
+			_, _ = p.Read(b) // A partial synchronous write proves admission.
+			_, _ = p.Write([]byte("DONE"))
+		}()
+		err := s.Interact(t.Context(), input, io.Discard, WithInteractOutputCases(Case{Pattern: Literal("DONE")}))
+		var writeErr *WriteError
+		if !errors.As(err, &writeErr) || writeErr.Written != 1 || !s.isClosed() {
+			t.Fatalf("closed=%v err=%v", s.isClosed(), err)
+		}
+	})
+
+	t.Run("small buffer", func(t *testing.T) {
+		s, p := pair(t, WithBufferLimit(8))
+		r, w := io.Pipe()
+		defer w.Close()
+		var out bytes.Buffer
+		go func() { _, _ = p.Write(bytes.Repeat([]byte("x"), 32)); _ = p.Close() }()
+		if err := s.Interact(t.Context(), r, &out); err != nil || out.Len() != 32 {
+			t.Fatalf("bytes=%d err=%v", out.Len(), err)
+		}
+	})
+	t.Run("flush retires", func(t *testing.T) {
+		failure := errors.New("flush failed")
+		s, p := pair(t)
+		_ = s.Redact("secret")
+		r, w := io.Pipe()
+		defer w.Close()
+		go func() { _, _ = p.Write([]byte("sec")) }()
+		err := s.Interact(t.Context(), r, failingWriter{failure}, WithInteractOutputCases(Case{Pattern: Literal("sec")}))
+		if !errors.Is(err, failure) || !s.isClosed() {
+			t.Fatalf("closed=%v err=%v", s.isClosed(), err)
+		}
+	})
+	t.Run("initial panic cleanup", func(t *testing.T) {
+		s, p := pair(t)
+		go func() { _, _ = p.Write([]byte("pending")) }()
+		_, _ = s.Expect(t.Context(), []Case{{Pattern: Literal("pending")}}, WithNoConsume())
+		r, w := io.Pipe()
+		defer w.Close()
+		func() {
+			defer func() {
+				if recover() == nil {
+					t.Error("missing panic")
+				}
+			}()
+			_ = s.Interact(t.Context(), r, matchOutputFunc(func([]byte) (int, error) { panic("sink") }))
+		}()
+		if err := s.Close(); err != nil {
+			t.Fatal(err)
+		}
+	})
+}
+
+func FuzzInteractInputPrefixes(f *testing.F) {
+	f.Add([]byte("a~~~b\x1d~"), uint8(1))
+	f.Add([]byte("~~~~x"), uint8(3))
+	f.Fuzz(func(t *testing.T, data []byte, size uint8) {
+		if len(data) > 128 {
+			return
+		}
+		s, p := pair(t)
+		ctx, cancel := context.WithTimeout(t.Context(), time.Second)
+		defer cancel()
+		received := make(chan []byte, 1)
+		go func() { buf := make([]byte, len(data)); _, _ = io.ReadFull(p, buf); received <- buf }()
+		echo := func(ctx context.Context, s *Session, r Result) (Action, error) {
+			_, err := s.Send(ctx, r.Match)
+			return ContinueKeepTimer, err
+		}
+		input := io.NopCloser(&chunkStream{Reader: bytes.NewReader(data), chunk: int(size)%16 + 1})
+		err := s.Interact(ctx, input, io.Discard, WithInteractInputCases(Case{Pattern: Literal("~~~"), Handler: echo}, Case{Pattern: Literal("~~"), Handler: echo}, Case{Pattern: Literal("~x"), Handler: echo}, Case{Pattern: Literal("\x1d"), Handler: echo}))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got := <-received; !bytes.Equal(got, data) {
+			t.Fatalf("forwarded=%x input=%x", got, data)
+		}
+	})
+}
+
+// interactionProbe is used only before worker admission or after the worker joins.
+type interactionProbe struct {
+	*strings.Reader
+	reads, closes int
+}
+
+func (p *interactionProbe) Read(b []byte) (int, error) {
+	p.reads++
+	if p.Reader == nil {
+		return 0, io.EOF
+	}
+	return p.Reader.Read(b)
+}
+func (p *interactionProbe) Close() error { p.closes++; return nil }

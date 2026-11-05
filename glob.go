@@ -5,13 +5,23 @@ package expect
 import (
 	"regexp"
 	"strings"
+	"unicode"
+	"unicode/utf8"
 )
 
 // Glob matches unanchored Tcl-style Unicode glob text. Stars cross newlines.
 // Invalid glob declarations fail pattern validation. Literal/Line support raw bytes.
-func Glob(pattern string) Pattern {
+func Glob(pattern string) Pattern { return compileGlob(pattern, false) }
+func compileGlob(pattern string, fold bool) Pattern {
+	if !utf8.ValidString(pattern) {
+		return Pattern{kind: invalidPattern}
+	}
 	var expr strings.Builder
-	expr.WriteString("(?s:")
+	if fold {
+		expr.WriteString("(?is:")
+	} else {
+		expr.WriteString("(?s:")
+	}
 	chars := []rune(pattern)
 	for i := 0; i < len(chars); i++ {
 		switch chars[i] {
@@ -35,10 +45,35 @@ func Glob(pattern string) Pattern {
 			}
 			expr.WriteByte('[')
 			for j := i + 1; j < end; j++ {
-				if chars[j] == '^' || chars[j] == '\\' {
+				ch := chars[j]
+				if fold {
+					ch = unicode.ToLower(ch)
+				}
+				if j+2 < end && chars[j+1] == '-' {
+					hi := chars[j+2]
+					if fold {
+						hi = unicode.ToLower(hi)
+					}
+					lo := ch
+					if lo > hi {
+						lo, hi = hi, lo
+					}
+					fmtRune := func(r rune) {
+						if r == '^' || r == '\\' || r == ']' || r == '-' {
+							expr.WriteByte('\\')
+						}
+						expr.WriteRune(r)
+					}
+					fmtRune(lo)
+					expr.WriteByte('-')
+					fmtRune(hi)
+					j += 2
+					continue
+				}
+				if ch == '^' || ch == '\\' || ch == ']' || ch == '-' {
 					expr.WriteByte('\\')
 				}
-				expr.WriteRune(chars[j])
+				expr.WriteRune(ch)
 			}
 			expr.WriteByte(']')
 			i = end
@@ -51,6 +86,8 @@ func Glob(pattern string) Pattern {
 	if err != nil {
 		return Pattern{kind: invalidPattern}
 	}
+	p.glob = true
+	p.text = pattern
 	return p
 }
 
@@ -58,13 +95,21 @@ func Glob(pattern string) Pattern {
 // applies to Literal and regexp patterns; Line keeps its final-line anchoring.
 // Fold selects Go leftmost-first mode, including for imported POSIX/Longest regexps.
 func (p Pattern) Fold() Pattern {
+	if p.kind != eofPattern && p.kind != timeoutPattern && p.kind != defaultPattern && p.kind != fullBufferPattern {
+		if p.validate(true) != nil {
+			return Pattern{kind: invalidPattern}
+		}
+	}
 	switch p.kind {
 	case literalPattern:
-		p, _ = Compile("(?i:" + regexp.QuoteMeta(p.text) + ")")
+		p = foldCompile("(?i:" + regexp.QuoteMeta(p.text) + ")")
 	case regexpPattern:
-		p, _ = Compile("(?i:" + p.re.String() + ")")
+		if p.glob {
+			return compileGlob(p.text, true)
+		}
+		p = foldCompile("(?i:" + p.re.String() + ")")
 	case linePattern:
-		p, _ = Compile(`(?i:(?:\A|[\r\n])[ \t\x00]*` + regexp.QuoteMeta(p.text) + `[ \t\x00]*[\r\n]*\z)`)
+		p = foldCompile(`(?i:(?:\A|[\r\n])[ \t\x00]*` + regexp.QuoteMeta(p.text) + `[ \t\x00]*[\r\n]*\z)`)
 	case allPattern:
 		children := make([]Pattern, len(p.all))
 		for i, child := range p.all {
@@ -99,4 +144,12 @@ func (r Result) Indices(group int) (int, int, bool) {
 	}
 	c := r.Captures[group-1]
 	return c.Start, c.End, c.Matched
+}
+
+func foldCompile(expr string) Pattern {
+	p, e := Compile(expr)
+	if e != nil {
+		return Pattern{kind: invalidPattern}
+	}
+	return p
 }

@@ -69,11 +69,10 @@ func NewSession(transport io.ReadWriteCloser, opts ...SessionOption) (*Session, 
 		return nil, &ConfigError{Option: "transport", Reason: "nil transport"}
 	}
 	o := defaults()
-	for _, opt := range opts {
-		if opt == nil {
-			return nil, &ConfigError{Option: "session", Reason: "nil option"}
-		}
-		if err := opt(&o); err != nil {
+	if len(opts) > 0 {
+		var err error
+		o, err = applySessionOptions(o, opts)
+		if err != nil {
 			return nil, err
 		}
 	}
@@ -170,6 +169,7 @@ func (s *Session) Close() error {
 	s.closeOnce.Do(func() {
 		s.lifeMu.Lock()
 		close(s.done)
+		s.mailbox.notifyWait()
 		if s.handlerCancel != nil {
 			s.handlerCancel()
 		}
@@ -291,7 +291,7 @@ func (s *Session) notify(ctx context.Context, event Event) {
 		if ctx == nil {
 			ctx = context.Background()
 		}
-		s.opts.structuredLogger.LogAttrs(ctx, slog.LevelInfo, "expect", slog.String("op", event.Operation.String()), slog.Int("case", event.CaseIndex), slog.Int("bytes", event.Bytes), slog.String("class", event.Error.String()))
+		s.opts.structuredLogger.LogAttrs(ctx, slog.LevelInfo, "expect", slog.String("op", event.Operation.String()), slog.Int("case", event.CaseIndex), slog.Int("bytes", event.Bytes), slog.String("class", event.Error.String()), slog.String("source", event.Source.String()), slog.String("scope", string(event.Scope)), slog.Int("rule", event.RuleIndex))
 	}
 
 	for _, observer := range s.opts.observers {
@@ -303,7 +303,9 @@ func (s *Session) notify(ctx context.Context, event Event) {
 // transport.Write closes the Session and returns its progress in WriteError.
 // An invalid transport count is rejected and reported as zero.
 func (s *Session) Send(ctx context.Context, text string) (n int, err error) {
-	defer func() { s.notify(ctx, Event{Operation: OpSend, CaseIndex: -1, Bytes: n, Error: errorClass(err)}) }()
+	defer func() {
+		s.notify(ctx, Event{RuleIndex: -1, Operation: OpSend, CaseIndex: -1, Bytes: n, Error: errorClass(err)})
+	}()
 	if ctx == nil {
 		return 0, &ConfigError{Option: "context", Reason: "nil context"}
 	}
@@ -372,3 +374,16 @@ func (*Session) String() string { return "expect.Session" }
 
 // GoString formats the handle without exposing owned stream or command state.
 func (p *Session) GoString() string { return p.String() }
+
+func applySessionOptions(o sessionOptions, opts []SessionOption) (sessionOptions, error) {
+	for _, opt := range opts {
+		if opt == nil {
+			return o, &ConfigError{Option: "session", Reason: "nil option"}
+		}
+		if err := opt(&o); err != nil {
+			return o, err
+		}
+	}
+
+	return o, nil
+}

@@ -148,6 +148,12 @@ func TestConsoleCanonicalEchoAndRawClose(t *testing.T) {
 		t.Fatal(err)
 	}
 	remote, _ := pair(t)
+	if e := remote.InteractTerminal(t.Context(), c.TTY(), io.Discard, WithInteractExpectOptions(WithTimeout(-1))); e == nil {
+		t.Fatal("invalid options admitted")
+	}
+	if got := getState(); got != expected {
+		t.Fatal("invalid interaction changed terminal")
+	}
 	if err = remote.InteractTerminal(t.Context(), c.TTY(), io.Discard); err != nil {
 		t.Fatal(err)
 	}

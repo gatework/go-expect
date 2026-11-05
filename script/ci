@@ -22,6 +22,7 @@ go test -run '^$' -fuzz '^FuzzSessionRedactorAdditiveRules$' -fuzztime=100000x -
 go test -run '^$' -fuzz '^FuzzPublicRedactorChunks$' -fuzztime=100000x -parallel=2 .
 go test -run '^$' -fuzz '^FuzzLiteralAllChunks$' -fuzztime=100000x -parallel=2 .
 go test -run '^$' -fuzz '^FuzzSessionContinuations$' -fuzztime=100000x -parallel=2 .
+go test -run '^$' -fuzz '^FuzzInteractInputPrefixes$' -fuzztime=100000x -parallel=2 .
 go test -run '^$' -bench . -benchmem -benchtime=3x .
 go run ./examples/dialogue
 bash script/consumer

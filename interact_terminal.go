@@ -25,6 +25,17 @@ func (s *Session) InteractTerminal(ctx context.Context, input *os.File, output i
 	if err = ctx.Err(); err != nil {
 		return err
 	}
+	o, w, err := s.prepareInteraction(ctx, input, output, opts)
+	if err != nil {
+		return err
+	}
+	if !s.expecting.CompareAndSwap(false, true) {
+		return ErrBusy
+	}
+	defer s.releaseWait()
+	if s.isClosed() {
+		return ErrClosed
+	}
 	raw, err := input.SyscallConn()
 	if err != nil {
 		return err
@@ -70,5 +81,5 @@ func (s *Session) InteractTerminal(ctx context.Context, input *os.File, output i
 		return err
 	}
 	defer owned.Close()
-	return s.Interact(ctx, owned, output, opts...)
+	return s.interactOwned(ctx, owned, output, o, w)
 }

@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.3.0
+
+- BREAKING: replace WithEscapeAction and WithInteractCases with
+  WithInteractInputCases (byte-exact Literal sequences) and
+  WithInteractOutputCases (remote patterns). No aliases remain.
+- Keep every ExpectAny session active across continuations, rotate equal-priority
+  sessions, and retain per-session idle budgets and callback limits.
+- Validate interaction options before ownership, I/O or terminal changes; preserve
+  admitted WriteError progress, release locks on writer panic, and retire sessions
+  when the final redacted output flush fails. Adapt streaming to small buffers.
+- Execute local actions on the receive owner; share sequence prefixes, batch
+  ordinary input, and preserve chunk-independent action ordering.
+- Enforce callback/idle budgets after timeout handlers; validate original Fold
+  declarations; support reversed glob ranges and folded range endpoints.
+- Add source/scope/rule metadata and virtual-event traces; CompileError unwraps
+  ErrInvalidPattern without exposing the expression.
+- Remove unused coordinator preview state and avoid default-option heap escapes:
+  reused END matching uses 1 allocation for Literal and 2 for captureless regexp.
+
+
 ## v0.2.0
 
 - BREAKING: unify Case/rules; remove Rule, Responder and NewResponder. Use

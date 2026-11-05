@@ -3,6 +3,7 @@
 package expect
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"io"
@@ -12,10 +13,10 @@ import (
 // InteractOption configures an owned interactive receive operation.
 type InteractOption func(*interactOptions) error
 type interactOptions struct {
-	cases   []Case
-	escape  byte
-	actions map[byte]Response
-	expect  []ExpectOption
+	cases  []Case
+	inputs []Case
+	escape byte
+	expect []ExpectOption
 }
 
 // WithEscape sets the local exit byte; the default is control-] (0x1d).
@@ -23,22 +24,25 @@ func WithEscape(key byte) InteractOption {
 	return func(o *interactOptions) error { o.escape = key; return nil }
 }
 
-// WithEscapeAction intercepts a local key and performs a timer-preserving action.
-func WithEscapeAction(key byte, response Response) InteractOption {
+// WithInteractInputCases installs ordered, byte-exact local literal actions.
+func WithInteractInputCases(cases ...Case) InteractOption {
+	cases = append([]Case(nil), cases...)
 	return func(o *interactOptions) error {
-		if response == nil {
-			return &ConfigError{Option: "escape action", Reason: "nil response"}
+		if err := validateCases(cases); err != nil {
+			return err
 		}
-		if o.actions == nil {
-			o.actions = make(map[byte]Response)
+		for _, c := range cases {
+			if c.Pattern.kind != literalPattern {
+				return ErrInvalidPattern
+			}
 		}
-		o.actions[key] = response
+		o.inputs = append(o.inputs, cases...)
 		return nil
 	}
 }
 
-// WithInteractCases adds remote pattern actions; Return ends interaction.
-func WithInteractCases(cases ...Case) InteractOption {
+// WithInteractOutputCases adds remote pattern actions; Return ends interaction.
+func WithInteractOutputCases(cases ...Case) InteractOption {
 	cases = append([]Case(nil), cases...)
 	return func(o *interactOptions) error {
 		if err := validateCases(cases); err != nil {
@@ -59,133 +63,216 @@ func WithInteractExpectOptions(opts ...ExpectOption) InteractOption {
 // admission; input.Close must interrupt Read. Output is borrowed and redacted.
 // Escape/EOF cancels and joins the input worker. In-flight write cancellation
 // retains the ordinary Send retirement contract. Remote match tails are bounded
-// by the explicit 64KiB/32KiB streaming window, not arbitrary regexp prefixes.
+// by a streaming window of min(64 KiB, buffer limit), not arbitrary regexp prefixes.
 func (s *Session) Interact(ctx context.Context, input io.ReadCloser, output io.Writer, opts ...InteractOption) (err error) {
+	o, w, err := s.prepareInteraction(ctx, input, output, opts)
+	if err != nil {
+		return err
+	}
+	return s.interactPrepared(ctx, input, output, o, w)
+}
+
+func (s *Session) prepareInteraction(ctx context.Context, input io.ReadCloser, output io.Writer, opts []InteractOption) (interactOptions, *waiter, error) {
 	if ctx == nil || nilInterface(input) || nilInterface(output) {
-		return &ConfigError{Option: "interact", Reason: "context and streams required"}
+		return interactOptions{}, nil, &ConfigError{Option: "interact", Reason: "context and streams required"}
 	}
 	if err := ctx.Err(); err != nil {
-		return err
+		return interactOptions{}, nil, err
 	}
 	o := interactOptions{escape: 0x1d}
 	for _, opt := range opts {
 		if opt == nil {
-			return &ConfigError{Option: "interact", Reason: "nil option"}
+			return interactOptions{}, nil, &ConfigError{Option: "interact", Reason: "nil option"}
 		}
 		if err := opt(&o); err != nil {
-			return err
+			return interactOptions{}, nil, err
 		}
 	}
+	cases := append(append([]Case(nil), o.cases...), Case{Pattern: EOF()})
+	expectOpts := append([]ExpectOption{WithTimeout(NoTimeout)}, o.expect...)
+	expectOpts = append(expectOpts, WithStreamingFallback(func(context.Context, *Session, Result) (Action, error) { return ContinueKeepTimer, nil }))
+	w := waiter{session: s, result: Result{CaseIndex: -1, RuleIndex: -1}}
+	if err := w.prepare(ctx, cases, expectOpts); err != nil {
+		return interactOptions{}, nil, err
+	}
+	for _, c := range o.inputs {
+		if len(c.Pattern.text) > s.opts.limit {
+			return interactOptions{}, nil, &ConfigError{Option: "input case", Reason: "sequence exceeds buffer limit"}
+		}
+	}
+	return o, &w, nil
+}
+
+// interactPrepared admits the receiver before any stream or terminal side effect.
+func (s *Session) interactPrepared(ctx context.Context, input io.ReadCloser, output io.Writer, o interactOptions, w *waiter) (err error) {
 	if !s.expecting.CompareAndSwap(false, true) {
 		return ErrBusy
 	}
 	defer s.releaseWait()
+	if s.isClosed() {
+		return ErrClosed
+	}
+	return s.interactOwned(ctx, input, output, o, w)
+}
+
+func (s *Session) interactOwned(ctx context.Context, input io.ReadCloser, output io.Writer, o interactOptions, w *waiter) (err error) {
 	parent := ctx
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	s.diagnostics.mu.Lock()
-	if s.isClosed() {
-		s.diagnostics.mu.Unlock()
-		return ErrClosed
-	}
-	s.diagnostics.interactSink = output
-	s.diagnostics.interactOutputErr = nil
-	s.diagnostics.interactRedactor = &redactor{}
-	s.diagnostics.interactRedactor.add(s.diagnostics.secrets)
-	initialErr := s.emitInteractiveLocked(s.receive.pending, false)
-	s.diagnostics.mu.Unlock()
-	if initialErr != nil {
-		input.Close()
+	controls := make(chan func())
+	w.control = controls
+	defer w.close()
+	inputClosed := false
+	defer func() {
+		if !inputClosed {
+			_ = input.Close()
+		}
+	}()
+	// Install cleanup before invoking any borrowed writer.
+	installed := false
+	defer func() {
+		if installed {
+			s.diagnostics.mu.Lock()
+			defer s.diagnostics.mu.Unlock()
+			s.diagnostics.interactSink = nil
+			s.diagnostics.interactRedactor = nil
+		}
+	}()
+	initialErr := func() error {
 		s.diagnostics.mu.Lock()
-		s.diagnostics.interactSink = nil
-		s.diagnostics.interactRedactor = nil
-		s.diagnostics.mu.Unlock()
+		defer s.diagnostics.mu.Unlock()
+		s.diagnostics.interactSink = output
+		s.diagnostics.interactOutputErr = nil
+		s.diagnostics.interactRedactor = &redactor{}
+		s.diagnostics.interactRedactor.add(s.diagnostics.secrets)
+		installed = true
+		return s.emitInteractiveLocked(s.receive.pending, false)
+	}()
+	if initialErr != nil {
 		return errors.Join(initialErr, s.Close())
 	}
 	localDone := make(chan error, 1)
-	go func() {
-		buf := make([]byte, 4096)
-		empty := 0
-		for {
-			n, err := input.Read(buf)
-			if n < 0 || n > len(buf) {
-				localDone <- errInvalidReadCount
-				cancel()
-				return
-			}
-			if n == 0 && err == nil {
-				empty++
-				if empty >= 100 {
-					err = io.ErrNoProgress
-				}
-			} else {
-				empty = 0
-			}
-			start := 0
-			for i := 0; i < n; i++ {
-				response, action := o.actions[buf[i]]
-				if buf[i] != o.escape && !action {
-					continue
-				}
-				if i > start {
-					if _, e := s.Send(ctx, string(buf[start:i])); e != nil {
-						localDone <- e
-						cancel()
-						return
-					}
-				}
-				if !action {
-					localDone <- nil
-					cancel()
-					return
-				}
-				if e := response(ctx, s, Result{CaseIndex: -1, RuleIndex: -1, Match: string(buf[i : i+1])}); e != nil {
-					localDone <- e
-					cancel()
-					return
-				}
-				start = i + 1
-			}
-			if start < n {
-				if _, e := s.Send(ctx, string(buf[start:n])); e != nil {
-					localDone <- e
-					cancel()
-					return
-				}
-			}
-			if err != nil {
-				if errors.Is(err, io.EOF) {
-					err = nil
-				}
-				localDone <- err
-				cancel()
-				return
-			}
-		}
-	}()
-	cases := append(append([]Case(nil), o.cases...), Case{Pattern: EOF()})
-	expectOpts := append([]ExpectOption{WithTimeout(NoTimeout)}, o.expect...)
-	expectOpts = append(expectOpts, WithStreamingFallback(func(context.Context, *Session, Result) (Action, error) { return ContinueKeepTimer, nil }))
+	go func() { localDone <- relayInput(ctx, s, input, o.inputs, o.escape, controls, w); cancel() }()
 	defer func() {
 		cancel()
 		closeErr := input.Close()
+		inputClosed = true
 		localErr := <-localDone
 		s.diagnostics.mu.Lock()
-		flushErr := s.emitInteractiveLocked(nil, true)
+		flushErr := func() error { defer s.diagnostics.mu.Unlock(); return s.emitInteractiveLocked(nil, true) }()
+		s.diagnostics.mu.Lock()
 		s.diagnostics.interactSink = nil
 		s.diagnostics.interactRedactor = nil
 		s.diagnostics.mu.Unlock()
-		if errors.Is(localErr, context.Canceled) || errors.Is(localErr, ErrClosed) || errors.Is(localErr, os.ErrClosed) || errors.Is(localErr, io.ErrClosedPipe) {
-			localErr = nil
-		}
 		if errors.Is(closeErr, io.ErrClosedPipe) || errors.Is(closeErr, os.ErrClosed) {
 			closeErr = nil
 		}
+		if flushErr != nil {
+			flushErr = errors.Join(flushErr, s.Close())
+		}
 		err = errors.Join(err, localErr, closeErr, flushErr)
 	}()
-	_, remoteErr := s.expectOwned(ctx, cases, expectOpts...)
-	if ctx.Err() != nil && errors.Is(remoteErr, context.Canceled) {
+	_, remoteErr := w.run(ctx)
+	//nolint:errorlint // Do not erase joined causes or WriteError progress.
+	if ctx.Err() != nil && remoteErr == context.Canceled {
 		remoteErr = nil
 	}
 	return errors.Join(parent.Err(), remoteErr)
+}
+
+// relayInput owns only input I/O; closures execute on the receive owner.
+func relayInput(ctx context.Context, s *Session, input io.Reader, cases []Case, escape byte, controls chan<- func(), w *waiter) (err error) {
+	pending := make([]byte, 0)
+	buf := make([]byte, 4096)
+	counts := make([]int, len(cases))
+	empty := 0
+	actions := inputActions{session: s, waiter: w, cases: cases, counts: counts, controls: controls}
+	trie := compileInputTrie(cases)
+	flush := func(eof bool) error {
+		for len(pending) > 0 {
+			matched, partial := trie.match(pending, eof)
+			if partial {
+				return nil
+			}
+			if matched >= 0 {
+				text := cases[matched].Pattern.text
+				if e := actions.invoke(ctx, matched, text); e != nil {
+					return e
+				}
+				pending = pending[len(text):]
+				continue
+			}
+			if pending[0] == escape {
+				select {
+				case controls <- func() { w.stopped = true }:
+				case <-ctx.Done():
+				}
+				return io.EOF
+			}
+			n := 1
+			for n < len(pending) && pending[n] != escape && trie.edges[pending[n]] == nil {
+				n++
+			}
+			if _, e := s.Send(ctx, string(pending[:n])); e != nil {
+				return e
+			}
+			pending = pending[n:]
+		}
+		return nil
+	}
+	for {
+		n, e := input.Read(buf)
+		if n < 0 || n > len(buf) {
+			return errors.Join(errInvalidReadCount, e)
+		}
+		if n == 0 && e == nil {
+			empty++
+			if empty >= 100 {
+				return io.ErrNoProgress
+			}
+		} else {
+			empty = 0
+		}
+		if len(cases) == 0 {
+			i := bytes.IndexByte(buf[:n], escape)
+			end := n
+			if i >= 0 {
+				end = i
+			}
+			if end > 0 {
+				if _, x := s.Send(ctx, string(buf[:end])); x != nil {
+					return x
+				}
+			}
+			if i >= 0 {
+				select {
+				case controls <- func() { w.stopped = true }:
+				case <-ctx.Done():
+				}
+				return nil
+			}
+		} else {
+			pending = append(pending, buf[:n]...)
+			if x := flush(false); x != nil {
+				if errors.Is(x, io.EOF) {
+					return nil
+				}
+				return x
+			}
+		}
+		if e != nil {
+			if errors.Is(e, io.EOF) {
+				x := flush(true)
+				if errors.Is(x, io.EOF) {
+					return nil
+				}
+				return x
+			}
+			//nolint:errorlint // Only exact read errors caused by cleanup are benign.
+			if ctx.Err() != nil && (e == io.ErrClosedPipe || e == os.ErrClosed) {
+				return nil
+			}
+			return e
+		}
+	}
 }

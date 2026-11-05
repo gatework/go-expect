@@ -54,6 +54,9 @@ func (e *CompileError) Error() string {
 
 // Event contains metadata only. Error is a classification, never a raw message.
 type Event struct {
+	Source           MatchSource
+	Scope            RuleScope
+	RuleIndex        int
 	Operation        Op
 	CaseIndex, Bytes int
 	Error            ErrClass
@@ -62,3 +65,22 @@ type Event struct {
 // Observer is invoked once per completed public Expect, Send or SendAll operation.
 // Observers run synchronously outside locks and must not block indefinitely.
 type Observer func(Event)
+
+// Unwrap identifies a rejected pattern without revealing its expression.
+func (e *CompileError) Unwrap() error { return ErrInvalidPattern }
+
+// MatchSource identifies the byte stream evaluated by a match.
+type MatchSource uint8
+
+// Sources distinguish remote receive data from local interactive input.
+const (
+	SourceReceive MatchSource = iota
+	SourceInput
+)
+
+func (s MatchSource) String() string {
+	if s == SourceInput {
+		return "input"
+	}
+	return "receive"
+}

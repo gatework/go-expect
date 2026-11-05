@@ -365,7 +365,7 @@ type matchOutputFunc func([]byte) (int, error)
 
 func (f matchOutputFunc) Write(data []byte) (int, error) { return f(data) }
 
-func TestExpectAnyPreservesIdleDeadlineWhileJoiningPreviews(t *testing.T) {
+func TestExpectAnyPreservesIdleAcrossSlowOutput(t *testing.T) {
 	synctest.Test(t, func(t *testing.T) {
 		entered := make(chan struct{})
 		winner, p1 := pair(t)
@@ -373,9 +373,110 @@ func TestExpectAnyPreservesIdleDeadlineWhileJoiningPreviews(t *testing.T) {
 		go func() { _, _ = p2.Write([]byte("waiting")) }()
 		go func() { <-entered; _, _ = p1.Write([]byte("ready")) }()
 		index, _, err := ExpectAny(t.Context(), []*Session{winner, loser}, []Case{{Pattern: Literal("ready")}}, WithIdleTimeout(time.Second))
-		if index != 0 || !errors.Is(err, ErrIdleTimeout) {
+		if index != -1 || !errors.Is(err, ErrIdleTimeout) {
 			t.Fatalf("index=%d err=%v", index, err)
 		}
 		waitText(t, winner, "ready")
 	})
+}
+
+func TestEvolutionPatternValidation(t *testing.T) {
+	if !errors.Is(Line("a\nb").Fold().ValidateText(), ErrInvalidPattern) {
+		t.Fatal("Fold accepted invalid Line")
+	}
+	_, err := Compile("secret[")
+	if !errors.Is(err, ErrInvalidPattern) {
+		t.Fatal("compile category lost")
+	}
+	for _, entry := range []struct {
+		p     Pattern
+		input string
+		match bool
+	}{{Glob("[z-a]"), "m", true}, {Glob("[A-z]").Fold(), "_", false}, {Glob("[A-z]").Fold(), "Z", true}} {
+		s, peer := pair(t)
+		go func() { _, _ = peer.Write([]byte(entry.input)); _ = peer.Close() }()
+		_, err := s.Expect(t.Context(), []Case{{Pattern: entry.p}})
+		if (err == nil) != entry.match {
+			t.Fatalf("pattern=%v err=%v", entry.p, err)
+		}
+	}
+}
+func TestTimeoutCallbackRetainsBudgets(t *testing.T) {
+	for _, entry := range []struct {
+		name        string
+		action      Action
+		idle, sleep time.Duration
+		want        error
+	}{
+		{"idle return", Return, 3 * time.Second, 2 * time.Second, ErrIdleTimeout},
+		{"idle continue", Continue, 3 * time.Second, 2 * time.Second, ErrIdleTimeout},
+		{"idle keep", ContinueKeepTimer, 3 * time.Second, 2 * time.Second, ErrIdleTimeout},
+		{"fresh relative", Return, 0, 3 * time.Second, ErrTimeout},
+	} {
+		t.Run(entry.name, func(t *testing.T) {
+			synctest.Test(t, func(t *testing.T) {
+				s, _ := pair(t)
+				_, err := s.Expect(t.Context(), []Case{{Pattern: Timeout(), Handler: func(context.Context, *Session, Result) (Action, error) {
+					time.Sleep(entry.sleep)
+					return entry.action, nil
+				}}}, WithTimeout(2*time.Second), WithIdleTimeout(entry.idle))
+				if !errors.Is(err, entry.want) {
+					t.Fatalf("want=%v err=%v", entry.want, err)
+				}
+			})
+		})
+	}
+}
+func TestAnyContinueCanCompleteAnotherSession(t *testing.T) {
+	t.Run("continue resets all relative timers", func(t *testing.T) {
+		synctest.Test(t, func(t *testing.T) {
+			a, p := pair(t)
+			b, q := pair(t)
+			go func() { time.Sleep(time.Second); _, _ = p.Write([]byte("PAGE")) }()
+			go func() { time.Sleep(2500 * time.Millisecond); _, _ = q.Write([]byte("READY")) }()
+			i, _, err := ExpectAny(t.Context(), []*Session{a, b}, []Case{{Pattern: Literal("PAGE"), Handler: func(context.Context, *Session, Result) (Action, error) { return Continue, nil }}, {Pattern: Literal("READY")}}, WithTimeout(2*time.Second))
+			if err != nil || i != 1 {
+				t.Fatalf("index=%d err=%v", i, err)
+			}
+		})
+	})
+
+	t.Run("cross-session group priority", func(t *testing.T) {
+		calls := 0
+		a, _ := pair(t)
+		b, _ := pair(t, WithBefore(Case{Pattern: Literal("PAGE"), Handler: func(context.Context, *Session, Result) (Action, error) { calls++; return ContinueKeepTimer, nil }}))
+		a.receive.pending = []byte("READY")
+		// Leave the Before match staged to exercise admission before arbitration.
+		b.receive.staged = []byte("PAGE")
+		i, _, err := ExpectAny(t.Context(), []*Session{a, b}, []Case{{Pattern: Literal("READY")}})
+		if err != nil || i != 0 || calls != 1 {
+			t.Fatalf("index=%d before=%d err=%v", i, calls, err)
+		}
+	})
+	t.Run("same-group round robin", func(t *testing.T) {
+		a, _ := pair(t)
+		b, _ := pair(t)
+		a.receive.pending, b.receive.pending = []byte("XX"), []byte("X")
+		var seen []*Session
+		i, _, err := ExpectAny(t.Context(), []*Session{a, b}, []Case{{Pattern: Literal("X"), Handler: func(_ context.Context, s *Session, _ Result) (Action, error) {
+			seen = append(seen, s)
+			if len(seen) == 3 {
+				return Return, nil
+			}
+			return ContinueKeepTimer, nil
+		}}})
+		if err != nil || i != 0 || len(seen) != 3 || seen[0] != a || seen[1] != b || seen[2] != a {
+			t.Fatalf("index=%d callbacks=%d err=%v", i, len(seen), err)
+		}
+	})
+
+	a, p := pair(t)
+	b, q := pair(t)
+	seen := make(chan struct{})
+	go func() { _, _ = p.Write([]byte("PAGE")) }()
+	go func() { <-seen; _, _ = q.Write([]byte("READY")) }()
+	i, _, err := ExpectAny(t.Context(), []*Session{a, b}, []Case{{Pattern: Literal("PAGE"), Handler: func(context.Context, *Session, Result) (Action, error) { close(seen); return ContinueKeepTimer, nil }}, {Pattern: Literal("READY")}}, WithTimeout(time.Second))
+	if err != nil || i != 1 {
+		t.Fatalf("session=%d err=%v", i, err)
+	}
 }

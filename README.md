@@ -78,7 +78,7 @@ not to the stream engine.
 | Slow devices | `SendSlow`, `SendNull`, transport-capability `SendBreak` |
 | Trace safely | `WithLogger(*slog.Logger)`, `WithObserver`, `WithTrace`; metadata only |
 | Record streams | `WithOutput` and `WithSendOutput`; independent redacted streams |
-| Take over | `Interact`, local escape/action keys, remote pattern actions; `InteractTerminal` for Unix raw input |
+| Take over | `Interact`, local Literal sequence actions, remote pattern actions; `InteractTerminal` for Unix raw input |
 | Watch several | `ExpectAny`; only the winner consumes input and invokes handlers |
 | Watch asynchronously | `StartBackground`; `Stop` cancels and joins the wait |
 | Normalize input | Opt-in `WithRemoveNulls(true)`, `WithStripParity(true)` |
@@ -101,9 +101,12 @@ and responses. Failures after write admission retire the session and return exac
 `WriteError.Written` progress; commands are never retried implicitly.
 
 `Interact` owns its input reader after admission and closes it on exit. Output is
-borrowed and filtered. Control-] exits by default. `InteractTerminal` borrows an
+borrowed and filtered. Control-] exits by default. Use `WithInteractInputCases`
+for byte-exact local Literal sequences and `WithInteractOutputCases` for remote
+patterns; callbacks run on the receive owner. `InteractTerminal` borrows an
 `*os.File`, duplicates it, enables raw mode and restores the original terminal
-state. Interaction retains a bounded 64 KiB/32 KiB matching window, so patterns
+state. Interaction retains a matching window of min(64 KiB, buffer limit), consuming
+half when unmatched (at least one byte), so patterns
 requiring arbitrary historical prefixes are unsuitable. `Stop` and interactive
 cleanup join cooperative callbacks; `Session.Close` does not wait for user code.
 

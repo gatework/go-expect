@@ -23,7 +23,9 @@ func (s *Session) SendAllPoll(ctx context.Context, text string) (int, error) {
 	return s.sendAll(ctx, text, true)
 }
 func (s *Session) sendAll(ctx context.Context, text string, poll bool) (n int, err error) {
-	defer func() { s.notify(ctx, Event{Operation: OpSendAll, CaseIndex: -1, Bytes: n, Error: errorClass(err)}) }()
+	defer func() {
+		s.notify(ctx, Event{RuleIndex: -1, Operation: OpSendAll, CaseIndex: -1, Bytes: n, Error: errorClass(err)})
+	}()
 	if ctx == nil {
 		return 0, &ConfigError{Option: "context", Reason: "nil context"}
 	}

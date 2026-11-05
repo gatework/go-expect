@@ -35,6 +35,10 @@ func (e *WriteError) Unwrap() error { return e.Cause }
 func (e *WriteError) GoString() string { return e.Error() }
 
 // ResponseError identifies a response rule that exceeded its per-call limit.
-type ResponseError struct{ RuleIndex int }
+type ResponseError struct {
+	Source               MatchSource
+	Scope                RuleScope
+	CaseIndex, RuleIndex int
+}
 
 func (e *ResponseError) Error() string { return "expect: response limit exceeded" }

@@ -1,4 +1,19 @@
-# Migration to the next minor API
+# Migration to v0.3.0
+
+Replace `WithEscapeAction(key, handler)` with
+`WithInteractInputCases(Case{Pattern: Literal(string([]byte{key})), Handler: handler})`.
+Local sequences can contain multiple bytes; other local pattern kinds are rejected.
+Rename `WithInteractCases` to `WithInteractOutputCases`. `WithEscape` remains the
+exit-byte option. No compatibility aliases or transition wrappers are provided.
+
+ExpectAny now listens to all sessions after Continue. Continue resets active
+relative budgets together; ContinueKeepTimer and per-session idle budgets retain
+their deadlines. Equal rule groups rotate by session order. Use Result.Source,
+Scope and RuleIndex to identify match origin; trace/completion metadata and
+ResponseError expose the same coordinates. CompileError now also matches
+ErrInvalidPattern through errors.Is.
+
+# Migration from v0.1.x to v0.2.0
 
 This update intentionally removes old interfaces. There are no aliases or
 transition wrappers. Move callers directly to the unified Case/Session model.

@@ -39,5 +39,7 @@ func (s *Session) queueEvent(event readEvent) error {
 	if s.isClosed() {
 		return ErrClosed
 	}
-	return s.mailbox.enqueue(event, s.opts.limit)
+	err := s.mailbox.enqueue(event, s.opts.limit)
+	s.mailbox.notifyWait()
+	return err
 }

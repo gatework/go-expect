@@ -2,9 +2,12 @@
 
 package expect
 
+import "sync/atomic"
+
 // inputMailbox serializes the two receive consumers (Expect and SendAll).
 // Queue mutation and retirement require inputGate; the sole pump owns events.
 type inputMailbox struct {
+	wake        atomic.Pointer[chan struct{}]
 	events      chan readEvent
 	inputGate   chan struct{}
 	inputReady  chan struct{}
@@ -72,7 +75,16 @@ func (m *inputMailbox) enqueue(event readEvent, limit int) error {
 	return nil
 }
 
+func (m *inputMailbox) notifyWait() {
+	if p := m.wake.Load(); p != nil {
+		select {
+		case *p <- struct{}{}:
+		default:
+		}
+	}
+}
 func (m *inputMailbox) signalInput() {
+	m.notifyWait()
 	select {
 	case m.inputReady <- struct{}{}:
 	default:

@@ -14,7 +14,12 @@ type waiter struct {
 	session           *Session
 	cases             []Case
 	origins           []caseOrigin
-	counts, scanned   []int
+	counts            []int
+	scanned           []int
+	smallScans        [8]int
+	lastReset         bool
+	control           <-chan func()
+	stopped           bool
 	o                 expectOptions
 	result            Result
 	relative, idle    time.Time
@@ -43,6 +48,7 @@ func (w *waiter) close() {
 	w.stopTimer()
 	if w.cancelHandlers != nil {
 		w.cancelHandlers()
+		w.cancelHandlers = nil
 		w.session.lifeMu.Lock()
 		w.session.handlerCancel = nil
 		w.session.lifeMu.Unlock()
@@ -57,14 +63,14 @@ func (w *waiter) prepare(ctx context.Context, cases []Case, opts []ExpectOption)
 		return err
 	}
 	o := expectOptions{timeout: w.session.opts.timeout}
-	for _, opt := range opts {
-		if opt == nil {
-			return &ConfigError{Option: "expect", Reason: "nil option"}
-		}
-		if err = opt(&o); err != nil {
-			return err
+	if len(opts) > 0 {
+		var e error
+		o, e = applyExpectOptions(o, opts)
+		if e != nil {
+			return e
 		}
 	}
+
 	w.o = o
 	w.cases, w.origins = prepareCases(cases, w.session.opts.before, w.o.rules, w.session.opts.after)
 	if len(w.cases) == 0 {
@@ -81,13 +87,11 @@ func (w *waiter) prepare(ctx context.Context, cases []Case, opts []ExpectOption)
 	}
 	w.handlerCtx = ctx
 	now := time.Now()
-	start := now
-	if !w.o.started.IsZero() {
-		start = w.o.started
-	}
-	w.relative = after(start, w.o.timeout)
+	w.relative = after(now, w.o.timeout)
 	w.idle = after(now, w.o.idle)
-	w.scanned = make([]int, len(w.cases))
+	if len(w.cases) > 8 {
+		w.scanned = make([]int, len(w.cases)-8)
+	}
 	return nil
 
 }
@@ -98,6 +102,14 @@ func (w *waiter) run(ctx context.Context) (Result, error) {
 		}
 		if w.session.isClosed() {
 			return w.failure(ErrClosed)
+		}
+		select {
+		case f := <-w.control:
+			f()
+		default:
+		}
+		if w.stopped {
+			return w.result, nil
 		}
 		hit, err := w.scan()
 		if err != nil {
@@ -142,7 +154,7 @@ func (w *waiter) scan() (selection, error) {
 		for i, c := range w.cases {
 			from := 0
 			if c.Pattern.kind == literalPattern {
-				from = max(0, w.scanned[i]-len(c.Pattern.text)+1)
+				from = max(0, w.scanOffset(i)-len(c.Pattern.text)+1)
 			}
 			var hit location
 			var ok bool
@@ -159,13 +171,13 @@ func (w *waiter) scan() (selection, error) {
 			} else {
 				hit, ok, e = c.Pattern.find(w.session.receive.pending, w.session.receive.terminal != nil, from)
 			}
-			if !w.o.preview && len(w.session.opts.trace) > 0 {
-				event := TraceEvent{CaseIndex: w.origin(i).index, Buffered: len(w.session.receive.pending), Start: hit.start, End: hit.end, Pattern: c.Pattern.String(), Matched: ok}
+			if len(w.session.opts.trace) > 0 {
+				event := TraceEvent{Scope: w.origin(i).scope, RuleIndex: w.origin(i).rule, CaseIndex: w.origin(i).index, Buffered: len(w.session.receive.pending), Start: hit.start, End: hit.end, Pattern: c.Pattern.String(), Matched: ok}
 				for _, observer := range w.session.opts.trace {
 					observer(event)
 				}
 			}
-			w.scanned[i] = len(w.session.receive.pending)
+			w.setScanOffset(i, len(w.session.receive.pending))
 			if e != nil {
 				return selection{}, e
 			}
@@ -179,9 +191,9 @@ func (w *waiter) scan() (selection, error) {
 		}
 	}
 	streaming := false
-	if chosen < 0 && w.o.streaming != nil && len(w.session.receive.pending) >= streamTriggerBytes {
+	if chosen < 0 && w.o.streaming != nil && len(w.session.receive.pending) >= w.streamHigh() {
 		chosen = len(w.cases)
-		loc = location{start: 0, end: streamConsumeBytes}
+		loc = location{start: 0, end: w.streamLow()}
 		streaming = true
 	}
 	if chosen < 0 && w.session.receive.terminal != nil {
@@ -209,6 +221,7 @@ func (w *waiter) scan() (selection, error) {
 
 }
 func (w *waiter) dispatch(ctx context.Context, hit selection) (bool, error) {
+	w.lastReset = false
 	chosen, loc, streaming, deadlineEvent, eof := hit.chosen, hit.loc, hit.streaming, hit.deadlineEvent, hit.eof
 	// Matching may take time. Recheck deadlines before consuming input or
 	// allowing a response, not only before the scan started.
@@ -233,9 +246,14 @@ func (w *waiter) dispatch(ctx context.Context, hit selection) (bool, error) {
 		index = -1
 	}
 	w.result = Result{CaseIndex: index, RuleIndex: ruleIndex, Scope: scope, Start: loc.start, End: loc.end, Before: string(w.session.receive.pending[:loc.start]), Match: string(w.session.receive.pending[loc.start:loc.end])}
+	if deadlineEvent || eof || (!streaming && w.cases[chosen].Pattern.kind == fullBufferPattern) {
+		for _, observer := range w.session.opts.trace {
+			observer(TraceEvent{CaseIndex: index, RuleIndex: ruleIndex, Scope: scope, Buffered: len(w.session.receive.pending), Start: loc.start, End: loc.end, Pattern: w.cases[chosen].Pattern.String(), Matched: true})
+		}
+	}
 	w.result.Captures = loc.capturesFromSnapshot(w.session.receive.pending, w.result.Match)
 	if !streaming && w.limit(chosen) > 0 && w.counts[chosen] >= w.limit(chosen) {
-		return true, &ResponseError{RuleIndex: ruleIndex}
+		return true, &ResponseError{CaseIndex: index, RuleIndex: ruleIndex, Scope: scope}
 	}
 
 	// Advance without copying the remaining burst on every continuation.
@@ -247,6 +265,7 @@ func (w *waiter) dispatch(ctx context.Context, hit selection) (bool, error) {
 		w.session.receive.pendingAlloc = 0
 	}
 	clear(w.scanned)
+	clear(w.smallScans[:])
 	for i := range w.cursors {
 		if w.cursors[i] != nil {
 			w.cursors[i].reset()
@@ -261,8 +280,11 @@ func (w *waiter) dispatch(ctx context.Context, hit selection) (bool, error) {
 			w.counts[chosen]++
 		}
 	}
-	if handler == nil || w.o.preview {
-		return true, nil
+	if handler == nil {
+		if deadlineEvent {
+			return true, budgetError(ctx, time.Time{}, w.idle)
+		}
+		return true, budgetError(ctx, w.relative, w.idle)
 	}
 	if w.cancelHandlers == nil {
 		w.handlerCtx, w.cancelHandlers = context.WithCancel(ctx)
@@ -274,23 +296,19 @@ func (w *waiter) dispatch(ctx context.Context, hit selection) (bool, error) {
 		}
 		w.session.lifeMu.Unlock()
 	}
-	handlerDeadline := earlier(w.relative, w.idle)
+	handlerStart := time.Now()
+	effectiveRelative := w.relative
 	if deadlineEvent {
-		handlerDeadline = earlier(after(time.Now(), w.o.timeout), w.idle)
+		effectiveRelative = after(handlerStart, w.o.timeout)
 	}
+	handlerDeadline := earlier(effectiveRelative, w.idle)
 	//nolint:contextcheck // handlerCtx derives from this request in dispatch and is canceled by Close.
 	action, handlerErr := w.session.callHandler(w.handlerCtx, handlerDeadline, handler, w.result)
 	if handlerErr != nil {
-		if errors.Is(handlerErr, context.DeadlineExceeded) && ctx.Err() == nil {
-			if !w.relative.IsZero() && !time.Now().Before(w.relative) {
-				handlerErr = errors.Join(handlerErr, ErrTimeout)
-			} else if !w.idle.IsZero() && !time.Now().Before(w.idle) {
-				handlerErr = errors.Join(handlerErr, ErrIdleTimeout)
-			}
-		}
-		return true, handlerErr
+		return true, errors.Join(handlerErr, budgetError(ctx, effectiveRelative, w.idle))
 	}
-	if err := ctx.Err(); err != nil {
+
+	if err := budgetError(ctx, effectiveRelative, w.idle); err != nil {
 		return true, err
 	}
 	if w.o.noConsume && action != Return {
@@ -298,13 +316,11 @@ func (w *waiter) dispatch(ctx context.Context, hit selection) (bool, error) {
 	}
 	switch action {
 	case Return:
-		if deadlineEvent {
-			return true, ctx.Err()
-		}
-		return true, operationError(ctx, w.relative, w.idle)
+		return true, nil
 	case Continue:
 		if !streaming {
 			w.relative = after(time.Now(), w.o.timeout)
+			w.lastReset = true
 		}
 	case ContinueKeepTimer:
 	default:
@@ -325,8 +341,8 @@ func (w *waiter) fill() error {
 		return ErrBufferLimit
 	}
 	n := w.session.opts.limit - len(w.session.receive.pending)
-	if w.o.streaming != nil && len(w.session.receive.pending) < streamTriggerBytes {
-		n = min(n, streamTriggerBytes-len(w.session.receive.pending))
+	if w.o.streaming != nil && len(w.session.receive.pending) < w.streamHigh() {
+		n = min(n, w.streamHigh()-len(w.session.receive.pending))
 	}
 	if n > len(w.session.receive.staged) {
 		n = len(w.session.receive.staged)
@@ -378,6 +394,9 @@ func (w *waiter) wait(ctx context.Context) error {
 	}
 	select {
 	case w.session.mailbox.inputGate <- struct{}{}:
+	case f := <-w.control:
+		f()
+		return nil
 	case <-wake:
 		return nil
 	case <-ctx.Done():
@@ -417,6 +436,10 @@ func (w *waiter) wait(ctx context.Context) error {
 		return nil
 	}
 	select {
+	case f := <-w.control:
+		<-w.session.mailbox.inputGate
+		f()
+		return nil
 	case <-w.pollAck:
 		<-w.session.mailbox.inputGate
 		// A canceled caller's request stays pump-owned through its ack. A
@@ -470,3 +493,40 @@ func (w *waiter) limit(index int) int {
 }
 
 func (w *waiter) reject(err error) (bool, error) { w.result, _ = w.failure(err); return true, err }
+
+func applyExpectOptions(o expectOptions, opts []ExpectOption) (expectOptions, error) {
+	for _, opt := range opts {
+		if opt == nil {
+			return o, &ConfigError{Option: "expect", Reason: "nil option"}
+		}
+		if e := opt(&o); e != nil {
+			return o, e
+		}
+	}
+	return o, nil
+}
+func (w *waiter) scanOffset(i int) int {
+	if i < 8 {
+		return w.smallScans[i]
+	}
+	return w.scanned[i-8]
+}
+func (w *waiter) setScanOffset(i, n int) {
+	if i < 8 {
+		w.smallScans[i] = n
+	} else {
+		w.scanned[i-8] = n
+	}
+}
+func (w *waiter) streamHigh() int { return min(streamTriggerBytes, w.session.opts.limit) }
+func (w *waiter) streamLow() int  { return max(1, w.streamHigh()/2) }
+
+func budgetError(ctx context.Context, relative, idle time.Time) error {
+	if e := ctx.Err(); e != nil {
+		return e
+	}
+	if !idle.IsZero() && earlier(relative, idle).Equal(idle) && !time.Now().Before(idle) {
+		return ErrIdleTimeout
+	}
+	return operationError(ctx, relative, idle)
+}

@@ -10,9 +10,8 @@ A local commit alone does not start GitHub Actions: it must be pushed to GitHub.
 
 The first version is `v0.1.0`. Ordinary snapshots increment patch. Before v1,
 any commit since the latest stable tag with a line beginning `BREAKING:` or
-`BREAKING CHANGE:` selects the next minor and resets patch to zero. This update
-must therefore be committed with a breaking marker and released as v0.2.0 after
-v0.1.4. There are no compatibility aliases. A breaking change at v1 requires an
+`BREAKING CHANGE:` selects the next minor and resets patch to zero. For example, the interaction API changes after v0.2.0
+carry a breaking marker and select v0.3.0. There are no compatibility aliases. A breaking change at v1 requires an
 explicit major-version/module-path migration; automatic publication rejects it.
 Prereleases do not affect stable selection. Reruns reuse the same commit's tag
 and verify existing assets without replacement.
@@ -27,7 +26,7 @@ Queue capacity is GitHub's documented maximum of 100 pending runs.
 ## Gates and artifacts
 
 - Four Unix test jobs run formatting, module verification/tidy checks, vet, shuffled
-  race tests with goleak, eight fuzz smokes, benchmarks, the dialogue example and
+  race tests with goleak, nine fuzz smokes, benchmarks, the dialogue example and
   the independent stream/PTY consumer. Two Windows jobs run native generic/ConPTY tests.
 - The quality job runs pinned golangci-lint and govulncheck, actionlint and release
   regression tests. Static checks also cover error wrapping, context propagation, naming

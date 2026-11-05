@@ -11,8 +11,6 @@ type expectOptions struct {
 	poll          bool
 	noConsume     bool
 	rules         []Case
-	preview       bool
-	started       time.Time
 }
 
 // ExpectOption configures matching or timing for a single Expect operation.
@@ -41,8 +39,8 @@ func WithIdleTimeout(d time.Duration) ExpectOption {
 	}
 }
 
-// WithStreamingFallback consumes the first 32 KiB when 64 KiB are pending and
-// no ordinary case matches. Result.CaseIndex is -1 and Match is the consumed data.
+// WithStreamingFallback consumes max(1, H/2) bytes when H bytes are pending,
+// where H is min(64 KiB, the session buffer limit), and no ordinary case matches. Result.CaseIndex is -1 and Match is the consumed data.
 // Continue and ContinueKeepTimer both preserve all existing timers.
 func WithStreamingFallback(handler Handler) ExpectOption {
 	return func(o *expectOptions) error {

@@ -1,7 +1,7 @@
 # Implementation of the 2026-11-05 review
 
-The review baseline is v0.1.4 (`b75ec0a`). All 16 recommendations are covered by
-this next-minor implementation. Public interfaces are changed directly; removed
+The review baseline is v0.1.4 (`b75ec0a`). The table tracks all 16 recommendations across v0.2.0 and the v0.3.0
+candidate; coverage means the stated Go capability, rather than full Tcl parity. Public interfaces are changed directly; removed
 names have no aliases or transition wrappers.
 
 | Item | Implementation |
@@ -49,10 +49,11 @@ FreeBSD are compile/vet checked locally; FreeBSD has no runtime CI claim. Unix
 process-group SIGHUP requires cooperative descendants; WaitDelay kills only the
 direct child. ConPTY uses a kill-on-close job for descendant cleanup.
 
-Local verification completed with Go 1.27.3: full script/ci (eight fuzz targets
-at 100,000 executions each), final shuffled race tests, Linux/Windows golangci-lint,
-Darwin/FreeBSD vet, actionlint and all 24 release automation tests passed. Native
-Windows/macOS runtime results require their CI runners; no remote run is claimed.
+The v0.2.0 verification recorded full script/ci (eight fuzz targets), lint and
+cross-platform compile checks. Those results describe that release, not the
+current candidate. Candidate verification and allocations are recorded separately
+in [the v0.3.0 review](review-v0.3.md). Native Windows/macOS runtime results require
+their CI runners; no remote candidate run is claimed.
 
 The [benchmark comparison](benchmarks/2026-11-05-spec/README.md) records both the
 Send allocation reduction (default 9 to 3; unlimited 4 to 1) and added receive
@@ -63,8 +64,10 @@ References for the platform implementation: [controlling terminals](https://man7
 [ConPTY creation](https://learn.microsoft.com/en-us/windows/console/creating-a-pseudoconsole-session),
 and [ConPTY teardown ordering](https://learn.microsoft.com/en-us/windows/console/closepseudoconsole).
 
-Final coordinator regressions were reproduced before fixing them: ExpectAny must
-retain the selected preview's idle deadline while joining other previews, and
-background/multi-session completion observers must run after receive ownership
-is released. Targeted regression tests and the full race suite were rerun after
-these fixes. The dependency vulnerability scan reported no vulnerabilities.
+The subsequent audit corrected the earlier first-winner coordinator: Continue
+must restore watching all sessions, rather than locking subsequent matches to the
+first session. v0.3.0 retains independent idle timers/counters and rotates within
+rule groups. Local interaction supports multi-byte literals; remote interaction
+supports full patterns. Go RE2/Unicode and Fold's leftmost-first mode remain
+intentional differences from Tcl. FreeBSD remains compile/vet-only. These limits
+are not claims of complete Tcl compatibility.

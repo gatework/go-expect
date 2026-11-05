@@ -23,6 +23,7 @@ import (
 // Its zero value is invalid. It never contains per-operation match state.
 type Pattern struct {
 	kind    uint8
+	glob    bool
 	text    string
 	re      *regexp.Regexp
 	all     []Pattern
@@ -151,6 +152,9 @@ func (p Pattern) String() string {
 	if p.kind == allPattern {
 		size = len(p.all)
 	}
+	if p.glob {
+		kind = "glob"
+	}
 	return fmt.Sprintf("expect.Pattern{%s,len=%d}", kind, size)
 }
 
@@ -204,6 +208,7 @@ func (c Capture) GoString() string { return c.String() }
 // Before contains pending input on failure; CaseIndex is -1 without a match.
 // Explicit fields contain unredacted bytes; formatting emits only metadata.
 type Result struct {
+	Source        MatchSource
 	CaseIndex     int
 	RuleIndex     int
 	Scope         RuleScope

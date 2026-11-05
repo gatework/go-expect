@@ -9,6 +9,9 @@ import (
 
 // TraceEvent describes a candidate evaluation without retaining payloads or causes.
 type TraceEvent struct {
+	Source                          MatchSource
+	Scope                           RuleScope
+	RuleIndex                       int
 	CaseIndex, Buffered, Start, End int
 	Pattern                         string
 	Matched                         bool

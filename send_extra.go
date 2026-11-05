@@ -12,7 +12,9 @@ import (
 // SendSlow writes byte chunks under one cancellable send lock. The interval is
 // between chunks; it never splits a write retry. Context bounds the whole send.
 func (s *Session) SendSlow(ctx context.Context, text string, chunk int, interval time.Duration) (n int, err error) {
-	defer func() { s.notify(ctx, Event{Operation: OpSend, CaseIndex: -1, Bytes: n, Error: errorClass(err)}) }()
+	defer func() {
+		s.notify(ctx, Event{RuleIndex: -1, Operation: OpSend, CaseIndex: -1, Bytes: n, Error: errorClass(err)})
+	}()
 	if ctx == nil {
 		return 0, &ConfigError{Option: "context", Reason: "nil context"}
 	}

@@ -61,3 +61,36 @@ func BenchmarkSerializedSend(b *testing.B) {
 		})
 	}
 }
+
+// BenchmarkReusedExpect isolates steady-state matching from transport setup.
+func BenchmarkReusedExpect(b *testing.B) {
+	re, err := Compile("END")
+	if err != nil {
+		b.Fatal(err)
+	}
+	for _, entry := range []struct {
+		name    string
+		pattern Pattern
+	}{
+		{"literal", Literal("END")}, {"regexp", re},
+	} {
+		b.Run(entry.name, func(b *testing.B) {
+			local, remote := net.Pipe()
+			s, err := NewSession(local)
+			if err != nil {
+				b.Fatal(err)
+			}
+			defer s.Close()
+			defer remote.Close()
+			cases := []Case{{Pattern: entry.pattern}}
+			input := []byte("END")
+			b.ReportAllocs()
+			for b.Loop() {
+				s.receive.pending = input
+				if _, err := s.Expect(context.Background(), cases); err != nil {
+					b.Fatal(err)
+				}
+			}
+		})
+	}
+}

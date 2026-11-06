@@ -19,7 +19,8 @@ func TestProcessConfigurationAndExitStatus(t *testing.T) {
 	ctx, cancel := context.WithTimeout(t.Context(), 10*time.Second)
 	defer cancel()
 	dir := t.TempDir()
-	program, args := "/bin/sh", []string{"-c", `test "$EXPECT_CHILD" = ready && test "$PWD" = "$EXPECT_DIR" && printf READY; exit 7`}
+	// macOS temporary directories may be spelled through /var -> /private/var.
+	program, args := "/bin/sh", []string{"-c", `test "$EXPECT_CHILD" = ready && test "$PWD" -ef "$EXPECT_DIR" && printf READY; exit 7`}
 	if runtime.GOOS == "windows" {
 		program = "cmd.exe"
 		args = []string{"/d", "/q", "/c", `echo %EXPECT_CHILD% & cd & exit /b 7`}

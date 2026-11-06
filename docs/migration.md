@@ -1,4 +1,63 @@
-# Migration to v0.3.0
+# Migration to the v0.4.0 candidate
+
+This is a direct API evolution. Removed names have no aliases or transition code.
+
+| Previous API | Replacement |
+| --- | --- |
+| ExpectAny(ctx, sessions, cases, opts...) | NewGroup(sessions...), then group.Expect(ctx, cases, opts...) |
+| Index returned by ExpectAny | Selected *Session; use its immutable ID() |
+| One case list applied everywhere | Optional Case.Sessions selects specific Group members |
+| WithNoConsume() | Set Case.NoConsume on individual declarations |
+| ResponseError | CaseLimitError, including SessionID and case/rule coordinates |
+| Background.Stop() / Wait() | Stop(ctx) / Wait(ctx); Pause(ctx) / Resume(ctx) enable takeover |
+| Background inherits session timeout | NoTimeout by default; explicit WithTimeout still overrides |
+| conpty.Start | spawn.Start on every supported platform |
+| spawn.WithConsoleOptions | spawn.WithSize, WithRaw, WithSessionOptions |
+| Process.Wait() error | Process.Wait() (spawn.ExitStatus, error) |
+| Process.SetEcho | Assert spawn.EchoController on Process.Terminal() |
+
+A paused background does not own or inspect foreground input. Its relative and
+idle budgets freeze; the parent context never freezes. Resume while another
+receiver is active returns ErrBusy without changing the paused state. Stop
+cancels the operation; its context bounds joining cooperative callbacks. A Wait
+context only bounds the join, not the operation. Do not synchronously invoke
+controls from their own callbacks. Async callback panic/Goexit reports a payload-free
+CallbackError. Foreground callback panic/Goexit still propagates after cleanup.
+
+SetRules replaces both persistent groups, validates/clones the complete snapshot
+before installation, and resets replaced-rule counts. Foreground/per-call counts
+and timers remain. New snapshots apply after the current callback. Empty groups
+clear rules. Handler closures remain borrowed. NoConsume Continue suppresses that
+candidate until the receive-buffer or rules generation changes, avoiding a busy loop.
+
+Local interaction now accepts Literal, Line, All, Go regexp/Glob and EOF/Timeout/
+Default/FullBuffer events. WithInteractInputTimeout is an independent idle interval. A local
+EOF callback error is an error, even if errors.Is(err, io.EOF). Literal patterns
+share immutable KMP prefix tables; regex feasibility is conservative within the
+explicit matching window. Patterns that remain ambiguous at the window limit
+return ErrBufferLimit. Input NoConsume is rejected: use WithInteractInputForward
+for matched-byte passthrough. Echo is redacted; cooked callbacks require
+InteractTerminal. Remote passthrough remains the default; disabling it filters
+matched bytes and forwards only safe unmatched prefixes.
+
+Relay sources/targets are borrowed Sessions. Each source has one Route; repeated
+sources and self-targets are rejected. Targets use serialized raw writes, operator
+outputs use independent secret filters. QueueLimit bounds queued/in-flight payload
+per route/target, with the source's matching limit as default; transport and
+redaction storage are additional. Slow targets apply backpressure. Multiple sources
+can interleave chunks at one target; no command/response association is implied.
+On failure, already delivered bytes are not replayed. NoConsume route cases/rules
+are rejected because preserving forwarded input would duplicate delivery.
+
+spawn.WithEnv follows os/exec: nil inherits, an explicit empty environment replaces
+it. WithDir defaults to inherited directory. ExitStatus carries PID, Code and Unix
+Signal; ExitError formatting excludes program/environment data. Terminal supports
+resizing everywhere and EchoController only on Unix. Close preserves actual exit
+status. Unix descendants must cooperate with group SIGHUP; Windows uses a Job.
+
+---
+
+## Historical migration to v0.3.0
 
 Replace `WithEscapeAction(key, handler)` with
 `WithInteractInputCases(Case{Pattern: Literal(string([]byte{key})), Handler: handler})`.

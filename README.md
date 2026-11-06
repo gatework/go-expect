@@ -68,19 +68,19 @@ not to the stream engine.
 | --- | --- |
 | Match text | `Literal`, `Line`, `Compile`, `FromRegexp`, `Glob`, `All` |
 | Case folding | `Pattern.Fold`; Unicode regexp folding, Go leftmost-first matching |
-| Preview | `WithNoConsume`; successful `Return` leaves input for the next wait |
+| Preview | `Case.NoConsume`; Continue observes each unchanged candidate once |
 | Inspect match | `Result.Buffer`, `Capture(name)`, `Indices(group)`; half-open byte offsets |
 | Repeat | `Continue` resets the relative timer; `ContinueKeepTimer` preserves it; zero action is `Return` |
 | Recover timeout | `Timeout`, `Default`, `FullBuffer` cases with bounded `Case.Limit` |
 | Reuse rules | `WithBefore`, `WithAfter`, per-call `WithRules`; `Session.Rules` returns a copy |
 | Reply | `ReplyThenContinue`, or `Then(Response)` for dynamic replies |
 | Send | `Send` writes once; `SendAll` drains peer input while writing suffixes |
-| Slow devices | `SendSlow`, `SendNull`, transport-capability `SendBreak` |
+| Slow devices | `SendSlow`, `SendPaced`, bounded `SendNull`, transport-capability `SendBreak` |
 | Trace safely | `WithLogger(*slog.Logger)`, `WithObserver`, `WithTrace`; metadata only |
 | Record streams | `WithOutput` and `WithSendOutput`; independent redacted streams |
-| Take over | `Interact`, local Literal sequence actions, remote pattern actions; `InteractTerminal` for Unix raw input |
-| Watch several | `ExpectAny`; only the winner consumes input and invokes handlers |
-| Watch asynchronously | `StartBackground`; `Stop` cancels and joins the wait |
+| Take over | `Interact`, local Literal/Go regexp/Glob actions and input EOF/idle events; `InteractTerminal` for Unix raw input |
+| Watch several | `Group.Expect`; bound cases, live Add/Remove, fair continuation across members |
+| Watch asynchronously | `StartBackground`; Pause/Resume for foreground takeover; context-bounded Stop/Wait |
 | Normalize input | Opt-in `WithRemoveNulls(true)`, `WithStripParity(true)` |
 
 Before rules take precedence over call cases, then After rules. Within a group,
@@ -102,8 +102,8 @@ and responses. Failures after write admission retire the session and return exac
 
 `Interact` owns its input reader after admission and closes it on exit. Output is
 borrowed and filtered. Control-] exits by default. Use `WithInteractInputCases`
-for byte-exact local Literal sequences and `WithInteractOutputCases` for remote
-patterns; callbacks run on the receive owner. `InteractTerminal` borrows an
+for local text patterns and EOF/Timeout cases, `WithInteractInputTimeout` for
+local idle timing, and `WithInteractOutputCases` for remote patterns; callbacks run on the receive owner. `InteractTerminal` borrows an
 `*os.File`, duplicates it, enables raw mode and restores the original terminal
 state. Interaction retains a matching window of min(64 KiB, buffer limit), consuming
 half when unmatched (at least one byte), so patterns
@@ -113,16 +113,26 @@ cleanup join cooperative callbacks; `Session.Close` does not wait for user code.
 | Process adapter | Ownership and platform |
 | --- | --- |
 | `Console.Start(*exec.Cmd)` | New session and controlling terminal; caller must cancel and Wait |
-| `spawn.Start(ctx, program, args, ...)` | Linux/macOS; owns child and PTY; group SIGHUP, two-second direct-child kill fallback |
-| `conpty.Start(ctx, program, args, ...)` | Windows 10 1809+; owns pseudoconsole and kill-on-close job |
+| `spawn.Start(ctx, program, args, ...)` | Unix PTY or Windows 10 1809+ ConPTY, with common environment/directory/status options |
 
-Unix PTYs default to 24 rows by 80 columns. `WithSize`, `SetSize` and `SetEcho`
-control dimensions/echo; `WithRaw` configures raw slave input. `Console.Start`
-closes the parent's slave after successful start. The Unix adapter also compiles
-for FreeBSD; runtime verification is pending. Windows ConPTY carries UTF-8/VT
-sequences; it does not expose POSIX echo or break controls. Consume process output
-before `Wait`, or call `Close` to interrupt an undrained process. Unix descendant
-processes must cooperate with SIGHUP.
+`spawn.Process.Wait` returns `(ExitStatus, error)`; a failed exit is a typed
+`spawn.ExitError`. `PID` and `Terminal` expose identity and terminal capabilities
+without exposing the transport. Unix PTYs and Windows ConPTY default to 24 by 80.
+Unix cancellation sends group SIGHUP with a two-second direct-child kill fallback;
+descendants must cooperate. Windows uses a kill-on-close job. Consume output
+before Wait, or Close to interrupt an undrained child. FreeBSD has compile/vet
+coverage; native runtime coverage is Linux, macOS and Windows.
+
+`Session.SetRules` atomically replaces Before/After rules at the next scan boundary.
+`Case.Sessions` binds Group declarations; an empty selector matches every member.
+Group controls acknowledge ownership changes, and run outside callbacks. Background
+Pause releases input after callbacks finish, freezing local budgets while parent
+deadlines keep running. Resume returns ErrBusy while a foreground receiver owns it.
+
+`Relay` connects explicit `Route{Source, Targets, Output, Cases}` declarations.
+Targets receive raw bytes through bounded queues; operator Output is independently
+redacted. Matched bytes are withheld unless ForwardMatches is selected. EOF/Return
+drains queued output; errors cancel and join admitted writes without replay.
 
 | Tcl expect convention | This library |
 | --- | --- |

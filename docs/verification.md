@@ -1,7 +1,7 @@
 # Verification
 
 `bash script/ci` checks gofmt, the compiled README example copy, module integrity,
-vet, Windows and FreeBSD cross-compilation, shuffled race tests with goleak, eight
+vet, Windows and FreeBSD cross-compilation, shuffled race tests with goleak, ten
 bounded fuzz targets, benchmark smokes, the dialogue and an independent consumer.
 The dialogue uses a local duplex stream; Unix process tests verify /dev/tty,
 window size, authentication, EOF, cancellation and process reaping.
@@ -22,3 +22,10 @@ have narrowly documented analyzer exceptions.
 Existing timer-only tests already use testing/synctest. Their time.Sleep calls
 advance virtual time; OS/PTY readiness tests retain real waits. Additional tests
 cover new ownership and event semantics, not trivial option setters.
+
+The v0.4 candidate adds regression coverage for callback EOF and abnormal exits,
+send-sink panic cleanup, paused background ownership, live Group membership,
+rule replacement, nonconsuming progress, local regex captures/EOF/idle/terminal
+modes and Relay backpressure/progress/redaction. Input-pattern fuzzing reconstructs
+raw bytes across arbitrary read boundaries. The partial-prefix benchmark records
+4/8/16 KiB scaling, separately from reused Expect and long-lived Send allocations.

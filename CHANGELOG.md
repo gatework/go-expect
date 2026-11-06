@@ -1,5 +1,24 @@
 # Changelog
 
+## Unreleased — v0.4.0 candidate
+
+- BREAKING: replace ExpectAny with mutable Group/Case.Sessions, WithNoConsume
+  with Case.NoConsume, and ResponseError with CaseLimitError. No aliases remain.
+- BREAKING: background waits default to NoTimeout, support Pause/Resume, and
+  require contexts for Stop/Wait. Abnormal asynchronous callbacks return CallbackError.
+- BREAKING: unify Unix PTY and Windows ConPTY behind spawn.Start; remove the
+  conpty package and WithConsoleOptions. Wait returns (ExitStatus, error).
+- Add atomic persistent-rule replacement and stable SessionID metadata.
+- Add local Go regexp/Glob and input EOF/idle actions, forwarding/echo controls,
+  cooked terminal callbacks, filtered remote forwarding and bounded Relay routes.
+- Preserve local callback EOF failures, release send lifecycle references on
+  sink panic, enforce earliest deadlines, and prevent paused background state reads.
+- Replace root-rescanned local tries with incremental KMP completion queues;
+  keep steady-state match/send allocation targets and bounded input pump storage.
+- Add SendPaced and chunked SendNull, common child environment/directory/exit
+  status, smaller private receive modules and direct migration documentation.
+
+
 ## v0.3.0
 
 - BREAKING: replace WithEscapeAction and WithInteractCases with

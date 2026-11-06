@@ -1,5 +1,8 @@
 # Implementation of the 2026-11-05 review
 
+The subsequent capability evolution is recorded in [the v0.4 candidate review](review-v0.4.md).
+This file retains the historical implementation map and its release-specific evidence.
+
 The review baseline is v0.1.4 (`b75ec0a`). The table tracks all 16 recommendations across v0.2.0 and the v0.3.0
 candidate; coverage means the stated Go capability, rather than full Tcl parity. Public interfaces are changed directly; removed
 names have no aliases or transition wrappers.

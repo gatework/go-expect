@@ -25,7 +25,8 @@ func TestProcessConfigurationAndExitStatus(t *testing.T) {
 		args = []string{"/d", "/q", "/c", `echo %EXPECT_CHILD% & cd & exit /b 7`}
 	}
 	env := append(os.Environ(), "EXPECT_CHILD=ready", "EXPECT_DIR="+dir)
-	p, err := Start(ctx, program, args, WithDir(dir), WithEnv(env))
+	// A wide terminal keeps long CI temporary paths on one VT output line.
+	p, err := Start(ctx, program, args, WithDir(dir), WithEnv(env), WithSize(24, 512))
 	if err != nil {
 		t.Fatal(err)
 	}

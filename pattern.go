@@ -9,7 +9,6 @@ package expect
 
 import (
 	"bytes"
-	"context"
 	"errors"
 	"fmt"
 	"regexp"
@@ -22,7 +21,7 @@ import (
 // Pattern is an immutable literal, regular expression, EOF or All pattern.
 // Its zero value is invalid. It never contains per-operation match state.
 type Pattern struct {
-	kind    uint8
+	kind    patternKind
 	glob    bool
 	text    string
 	re      *regexp.Regexp
@@ -31,11 +30,14 @@ type Pattern struct {
 }
 
 const literalKMPThreshold = 256
-const invalidPattern uint8 = 255
+
+type patternKind uint8
+
+const invalidPattern patternKind = 255
 
 // Pattern kinds are internal matching discriminators.
 const (
-	literalPattern uint8 = iota + 1
+	literalPattern patternKind = iota + 1
 	regexpPattern
 	eofPattern
 	allPattern
@@ -187,66 +189,10 @@ func (p Pattern) validate(textOnly bool) error {
 			}
 			return nil
 		}
+	default:
 	}
 	return ErrInvalidPattern
 }
-
-// Capture distinguishes an unmatched optional group from an empty matched group.
-type Capture struct {
-	Text       string
-	Matched    bool
-	Name       string
-	Start, End int
-}
-
-func (Capture) String() string { return "expect.Capture" }
-
-// GoString formats metadata without exposing payloads.
-func (c Capture) GoString() string { return c.String() }
-
-// Result is a detached snapshot of the final match, not the whole conversation.
-// Before contains pending input on failure; CaseIndex is -1 without a match.
-// Explicit fields contain unredacted bytes; formatting emits only metadata.
-type Result struct {
-	Source        MatchSource
-	CaseIndex     int
-	RuleIndex     int
-	Scope         RuleScope
-	Start, End    int
-	Before, Match string
-	Captures      []Capture
-}
-
-func (r Result) String() string { return fmt.Sprintf("expect.Result{case:%d}", r.CaseIndex) }
-
-// GoString formats metadata without exposing payloads.
-func (r Result) GoString() string { return r.String() }
-
-// Action determines whether a matched Case returns or continues waiting.
-type Action uint8
-
-// Actions determine whether a handler returns or continues waiting.
-const (
-	Return Action = iota
-	Continue
-	ContinueKeepTimer
-)
-
-// Handler runs after consumption, outside internal locks. It may send or close,
-// but may not call Expect recursively on the same Session.
-type Handler func(context.Context, *Session, Result) (Action, error)
-
-// Case associates a pattern with an optional handler (nil means Return).
-type Case struct {
-	Pattern Pattern
-	Handler Handler
-	Limit   int
-}
-
-func (Case) String() string { return "expect.Case" }
-
-// GoString formats metadata without exposing payloads.
-func (c Case) GoString() string { return c.String() }
 
 type location struct {
 	start, end int
@@ -304,6 +250,7 @@ func (p Pattern) findLocation(data []byte, terminal bool, scanFrom int, captures
 			}
 		}
 		return loc, true, nil
+	default: // Event patterns are selected by the waiter.
 	}
 	return location{}, false, nil
 }

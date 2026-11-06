@@ -3,20 +3,24 @@
 package expect
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"io"
 	"os"
+	"time"
 )
 
 // InteractOption configures an owned interactive receive operation.
 type InteractOption func(*interactOptions) error
 type interactOptions struct {
-	cases  []Case
-	inputs []Case
-	escape byte
-	expect []ExpectOption
+	matcher                                   *inputMatcher
+	cases                                     []Case
+	inputs                                    []Case
+	escape                                    byte
+	expect                                    []ExpectOption
+	inputTimeout                              time.Duration
+	inputForward, outputForward, echo, cooked bool
+	callbackMode                              func() (func() error, error)
 }
 
 // WithEscape sets the local exit byte; the default is control-] (0x1d).
@@ -24,18 +28,27 @@ func WithEscape(key byte) InteractOption {
 	return func(o *interactOptions) error { o.escape = key; return nil }
 }
 
-// WithInteractInputCases installs ordered, byte-exact local literal actions.
+// WithInteractInputCases installs ordered local text patterns and input events.
+// Statically empty text matches and NoConsume are rejected before admission.
 func WithInteractInputCases(cases ...Case) InteractOption {
-	cases = append([]Case(nil), cases...)
+	cases = cloneCases(cases)
 	return func(o *interactOptions) error {
 		if err := validateCases(cases); err != nil {
 			return err
 		}
 		for _, c := range cases {
-			if c.Pattern.kind != literalPattern {
-				return ErrInvalidPattern
+			switch c.Pattern.kind {
+			case eofPattern, timeoutPattern, defaultPattern, fullBufferPattern:
+			default:
+				if err := c.Pattern.ValidateText(); err != nil {
+					return err
+				}
+			}
+			if c.NoConsume {
+				return &ConfigError{Option: "input case", Reason: "use forwarding instead of NoConsume"}
 			}
 		}
+
 		o.inputs = append(o.inputs, cases...)
 		return nil
 	}
@@ -43,7 +56,7 @@ func WithInteractInputCases(cases ...Case) InteractOption {
 
 // WithInteractOutputCases adds remote pattern actions; Return ends interaction.
 func WithInteractOutputCases(cases ...Case) InteractOption {
-	cases = append([]Case(nil), cases...)
+	cases = cloneCases(cases)
 	return func(o *interactOptions) error {
 		if err := validateCases(cases); err != nil {
 			return err
@@ -66,6 +79,7 @@ func WithInteractExpectOptions(opts ...ExpectOption) InteractOption {
 // by a streaming window of min(64 KiB, buffer limit), not arbitrary regexp prefixes.
 func (s *Session) Interact(ctx context.Context, input io.ReadCloser, output io.Writer, opts ...InteractOption) (err error) {
 	o, w, err := s.prepareInteraction(ctx, input, output, opts)
+	defer func() { s.notifyInteract(ctx, w, err) }()
 	if err != nil {
 		return err
 	}
@@ -79,7 +93,7 @@ func (s *Session) prepareInteraction(ctx context.Context, input io.ReadCloser, o
 	if err := ctx.Err(); err != nil {
 		return interactOptions{}, nil, err
 	}
-	o := interactOptions{escape: 0x1d}
+	o := interactOptions{escape: 0x1d, outputForward: true}
 	for _, opt := range opts {
 		if opt == nil {
 			return interactOptions{}, nil, &ConfigError{Option: "interact", Reason: "nil option"}
@@ -96,15 +110,24 @@ func (s *Session) prepareInteraction(ctx context.Context, input io.ReadCloser, o
 		return interactOptions{}, nil, err
 	}
 	for _, c := range o.inputs {
-		if len(c.Pattern.text) > s.opts.limit {
+		if c.Pattern.kind == literalPattern && len(c.Pattern.text) > s.opts.limit {
 			return interactOptions{}, nil, &ConfigError{Option: "input case", Reason: "sequence exceeds buffer limit"}
 		}
 	}
+	localCases := append(cloneCases(o.inputs), Case{Pattern: Literal(string([]byte{o.escape}))})
+	matcher, err := newInputMatcher(localCases)
+	if err != nil {
+		return interactOptions{}, nil, err
+	}
+	o.matcher = matcher
 	return o, &w, nil
 }
 
 // interactPrepared admits the receiver before any stream or terminal side effect.
 func (s *Session) interactPrepared(ctx context.Context, input io.ReadCloser, output io.Writer, o interactOptions, w *waiter) (err error) {
+	if o.cooked {
+		return &ConfigError{Option: "cooked callbacks", Reason: "requires InteractTerminal"}
+	}
 	if !s.expecting.CompareAndSwap(false, true) {
 		return ErrBusy
 	}
@@ -116,6 +139,8 @@ func (s *Session) interactPrepared(ctx context.Context, input io.ReadCloser, out
 }
 
 func (s *Session) interactOwned(ctx context.Context, input io.ReadCloser, output io.Writer, o interactOptions, w *waiter) (err error) {
+	input = &interactionInput{ReadCloser: input}
+	w.callbackMode = o.callbackMode
 	parent := ctx
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
@@ -136,23 +161,47 @@ func (s *Session) interactOwned(ctx context.Context, input io.ReadCloser, output
 			defer s.diagnostics.mu.Unlock()
 			s.diagnostics.interactSink = nil
 			s.diagnostics.interactRedactor = nil
+			s.diagnostics.interactDeferred = false
 		}
 	}()
 	initialErr := func() error {
 		s.diagnostics.mu.Lock()
 		defer s.diagnostics.mu.Unlock()
 		s.diagnostics.interactSink = output
+		s.diagnostics.interactDeferred = !o.outputForward
 		s.diagnostics.interactOutputErr = nil
 		s.diagnostics.interactRedactor = &redactor{}
 		s.diagnostics.interactRedactor.add(s.diagnostics.secrets)
 		installed = true
-		return s.emitInteractiveLocked(s.receive.pending, false)
+		if o.outputForward {
+			return s.emitInteractiveLocked(s.receive.pending, false)
+		}
+		return nil
 	}()
 	if initialErr != nil {
 		return errors.Join(initialErr, s.Close())
 	}
+	if !o.outputForward {
+		if e := w.enableForwarding(); e != nil {
+			return e
+		}
+		w.deliver = func(result Result, hit selection) error {
+			if hit.deadlineEvent {
+				return nil
+			}
+			if !hit.streaming && w.cases[hit.chosen].NoConsume {
+				return nil
+			}
+			data := result.Before
+			if hit.streaming {
+				data += result.Match
+			}
+			return s.interactiveWrite([]byte(data), false)
+		}
+	}
+
 	localDone := make(chan error, 1)
-	go func() { localDone <- relayInput(ctx, s, input, o.inputs, o.escape, controls, w); cancel() }()
+	go func() { localDone <- relayInput(ctx, s, input, o, controls, w); cancel() }()
 	defer func() {
 		cancel()
 		closeErr := input.Close()
@@ -163,6 +212,7 @@ func (s *Session) interactOwned(ctx context.Context, input io.ReadCloser, output
 		s.diagnostics.mu.Lock()
 		s.diagnostics.interactSink = nil
 		s.diagnostics.interactRedactor = nil
+		s.diagnostics.interactDeferred = false
 		s.diagnostics.mu.Unlock()
 		if errors.Is(closeErr, io.ErrClosedPipe) || errors.Is(closeErr, os.ErrClosed) {
 			closeErr = nil
@@ -180,99 +230,49 @@ func (s *Session) interactOwned(ctx context.Context, input io.ReadCloser, output
 	return errors.Join(parent.Err(), remoteErr)
 }
 
-// relayInput owns only input I/O; closures execute on the receive owner.
-func relayInput(ctx context.Context, s *Session, input io.Reader, cases []Case, escape byte, controls chan<- func(), w *waiter) (err error) {
-	pending := make([]byte, 0)
-	buf := make([]byte, 4096)
-	counts := make([]int, len(cases))
-	empty := 0
-	actions := inputActions{session: s, waiter: w, cases: cases, counts: counts, controls: controls}
-	trie := compileInputTrie(cases)
-	flush := func(eof bool) error {
-		for len(pending) > 0 {
-			matched, partial := trie.match(pending, eof)
-			if partial {
-				return nil
-			}
-			if matched >= 0 {
-				text := cases[matched].Pattern.text
-				if e := actions.invoke(ctx, matched, text); e != nil {
-					return e
-				}
-				pending = pending[len(text):]
-				continue
-			}
-			if pending[0] == escape {
-				select {
-				case controls <- func() { w.stopped = true }:
-				case <-ctx.Done():
-				}
-				return io.EOF
-			}
-			n := 1
-			for n < len(pending) && pending[n] != escape && trie.edges[pending[n]] == nil {
-				n++
-			}
-			if _, e := s.Send(ctx, string(pending[:n])); e != nil {
-				return e
-			}
-			pending = pending[n:]
+// WithInteractInputTimeout sets the local idle interval. Timeout/Default input
+// cases receive this event; without a case expiry returns ErrIdleTimeout.
+func WithInteractInputTimeout(d time.Duration) InteractOption {
+	return func(o *interactOptions) error {
+		if d < 0 {
+			return &ConfigError{Option: "input timeout", Reason: "must be nonnegative"}
 		}
+		o.inputTimeout = d
 		return nil
 	}
-	for {
-		n, e := input.Read(buf)
-		if n < 0 || n > len(buf) {
-			return errors.Join(errInvalidReadCount, e)
-		}
-		if n == 0 && e == nil {
-			empty++
-			if empty >= 100 {
-				return io.ErrNoProgress
-			}
-		} else {
-			empty = 0
-		}
-		if len(cases) == 0 {
-			i := bytes.IndexByte(buf[:n], escape)
-			end := n
-			if i >= 0 {
-				end = i
-			}
-			if end > 0 {
-				if _, x := s.Send(ctx, string(buf[:end])); x != nil {
-					return x
-				}
-			}
-			if i >= 0 {
-				select {
-				case controls <- func() { w.stopped = true }:
-				case <-ctx.Done():
-				}
-				return nil
-			}
-		} else {
-			pending = append(pending, buf[:n]...)
-			if x := flush(false); x != nil {
-				if errors.Is(x, io.EOF) {
-					return nil
-				}
-				return x
-			}
-		}
-		if e != nil {
-			if errors.Is(e, io.EOF) {
-				x := flush(true)
-				if errors.Is(x, io.EOF) {
-					return nil
-				}
-				return x
-			}
-			//nolint:errorlint // Only exact read errors caused by cleanup are benign.
-			if ctx.Err() != nil && (e == io.ErrClosedPipe || e == os.ErrClosed) {
-				return nil
-			}
-			return e
-		}
+}
+
+// WithInteractInputForward forwards matched local sequences before the callback.
+func WithInteractInputForward(enabled bool) InteractOption {
+	return func(o *interactOptions) error { o.inputForward = enabled; return nil }
+}
+
+// WithInteractOutputForward selects immediate remote passthrough (the default).
+// Disabling it withholds matched bytes; unmatched bytes use the bounded window.
+func WithInteractOutputForward(enabled bool) InteractOption {
+	return func(o *interactOptions) error { o.outputForward = enabled; return nil }
+}
+
+// WithInteractEcho echoes matched local sequences to the redacted operator output.
+func WithInteractEcho(enabled bool) InteractOption {
+	return func(o *interactOptions) error { o.echo = enabled; return nil }
+}
+
+// WithInteractCookedCallbacks restores the borrowed terminal during callbacks.
+// It requires InteractTerminal; ordinary Interact rejects the option.
+func WithInteractCookedCallbacks() InteractOption {
+	return func(o *interactOptions) error { o.cooked = true; return nil }
+}
+func (s *Session) interactiveWrite(data []byte, finish bool) error {
+	s.diagnostics.mu.Lock()
+	defer s.diagnostics.mu.Unlock()
+	return s.emitInteractiveLocked(data, finish)
+}
+
+func (s *Session) notifyInteract(ctx context.Context, w *waiter, err error) {
+	r := Result{SessionID: s.id, CaseIndex: -1, RuleIndex: -1}
+	if w != nil {
+		r = w.result
 	}
+	s.notify(ctx, Event{SessionID: s.id, Operation: OpInteract, Source: r.Source, Scope: r.Scope, CaseIndex: r.CaseIndex, RuleIndex: r.RuleIndex, Bytes: len(r.Before) + len(r.Match), Error: errorClass(err)})
 }

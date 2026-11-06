@@ -47,3 +47,27 @@ func (g gate) acquire(ctx context.Context, done <-chan struct{}, deadline time.T
 	}
 }
 func (g gate) release() { <-g }
+
+// awaitControl prefers a published acknowledgement over simultaneous cancellation.
+func awaitControl(ctx context.Context, reply <-chan error, done <-chan struct{}) error {
+	select {
+	case err := <-reply:
+		return err
+	default:
+	}
+	var err error
+	select {
+	case err = <-reply:
+		return err
+	case <-ctx.Done():
+		err = ctx.Err()
+	case <-done:
+		err = ErrClosed
+	}
+	select {
+	case result := <-reply:
+		return result
+	default:
+		return err
+	}
+}

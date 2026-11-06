@@ -327,6 +327,97 @@ func TestSlowAndNullSendRecordedSafely(t *testing.T) {
 }
 
 func TestInteractionEvolution(t *testing.T) {
+	t.Run("input full buffer event", func(t *testing.T) {
+		s, p := pair(t, WithBufferLimit(8))
+		seen := ""
+		got := make(chan string, 1)
+		go func() { buf := make([]byte, 4); _, _ = io.ReadFull(p, buf); got <- string(buf) }()
+		err := s.Interact(t.Context(), io.NopCloser(strings.NewReader("aaaaaaaaaaaa")), io.Discard, WithInteractInputCases(Case{Pattern: mustPattern(t, `a+b`)}, Case{Pattern: FullBuffer(), Handler: func(_ context.Context, _ *Session, r Result) (Action, error) {
+			seen = r.Before
+			return ContinueKeepTimer, nil
+		}}))
+		if err != nil || seen != "aaaaaaaa" {
+			t.Fatalf("snapshot=%q err=%v", seen, err)
+		}
+		if result := <-got; result != "aaaa" {
+			t.Fatal(result)
+		}
+	})
+	t.Run("filtered remote forwarding preserves tail", func(t *testing.T) {
+		s, p := pair(t)
+		input, writer := io.Pipe()
+		defer writer.Close()
+		go func() { _, _ = p.Write([]byte("prefixHIDEtail")) }()
+		var output bytes.Buffer
+		err := s.Interact(t.Context(), input, &output, WithInteractOutputForward(false), WithInteractOutputCases(Case{Pattern: Literal("HIDE")}))
+		if err != nil || output.String() != "prefix" {
+			t.Fatalf("output=%q err=%v", output.String(), err)
+		}
+		waitText(t, s, "tail")
+	})
+
+	t.Run("callback EOF remains an error", func(t *testing.T) {
+		s, _ := pair(t)
+		failure := errors.New("callback failure")
+		err := s.Interact(t.Context(), io.NopCloser(strings.NewReader("x")), io.Discard, WithInteractInputCases(Case{Pattern: Literal("x"), Handler: func(context.Context, *Session, Result) (Action, error) { return Return, errors.Join(failure, io.EOF) }}))
+		if !errors.Is(err, failure) || !errors.Is(err, io.EOF) {
+			t.Fatalf("callback cause lost: %v", err)
+		}
+	})
+	t.Run("regexp input and captures", func(t *testing.T) {
+		s, p := pair(t)
+		result := make(chan string, 1)
+		go func() { buf := make([]byte, 6); _, _ = io.ReadFull(p, buf); result <- string(buf) }()
+		var capture string
+		err := s.Interact(t.Context(), io.NopCloser(&chunkStream{Reader: bytes.NewReader([]byte("xxhello42!tail")), chunk: 1}), io.Discard, WithInteractInputCases(Case{Pattern: mustPattern(t, `hello(\d+)!`), Handler: func(_ context.Context, _ *Session, r Result) (Action, error) {
+			capture = r.Captures[0].Text
+			return ContinueKeepTimer, nil
+		}}))
+		if err != nil || capture != "42" {
+			t.Fatalf("capture=%q err=%v", capture, err)
+		}
+		if got := <-result; got != "xxtail" {
+			t.Fatalf("forwarded %q", got)
+		}
+	})
+	t.Run("local echo and passthrough", func(t *testing.T) {
+		s, p := pair(t)
+		_ = s.Redact("~~")
+		received := make(chan string, 1)
+		go func() { buf := make([]byte, 2); _, _ = io.ReadFull(p, buf); received <- string(buf) }()
+		var output bytes.Buffer
+		err := s.Interact(t.Context(), io.NopCloser(strings.NewReader("~~")), &output, WithInteractInputCases(Case{Pattern: Literal("~~")}), WithInteractInputForward(true), WithInteractEcho(true))
+		if err != nil || output.String() != "**" {
+			t.Fatalf("echo=%q err=%v", output.String(), err)
+		}
+		if got := <-received; got != "~~" {
+			t.Fatal(got)
+		}
+	})
+	t.Run("local EOF event", func(t *testing.T) {
+		s, _ := pair(t)
+		seen := false
+		err := s.Interact(t.Context(), io.NopCloser(strings.NewReader("")), io.Discard, WithInteractInputCases(Case{Pattern: EOF(), Handler: func(_ context.Context, _ *Session, r Result) (Action, error) {
+			seen = r.Source == SourceInput
+			return Return, nil
+		}}))
+		if err != nil || !seen {
+			t.Fatalf("seen=%v err=%v", seen, err)
+		}
+	})
+	t.Run("local idle event", func(t *testing.T) {
+		synctest.Test(t, func(t *testing.T) {
+			s, _ := pair(t)
+			input, writer := io.Pipe()
+			defer writer.Close()
+			seen := false
+			err := s.Interact(t.Context(), input, io.Discard, WithInteractInputTimeout(time.Second), WithInteractInputCases(Case{Pattern: Timeout(), Handler: func(context.Context, *Session, Result) (Action, error) { seen = true; return Return, nil }}))
+			if err != nil || !seen {
+				t.Fatalf("seen=%v err=%v", seen, err)
+			}
+		})
+	})
+
 	t.Run("invalid configuration leaves input untouched", func(t *testing.T) {
 		s, _ := pair(t)
 		input := &interactionProbe{}
@@ -413,7 +504,7 @@ func TestInteractionEvolution(t *testing.T) {
 	t.Run("initial panic cleanup", func(t *testing.T) {
 		s, p := pair(t)
 		go func() { _, _ = p.Write([]byte("pending")) }()
-		_, _ = s.Expect(t.Context(), []Case{{Pattern: Literal("pending")}}, WithNoConsume())
+		_, _ = s.Expect(t.Context(), []Case{{Pattern: Literal("pending"), NoConsume: true}})
 		r, w := io.Pipe()
 		defer w.Close()
 		func() {
@@ -471,3 +562,30 @@ func (p *interactionProbe) Read(b []byte) (int, error) {
 	return p.Reader.Read(b)
 }
 func (p *interactionProbe) Close() error { p.closes++; return nil }
+
+func FuzzInteractInputPatterns(f *testing.F) {
+	f.Add([]byte("x~123!#aEND\n"), uint8(1))
+	f.Add([]byte("~12#\xe4\xb8\xad~!"), uint8(3))
+	f.Fuzz(func(t *testing.T, data []byte, size uint8) {
+		if len(data) > 128 {
+			return
+		}
+		s, p := pair(t)
+		ctx, cancel := context.WithTimeout(t.Context(), 2*time.Second)
+		defer cancel()
+		received := make(chan []byte, 1)
+		go func() { buf := make([]byte, len(data)); _, _ = io.ReadFull(p, buf); received <- buf }()
+		echo := func(ctx context.Context, s *Session, r Result) (Action, error) {
+			_, err := s.Send(ctx, r.Match)
+			return ContinueKeepTimer, err
+		}
+		cases := []Case{{Pattern: mustPattern(t, `~(?P<number>[0-9]+)!`), Handler: echo}, {Pattern: Glob("#?"), Handler: echo}, {Pattern: Line("END"), Handler: echo}, {Pattern: Literal("\x1d"), Handler: echo}}
+		input := io.NopCloser(&chunkStream{Reader: bytes.NewReader(data), chunk: int(size)%16 + 1})
+		if err := s.Interact(ctx, input, io.Discard, WithInteractInputCases(cases...)); err != nil {
+			t.Fatal(err)
+		}
+		if got := <-received; !bytes.Equal(got, data) {
+			t.Fatalf("got=%x want=%x", got, data)
+		}
+	})
+}

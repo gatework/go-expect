@@ -341,3 +341,40 @@ func (w *countedFailureWriter) Write([]byte) (int, error) {
 	w.calls++
 	return 0, w.err
 }
+
+func TestSendOutputPanicCleanup(t *testing.T) {
+	t.Run("synchronous sink panic releases lifecycle", func(t *testing.T) {
+		s, p := pair(t, WithSendOutput(matchOutputFunc(func([]byte) (int, error) { panic("private sink") })))
+		go func() { _, _ = io.ReadFull(p, make([]byte, 1)) }()
+		func() {
+			defer func() {
+				if recover() != "private sink" {
+					t.Error("panic was not propagated")
+				}
+			}()
+			_, _ = s.Send(t.Context(), "x")
+		}()
+		done := make(chan struct{})
+		go func() { _ = s.Close(); close(done) }()
+		select {
+		case <-done:
+		case <-time.After(time.Second):
+			t.Fatal("Close blocked after panic")
+		}
+	})
+	t.Run("asynchronous sink panic preserves progress", func(t *testing.T) {
+		stream := &quietEOFTransport{input: strings.NewReader(""), allowWrite: make(chan struct{}), closed: make(chan struct{})}
+		close(stream.allowWrite)
+		s, err := NewSession(stream, WithSendOutput(matchOutputFunc(func([]byte) (int, error) { panic("private sink") })))
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer s.Close()
+		n, err := s.Send(t.Context(), "x")
+		var writeErr *WriteError
+		var callback *CallbackError
+		if n != 1 || !errors.As(err, &writeErr) || writeErr.Written != 1 || !errors.As(err, &callback) || callback.Kind != CallbackPanicked || !s.isClosed() {
+			t.Fatalf("n=%d err=%v", n, err)
+		}
+	})
+}

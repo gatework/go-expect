@@ -34,11 +34,33 @@ func (e *WriteError) Unwrap() error { return e.Cause }
 // GoString formats metadata without exposing payloads.
 func (e *WriteError) GoString() string { return e.Error() }
 
-// ResponseError identifies a response rule that exceeded its per-call limit.
-type ResponseError struct {
+// CaseLimitError identifies a response rule that exceeded its per-call limit.
+type CaseLimitError struct {
+	SessionID            SessionID
 	Source               MatchSource
 	Scope                RuleScope
 	CaseIndex, RuleIndex int
 }
 
-func (e *ResponseError) Error() string { return "expect: response limit exceeded" }
+func (e *CaseLimitError) Error() string { return "expect: response limit exceeded" }
+
+// CallbackFailure identifies how an asynchronous callback failed.
+type CallbackFailure string
+
+const (
+	// CallbackPanicked means a callback panicked; its payload is deliberately omitted.
+	CallbackPanicked CallbackFailure = "panic"
+	// CallbackExited means a callback terminated its goroutine without returning.
+	CallbackExited CallbackFailure = "goexit"
+)
+
+// CallbackError reports abnormal callback completion without retaining payloads.
+type CallbackError struct{ Kind CallbackFailure }
+
+func (e *CallbackError) Error() string { return "expect: callback failed (" + string(e.Kind) + ")" }
+
+// GoString formats case-limit metadata without exposing user fields.
+func (e *CaseLimitError) GoString() string { return e.Error() }
+
+// GoString formats callback failure metadata without a panic value.
+func (e *CallbackError) GoString() string { return e.Error() }

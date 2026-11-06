@@ -29,6 +29,10 @@ type readEvent struct {
 // concurrency safe. SendAll may queue bounded input for the next Expect.
 // Do not copy a Session. Callback and output execution is cooperative.
 type Session struct {
+	id            SessionID
+	ruleState     atomic.Pointer[ruleProgram]
+	rulesChanged  chan struct{}
+	ruleVersion   uint64
 	transport     io.ReadWriteCloser
 	opts          sessionOptions
 	mailbox       inputMailbox
@@ -47,6 +51,7 @@ type Session struct {
 
 // receiveState is accessed only by the exclusive wait owner.
 type receiveState struct {
+	version                   uint64
 	pending, staged           []byte
 	pendingAlloc, stagedAlloc int
 	stagedErr, terminal       error
@@ -54,6 +59,7 @@ type receiveState struct {
 
 // diagnosticState serializes borrowed sinks and their independent stream filters.
 type diagnosticState struct {
+	interactDeferred                            bool
 	mu                                          sync.Mutex
 	redactor                                    redactor
 	sentRedactor, interactRedactor              *redactor
@@ -84,7 +90,11 @@ func NewSession(transport io.ReadWriteCloser, opts ...SessionOption) (*Session, 
 			return nil, err
 		}
 	}
-	s := &Session{transport: transport, opts: o, mailbox: inputMailbox{events: make(chan readEvent, 1), inputGate: make(chan struct{}, 1), inputReady: make(chan struct{}, 1)}, done: make(chan struct{}), writeGate: make(gate, 1), osIO: access}
+	s := &Session{id: SessionID(nextSessionID.Add(1)), rulesChanged: make(chan struct{}, 1), transport: transport, opts: o, mailbox: inputMailbox{events: make(chan readEvent, 1), inputGate: make(chan struct{}, 1), inputReady: make(chan struct{}, 1)}, done: make(chan struct{}), writeGate: make(gate, 1), osIO: access}
+	if len(o.before)+len(o.after) > 0 {
+		s.ruleVersion = 1
+		s.ruleState.Store(&ruleProgram{RuleSnapshot: RuleSnapshot{Before: o.before, After: o.after}, version: 1})
+	}
 	if len(o.sendOutputs) > 0 {
 		s.diagnostics.sentRedactor = &redactor{}
 	}
@@ -237,7 +247,7 @@ func (s *Session) emit(data []byte, finish bool) error {
 	if !finish && s.isClosed() {
 		return ErrClosed
 	}
-	if err := s.emitInteractiveLocked(data, finish); err != nil {
+	if err := s.emitInteractiveAccepted(data, finish); err != nil {
 		s.diagnostics.outputErr = err
 		return err
 	}
@@ -291,7 +301,7 @@ func (s *Session) notify(ctx context.Context, event Event) {
 		if ctx == nil {
 			ctx = context.Background()
 		}
-		s.opts.structuredLogger.LogAttrs(ctx, slog.LevelInfo, "expect", slog.String("op", event.Operation.String()), slog.Int("case", event.CaseIndex), slog.Int("bytes", event.Bytes), slog.String("class", event.Error.String()), slog.String("source", event.Source.String()), slog.String("scope", string(event.Scope)), slog.Int("rule", event.RuleIndex))
+		s.opts.structuredLogger.LogAttrs(ctx, slog.LevelInfo, "expect", slog.Uint64("session", uint64(event.SessionID)), slog.String("op", event.Operation.String()), slog.Int("case", event.CaseIndex), slog.Int("bytes", event.Bytes), slog.String("class", event.Error.String()), slog.String("source", event.Source.String()), slog.String("scope", string(event.Scope)), slog.Int("rule", event.RuleIndex))
 	}
 
 	for _, observer := range s.opts.observers {
@@ -304,7 +314,7 @@ func (s *Session) notify(ctx context.Context, event Event) {
 // An invalid transport count is rejected and reported as zero.
 func (s *Session) Send(ctx context.Context, text string) (n int, err error) {
 	defer func() {
-		s.notify(ctx, Event{RuleIndex: -1, Operation: OpSend, CaseIndex: -1, Bytes: n, Error: errorClass(err)})
+		s.notify(ctx, Event{SessionID: s.id, RuleIndex: -1, Operation: OpSend, CaseIndex: -1, Bytes: n, Error: errorClass(err)})
 	}()
 	if ctx == nil {
 		return 0, &ConfigError{Option: "context", Reason: "nil context"}
@@ -322,7 +332,7 @@ func (s *Session) Send(ctx context.Context, text string) (n int, err error) {
 	if err = s.writeGate.acquire(ctx, s.done, deadline); err != nil {
 		return 0, err
 	}
-	defer func() { <-s.writeGate }()
+	defer s.writeGate.release()
 	if len(text) == 0 {
 		return 0, nil
 	}

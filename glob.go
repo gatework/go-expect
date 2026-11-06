@@ -116,34 +116,9 @@ func (p Pattern) Fold() Pattern {
 			children[i] = child.Fold()
 		}
 		p = All(children...)
+	default: // Event patterns are unchanged by folding.
 	}
 	return p
-}
-
-// Buffer returns the raw consumed segment (or the no-consume snapshot).
-func (r Result) Buffer() string { return r.Before + r.Match }
-
-// Capture returns the first matched named group.
-func (r Result) Capture(name string) (Capture, bool) {
-	for _, c := range r.Captures {
-		if c.Name == name {
-			return c, c.Matched
-		}
-	}
-	return Capture{}, false
-}
-
-// Indices returns half-open byte offsets within the buffer visible to this match.
-// Group zero is the entire match; higher groups index Captures from one.
-func (r Result) Indices(group int) (int, int, bool) {
-	if group == 0 {
-		return r.Start, r.End, r.CaseIndex >= 0 || r.RuleIndex >= 0 || r.End > r.Start
-	}
-	if group < 1 || group > len(r.Captures) {
-		return -1, -1, false
-	}
-	c := r.Captures[group-1]
-	return c.Start, c.End, c.Matched
 }
 
 func foldCompile(expr string) Pattern {

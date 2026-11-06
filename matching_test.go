@@ -190,7 +190,7 @@ func TestRulesLimitAndCompletionTie(t *testing.T) {
 	var err error
 	r := WithRules(Case{Pattern: Literal("x"), Handler: Then(func(context.Context, *Session, Result) error { count++; return nil })})
 	_, err = s.Expect(t.Context(), []Case{{Pattern: Literal("done")}}, r)
-	var re *ResponseError
+	var re *CaseLimitError
 	if !errors.As(err, &re) || count != 1 {
 		t.Fatalf("%v count=%d", err, count)
 	}
@@ -253,7 +253,7 @@ func TestRulesEventsAndNoConsume(t *testing.T) {
 			s, _ := pair(t)
 			calls := 0
 			_, err := s.Expect(t.Context(), []Case{{Pattern: Timeout(), Handler: func(context.Context, *Session, Result) (Action, error) { calls++; return ContinueKeepTimer, nil }}}, WithTimeout(time.Second))
-			var limit *ResponseError
+			var limit *CaseLimitError
 			if !errors.As(err, &limit) || calls != 1 {
 				t.Fatalf("calls=%d err=%v", calls, err)
 			}
@@ -286,7 +286,7 @@ func TestRulesEventsAndNoConsume(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		result, err := s.Expect(t.Context(), []Case{{Pattern: pattern}}, WithNoConsume())
+		result, err := s.Expect(t.Context(), []Case{{Pattern: pattern, NoConsume: true}})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -331,14 +331,14 @@ func TestMultiAndBackgroundOwnership(t *testing.T) {
 	s2, p2 := pair(t, WithObserver(func(e Event) { checkReleased(second, e) }))
 	second = s2
 	go func() { _, _ = p2.Write([]byte("ready")) }()
-	index, r, err := ExpectAny(t.Context(), []*Session{s1, s2}, []Case{{Pattern: Literal("ready")}})
+	index, r, err := expectGroupIndex(t.Context(), []*Session{s1, s2}, []Case{{Pattern: Literal("ready")}})
 	if err != nil || index != 1 || r.Match != "ready" {
 		t.Fatalf("index=%d result=%v err=%v", index, r, err)
 	}
 	go func() { _, _ = p1.Write([]byte("both")) }()
 	go func() { _, _ = p2.Write([]byte("both")) }()
 	callbacks := 0
-	index, _, err = ExpectAny(t.Context(), []*Session{s1, s2}, []Case{{Pattern: Literal("both"), Handler: func(context.Context, *Session, Result) (Action, error) { callbacks++; return Return, nil }}})
+	index, _, err = expectGroupIndex(t.Context(), []*Session{s1, s2}, []Case{{Pattern: Literal("both"), Handler: func(context.Context, *Session, Result) (Action, error) { callbacks++; return Return, nil }}})
 	if err != nil || callbacks != 1 {
 		t.Fatalf("callbacks=%d err=%v", callbacks, err)
 	}
@@ -352,8 +352,8 @@ func TestMultiAndBackgroundOwnership(t *testing.T) {
 	if _, err = s1.Expect(t.Context(), []Case{{Pattern: Literal("end")}}); !errors.Is(err, ErrBusy) {
 		t.Fatal(err)
 	}
-	b.Stop()
-	_, err = b.Wait()
+	b.Stop(t.Context())
+	_, err = b.Wait(t.Context())
 	if !errors.Is(err, context.Canceled) {
 		t.Fatal(err)
 	}
@@ -365,14 +365,14 @@ type matchOutputFunc func([]byte) (int, error)
 
 func (f matchOutputFunc) Write(data []byte) (int, error) { return f(data) }
 
-func TestExpectAnyPreservesIdleAcrossSlowOutput(t *testing.T) {
+func TestGroupPreservesIdleAcrossSlowOutput(t *testing.T) {
 	synctest.Test(t, func(t *testing.T) {
 		entered := make(chan struct{})
 		winner, p1 := pair(t)
 		loser, p2 := pair(t, WithOutput(matchOutputFunc(func(data []byte) (int, error) { close(entered); time.Sleep(2 * time.Second); return len(data), nil })))
 		go func() { _, _ = p2.Write([]byte("waiting")) }()
 		go func() { <-entered; _, _ = p1.Write([]byte("ready")) }()
-		index, _, err := ExpectAny(t.Context(), []*Session{winner, loser}, []Case{{Pattern: Literal("ready")}}, WithIdleTimeout(time.Second))
+		index, _, err := expectGroupIndex(t.Context(), []*Session{winner, loser}, []Case{{Pattern: Literal("ready")}}, WithIdleTimeout(time.Second))
 		if index != -1 || !errors.Is(err, ErrIdleTimeout) {
 			t.Fatalf("index=%d err=%v", index, err)
 		}
@@ -402,6 +402,16 @@ func TestEvolutionPatternValidation(t *testing.T) {
 	}
 }
 func TestTimeoutCallbackRetainsBudgets(t *testing.T) {
+	t.Run("earliest deadline after slow trace", func(t *testing.T) {
+		synctest.Test(t, func(t *testing.T) {
+			s, _ := pair(t, WithTrace(func(TraceEvent) { time.Sleep(4 * time.Second) }))
+			_, err := s.Expect(t.Context(), []Case{{Pattern: Literal("x")}}, WithIdleTimeout(time.Second), WithTimeout(3*time.Second))
+			if !errors.Is(err, ErrIdleTimeout) {
+				t.Fatalf("earlier idle deadline lost: %v", err)
+			}
+		})
+	})
+
 	for _, entry := range []struct {
 		name        string
 		action      Action
@@ -427,14 +437,14 @@ func TestTimeoutCallbackRetainsBudgets(t *testing.T) {
 		})
 	}
 }
-func TestAnyContinueCanCompleteAnotherSession(t *testing.T) {
+func TestGroupContinueCanCompleteAnotherSession(t *testing.T) {
 	t.Run("continue resets all relative timers", func(t *testing.T) {
 		synctest.Test(t, func(t *testing.T) {
 			a, p := pair(t)
 			b, q := pair(t)
 			go func() { time.Sleep(time.Second); _, _ = p.Write([]byte("PAGE")) }()
 			go func() { time.Sleep(2500 * time.Millisecond); _, _ = q.Write([]byte("READY")) }()
-			i, _, err := ExpectAny(t.Context(), []*Session{a, b}, []Case{{Pattern: Literal("PAGE"), Handler: func(context.Context, *Session, Result) (Action, error) { return Continue, nil }}, {Pattern: Literal("READY")}}, WithTimeout(2*time.Second))
+			i, _, err := expectGroupIndex(t.Context(), []*Session{a, b}, []Case{{Pattern: Literal("PAGE"), Handler: func(context.Context, *Session, Result) (Action, error) { return Continue, nil }}, {Pattern: Literal("READY")}}, WithTimeout(2*time.Second))
 			if err != nil || i != 1 {
 				t.Fatalf("index=%d err=%v", i, err)
 			}
@@ -448,7 +458,7 @@ func TestAnyContinueCanCompleteAnotherSession(t *testing.T) {
 		a.receive.pending = []byte("READY")
 		// Leave the Before match staged to exercise admission before arbitration.
 		b.receive.staged = []byte("PAGE")
-		i, _, err := ExpectAny(t.Context(), []*Session{a, b}, []Case{{Pattern: Literal("READY")}})
+		i, _, err := expectGroupIndex(t.Context(), []*Session{a, b}, []Case{{Pattern: Literal("READY")}})
 		if err != nil || i != 0 || calls != 1 {
 			t.Fatalf("index=%d before=%d err=%v", i, calls, err)
 		}
@@ -458,7 +468,7 @@ func TestAnyContinueCanCompleteAnotherSession(t *testing.T) {
 		b, _ := pair(t)
 		a.receive.pending, b.receive.pending = []byte("XX"), []byte("X")
 		var seen []*Session
-		i, _, err := ExpectAny(t.Context(), []*Session{a, b}, []Case{{Pattern: Literal("X"), Handler: func(_ context.Context, s *Session, _ Result) (Action, error) {
+		i, _, err := expectGroupIndex(t.Context(), []*Session{a, b}, []Case{{Pattern: Literal("X"), Handler: func(_ context.Context, s *Session, _ Result) (Action, error) {
 			seen = append(seen, s)
 			if len(seen) == 3 {
 				return Return, nil
@@ -475,8 +485,23 @@ func TestAnyContinueCanCompleteAnotherSession(t *testing.T) {
 	seen := make(chan struct{})
 	go func() { _, _ = p.Write([]byte("PAGE")) }()
 	go func() { <-seen; _, _ = q.Write([]byte("READY")) }()
-	i, _, err := ExpectAny(t.Context(), []*Session{a, b}, []Case{{Pattern: Literal("PAGE"), Handler: func(context.Context, *Session, Result) (Action, error) { close(seen); return ContinueKeepTimer, nil }}, {Pattern: Literal("READY")}}, WithTimeout(time.Second))
+	i, _, err := expectGroupIndex(t.Context(), []*Session{a, b}, []Case{{Pattern: Literal("PAGE"), Handler: func(context.Context, *Session, Result) (Action, error) { close(seen); return ContinueKeepTimer, nil }}, {Pattern: Literal("READY")}}, WithTimeout(time.Second))
 	if err != nil || i != 1 {
 		t.Fatalf("session=%d err=%v", i, err)
 	}
+}
+
+// expectGroupIndex keeps existing arbitration regressions expressed as indexes.
+func expectGroupIndex(ctx context.Context, sessions []*Session, cases []Case, opts ...ExpectOption) (int, Result, error) {
+	g, err := NewGroup(sessions...)
+	if err != nil {
+		return -1, Result{CaseIndex: -1, RuleIndex: -1}, err
+	}
+	winner, r, err := g.Expect(ctx, cases, opts...)
+	for i, s := range sessions {
+		if s == winner {
+			return i, r, err
+		}
+	}
+	return -1, r, err
 }

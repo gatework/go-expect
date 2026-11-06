@@ -5,6 +5,7 @@ package expect
 import (
 	"fmt"
 	"regexp/syntax"
+	"sync/atomic"
 )
 
 // Op identifies an observed operation.
@@ -12,9 +13,10 @@ type Op string
 
 // Operation names emitted by completion observers.
 const (
-	OpExpect  Op = "expect"
-	OpSend    Op = "send"
-	OpSendAll Op = "send_all"
+	OpExpect   Op = "expect"
+	OpInteract Op = "interact"
+	OpSend     Op = "send"
+	OpSendAll  Op = "send_all"
 )
 
 func (o Op) String() string { return string(o) }
@@ -54,6 +56,7 @@ func (e *CompileError) Error() string {
 
 // Event contains metadata only. Error is a classification, never a raw message.
 type Event struct {
+	SessionID        SessionID
 	Source           MatchSource
 	Scope            RuleScope
 	RuleIndex        int
@@ -79,8 +82,20 @@ const (
 )
 
 func (s MatchSource) String() string {
-	if s == SourceInput {
+	switch s {
+	case SourceInput:
 		return "input"
+	case SourceReceive:
+		return "receive"
+	default:
+		return "unknown"
 	}
-	return "receive"
 }
+
+// SessionID is a process-local identity that remains stable across Group changes.
+type SessionID uint64
+
+var nextSessionID atomic.Uint64
+
+// ID returns this Session's immutable identity.
+func (s *Session) ID() SessionID { return s.id }

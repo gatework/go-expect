@@ -46,6 +46,7 @@ func newMatchCursor(p Pattern) matchCursor {
 				c.children[i] = newMatchCursor(*leaf)
 			}
 		}
+	default: // Stateless patterns are evaluated directly.
 	}
 	return c
 }

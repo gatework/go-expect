@@ -52,6 +52,16 @@ func (s *Session) startWrite(ctx context.Context, text string, mode writeMode) (
 		result <- writeResult{}
 		total := 0
 		var err error
+		completed := false
+		defer func() {
+			if !completed {
+				kind := CallbackExited
+				if recover() != nil {
+					kind = CallbackPanicked
+				}
+				result <- writeResult{total, errors.Join(err, &CallbackError{Kind: kind})}
+			}
+		}()
 		for total < len(data) {
 			if mode != writeOnce && total > 0 {
 				if err = ctx.Err(); err != nil {
@@ -68,10 +78,11 @@ func (s *Session) startWrite(ctx context.Context, text string, mode writeMode) (
 				count = 0
 				err = errors.Join(errInvalidWriteCount, err)
 			}
-			if count > 0 {
-				err = errors.Join(err, s.emitSent(data[total:total+count], false))
-			}
+			prior := total
 			total += count
+			if count > 0 {
+				err = errors.Join(err, s.emitSent(data[prior:total], false))
+			}
 			if mode == writeOnce {
 				if err == nil && total != len(data) {
 					err = io.ErrShortWrite
@@ -86,6 +97,7 @@ func (s *Session) startWrite(ctx context.Context, text string, mode writeMode) (
 				break
 			}
 		}
+		completed = true
 		result <- writeResult{total, err}
 	})
 	if admission := <-result; admission.err != nil {
@@ -120,7 +132,7 @@ type deadlineWriter interface{ SetWriteDeadline(time.Time) error }
 
 // writeSync falls back before transport entry if deadlines are unsupported.
 // The lifecycle counter includes the syscall, so Close still joins all I/O.
-func (s *Session) writeSync(ctx context.Context, text string, deadline time.Time) (writeResult, bool, error) {
+func (s *Session) writeSync(ctx context.Context, text string, deadline time.Time) (result writeResult, supported bool, admission error) {
 	d, ok := s.transport.(deadlineWriter)
 	if !ok {
 		return writeResult{}, false, nil
@@ -141,13 +153,30 @@ func (s *Session) writeSync(ctx context.Context, text string, deadline time.Time
 	}
 	s.workers.Add(1)
 	s.lifeMu.Unlock()
-	// Join a running cancellation callback before resetting the deadline.
+	// Release lifecycle references even when a borrowed sink panics or exits.
 	var canceled chan struct{}
 	var stop func() bool
+	completed := false
+	defer func() {
+		if stop != nil && !stop() {
+			<-canceled
+		}
+		resetErr := d.SetWriteDeadline(time.Time{})
+		if errors.Is(resetErr, io.ErrClosedPipe) || errors.Is(resetErr, net.ErrClosed) || errors.Is(resetErr, os.ErrClosed) {
+			resetErr = nil
+		}
+		s.workers.Done()
+		result.err = errors.Join(result.err, resetErr)
+		if !completed {
+			_ = s.Close()
+		}
+	}()
 	if ctx.Done() != nil {
-		canceled = make(chan struct{})
-		stop = context.AfterFunc(ctx, func() { _ = d.SetWriteDeadline(time.Now()); close(canceled) })
+		done := make(chan struct{})
+		canceled = done
+		stop = context.AfterFunc(ctx, func() { _ = d.SetWriteDeadline(time.Now()); close(done) })
 	}
+
 	n, err := s.transport.Write(data)
 	if n < 0 || n > len(data) {
 		n = 0
@@ -159,21 +188,13 @@ func (s *Session) writeSync(ctx context.Context, text string, deadline time.Time
 	if n > 0 {
 		err = errors.Join(err, s.emitSent(data[:n], false))
 	}
-	if stop != nil && !stop() {
-		<-canceled
-	}
+
 	if cause := ctx.Err(); cause != nil {
 		err = errors.Join(cause, err)
 	} else if !deadline.IsZero() && !time.Now().Before(deadline) {
 		err = errors.Join(context.DeadlineExceeded, err)
 	}
-	resetErr := d.SetWriteDeadline(time.Time{})
-	if errors.Is(resetErr, io.ErrClosedPipe) || errors.Is(resetErr, net.ErrClosed) || errors.Is(resetErr, os.ErrClosed) {
-		resetErr = nil
-	}
-	// Do not enter Close while holding our own lifecycle reference.
-	s.workers.Done()
-	err = errors.Join(err, resetErr)
+	completed = true
 	return writeResult{n, err}, true, nil
 }
 

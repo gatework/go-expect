@@ -9,7 +9,7 @@ import "context"
 // disables that timer and continues waiting. Requires WithOSPolling.
 func (s *Session) Poll(ctx context.Context, cases []Case, opts ...ExpectOption) (Result, error) {
 	if s.osIO == nil {
-		return Result{CaseIndex: -1, RuleIndex: -1}, ErrPollUnsupported
+		return Result{SessionID: s.id, CaseIndex: -1, RuleIndex: -1}, ErrPollUnsupported
 	}
 	opts = append(append([]ExpectOption(nil), opts...), func(o *expectOptions) error { o.poll = true; return nil })
 	return s.Expect(ctx, cases, opts...)

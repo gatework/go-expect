@@ -94,3 +94,27 @@ func BenchmarkReusedExpect(b *testing.B) {
 		})
 	}
 }
+
+func BenchmarkInteractPartialPrefix(b *testing.B) {
+	for _, size := range []int{4096, 8192, 16384} {
+		b.Run(strconv.Itoa(size), func(b *testing.B) {
+			data := bytes.Repeat([]byte("a"), size)
+			pattern := Literal(string(data) + "b")
+			b.ReportAllocs()
+			b.SetBytes(int64(size))
+			for b.Loop() {
+				stream := &admissionTransport{closed: make(chan struct{})}
+				s, err := NewSession(stream, WithWriteTimeout(NoTimeout))
+				if err != nil {
+					b.Fatal(err)
+				}
+				input := io.NopCloser(&chunkStream{Reader: bytes.NewReader(data), chunk: 1})
+				err = s.Interact(context.Background(), input, io.Discard, WithInteractInputCases(Case{Pattern: pattern}))
+				_ = s.Close()
+				if err != nil {
+					b.Fatal(err)
+				}
+			}
+		})
+	}
+}

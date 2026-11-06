@@ -9,6 +9,7 @@ import (
 
 // TraceEvent describes a candidate evaluation without retaining payloads or causes.
 type TraceEvent struct {
+	SessionID                       SessionID
 	Source                          MatchSource
 	Scope                           RuleScope
 	RuleIndex                       int
@@ -57,8 +58,19 @@ func (s *Session) emitSent(data []byte, finish bool) error {
 	if len(s.opts.sendOutputs) == 0 {
 		return nil
 	}
+	completed := false
+	defer func() {
+		if !completed {
+			if v := recover(); v != nil {
+				s.diagnostics.sendOutputErr = &CallbackError{Kind: CallbackPanicked}
+				panic(v)
+			}
+			s.diagnostics.sendOutputErr = &CallbackError{Kind: CallbackExited}
+		}
+	}()
 	filtered := s.diagnostics.sentRedactor.append(data, finish)
 	if len(filtered) == 0 {
+		completed = true
 		return nil
 	}
 	for _, out := range s.opts.sendOutputs {
@@ -68,9 +80,11 @@ func (s *Session) emitSent(data []byte, finish bool) error {
 		}
 		if err != nil {
 			s.diagnostics.sendOutputErr = err
+			completed = true
 			return err
 		}
 	}
+	completed = true
 	return nil
 }
 func (s *Session) emitInteractiveLocked(data []byte, finish bool) error {
@@ -102,4 +116,13 @@ func (s *Session) finishDiagnosticRules() error {
 	s.diagnostics.interactSink = nil
 	s.diagnostics.secrets = nil
 	return err
+}
+
+// emitInteractiveAccepted runs with diagnostics.mu held. Filtering interactions
+// deliver selected safe bytes from dispatch instead of tapping accepted input.
+func (s *Session) emitInteractiveAccepted(data []byte, finish bool) error {
+	if s.diagnostics.interactDeferred {
+		return nil
+	}
+	return s.emitInteractiveLocked(data, finish)
 }

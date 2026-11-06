@@ -26,6 +26,7 @@ func (s *Session) InteractTerminal(ctx context.Context, input *os.File, output i
 		return err
 	}
 	o, w, err := s.prepareInteraction(ctx, input, output, opts)
+	defer func() { s.notifyInteract(ctx, w, err) }()
 	if err != nil {
 		return err
 	}
@@ -67,6 +68,14 @@ func (s *Session) InteractTerminal(ctx context.Context, input *os.File, output i
 		_, e := unix.FcntlInt(uintptr(fd), unix.F_SETFL, flags)
 		err = errors.Join(err, e)
 	}()
+	if o.cooked {
+		o.callbackMode = func() (func() error, error) {
+			if e := term.Restore(fd, state); e != nil {
+				return nil, e
+			}
+			return func() error { _, e := term.MakeRaw(fd); return e }, nil
+		}
+	}
 	// Rewrap only after nonblocking is set, so Go registers the runtime poller.
 	if err = unix.SetNonblock(fd, true); err != nil {
 		return err

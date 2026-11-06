@@ -37,9 +37,10 @@ func (s *Session) Expect(ctx context.Context, cases []Case, opts ...ExpectOption
 	return result, err
 }
 func (s *Session) notifyExpect(ctx context.Context, result Result, err error) {
-	s.notify(ctx, Event{Source: result.Source, Scope: result.Scope, RuleIndex: result.RuleIndex, Operation: OpExpect, CaseIndex: result.CaseIndex, Bytes: len(result.Before) + len(result.Match), Error: errorClass(err)})
+	s.notify(ctx, Event{SessionID: s.id, Source: result.Source, Scope: result.Scope, RuleIndex: result.RuleIndex, Operation: OpExpect, CaseIndex: result.CaseIndex, Bytes: len(result.Before) + len(result.Match), Error: errorClass(err)})
 }
 func (s *Session) expect(ctx context.Context, cases []Case, opts ...ExpectOption) (result Result, err error) {
+	result.SessionID = s.id
 	result.CaseIndex = -1
 	result.RuleIndex = -1
 	if !s.expecting.CompareAndSwap(false, true) {
@@ -107,12 +108,14 @@ func operationError(ctx context.Context, relative, idle time.Time) error {
 	if err := ctx.Err(); err != nil {
 		return err
 	}
-	now := time.Now()
+	return budgetDue(relative, idle, time.Now())
+}
+func budgetDue(relative, idle, now time.Time) error {
+	if !idle.IsZero() && !now.Before(idle) && (relative.IsZero() || !relative.Before(idle)) {
+		return ErrIdleTimeout
+	}
 	if !relative.IsZero() && !now.Before(relative) {
 		return ErrTimeout
-	}
-	if !idle.IsZero() && !now.Before(idle) {
-		return ErrIdleTimeout
 	}
 	return nil
 }

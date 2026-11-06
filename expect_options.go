@@ -9,7 +9,6 @@ type expectOptions struct {
 	declaration   bool
 	streaming     Handler
 	poll          bool
-	noConsume     bool
 	rules         []Case
 }
 
@@ -73,9 +72,4 @@ func WithMatchOrder(order MatchOrder) ExpectOption {
 		o.declaration = order == Declaration
 		return nil
 	}
-}
-
-// WithNoConsume returns a snapshot without consuming matching input. Handlers must Return.
-func WithNoConsume() ExpectOption {
-	return func(o *expectOptions) error { o.noConsume = true; return nil }
 }

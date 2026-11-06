@@ -362,7 +362,11 @@ func TestRegexpWinnerCapturesPreviewAndDetached(t *testing.T) {
 				}
 				return Return, rejection
 			}
-			result, err := s.Expect(t.Context(), patterns, append(append([]ExpectOption(nil), opts...), WithNoConsume())...)
+			preview := cloneCases(patterns)
+			for i := range preview {
+				preview[i].NoConsume = true
+			}
+			result, err := s.Expect(t.Context(), preview, opts...)
 			if !errors.Is(err, rejection) || string(s.receive.pending) != "z:ab!" {
 				t.Fatalf("preview err=%v pending=%q", err, s.receive.pending)
 			}

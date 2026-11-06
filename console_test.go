@@ -154,7 +154,12 @@ func TestConsoleCanonicalEchoAndRawClose(t *testing.T) {
 	if got := getState(); got != expected {
 		t.Fatal("invalid interaction changed terminal")
 	}
-	if err = remote.InteractTerminal(t.Context(), c.TTY(), io.Discard); err != nil {
+	if err = remote.InteractTerminal(t.Context(), c.TTY(), io.Discard, WithInteractCookedCallbacks(), WithInteractInputCases(Case{Pattern: Literal("\x1d"), Handler: func(context.Context, *Session, Result) (Action, error) {
+		if got := getState(); got != expected {
+			t.Error("callback did not restore terminal")
+		}
+		return Return, nil
+	}})); err != nil {
 		t.Fatal(err)
 	}
 	if got := getState(); got != expected {

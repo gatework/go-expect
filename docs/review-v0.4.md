@@ -1,4 +1,4 @@
-# Go-native Expect capability evolution (v0.4 candidate)
+# Go-native Expect capability evolution (v0.4.0)
 
 Baseline: v0.3.0 (`b952757`). This implementation covers the approved capability
 roadmap without a Tcl interpreter or compatibility aliases. Precise semantics and
@@ -66,7 +66,8 @@ cross-compilation, FreeBSD vet, README example synchronization, source-consumer
 smokes, allocation/prefix benchmarks and all 24 release-automation tests. Relevant
 checks are rerun after subsequent candidate fixes. Native Linux/macOS/Windows
 acceptance is established by the feature branch's matching Actions commit, not
-by local cross-compilation. No tag or release is created for this candidate.
+by local cross-compilation. Implementation-stage checks and feature-branch CI do not publish releases;
+publication is a separate default-branch workflow.
 
 Intentional boundaries: RE2/Unicode, Go contexts/errors, bounded buffers and explicit
 ownership are retained instead of Tcl dialect/default compatibility. Prefix

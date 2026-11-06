@@ -1,4 +1,4 @@
-# Migration to the v0.4.0 candidate
+# Migration to v0.4.0
 
 This is a direct API evolution. Removed names have no aliases or transition code.
 

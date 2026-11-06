@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased — v0.4.0 candidate
+## v0.4.0
 
 - BREAKING: replace ExpectAny with mutable Group/Case.Sessions, WithNoConsume
   with Case.NoConsume, and ResponseError with CaseLimitError. No aliases remain.
@@ -17,7 +17,6 @@
   keep steady-state match/send allocation targets and bounded input pump storage.
 - Add SendPaced and chunked SendNull, common child environment/directory/exit
   status, smaller private receive modules and direct migration documentation.
-
 
 ## v0.3.0
 

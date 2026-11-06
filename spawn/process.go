@@ -1,50 +1,113 @@
-//go:build linux || darwin || freebsd
-
 // SPDX-License-Identifier: Apache-2.0
 
-// Package spawn owns the lifecycle of a child with a controlling PTY.
+// Package spawn owns interactive child processes through PTYs on Unix and
+// pseudoconsoles on Windows. Arguments are literal; no shell is implicit.
 package spawn
 
 import (
 	"context"
 	"errors"
-	"os"
-	"os/exec"
-	"sync"
-	"syscall"
-	"time"
+	"fmt"
+	"strings"
 
 	expect "github.com/gatework/go-expect"
 )
 
-// Option configures the child's terminal before it starts.
+// Option configures a process before child creation.
 type Option func(*options) error
-type options struct{ console []expect.ConsoleOption }
-
-// WithSize sets terminal rows and columns.
-func WithSize(rows, cols int) Option { return WithConsoleOptions(expect.WithSize(rows, cols)) }
-
-// WithConsoleOptions configures the owned PTY and Session.
-func WithConsoleOptions(opts ...expect.ConsoleOption) Option {
-	opts = append([]expect.ConsoleOption(nil), opts...)
-	return func(o *options) error { o.console = append(o.console, opts...); return nil }
+type options struct {
+	rows, cols int
+	raw        bool
+	session    []expect.SessionOption
+	env        []string
+	dir        string
 }
 
-// Process owns a child and its PTY. Do not copy it. Wait and Close are concurrent safe.
-// Close cancels the child and joins Wait; exit status is reported by Wait.
-type Process struct {
-	console  *expect.Console
-	cmd      *exec.Cmd
-	cancel   context.CancelFunc
-	done     chan struct{}
-	waitErr  error
-	once     sync.Once
-	closeErr error
+// WithSize sets terminal rows and columns (default: 24 by 80). Windows limits
+// dimensions to 32767; Unix supports 65535. Validation precedes child creation.
+func WithSize(rows, cols int) Option {
+	return func(o *options) error {
+		if rows < 1 || cols < 1 || rows > 65535 || cols > 65535 {
+			return &expect.ConfigError{Option: "size", Reason: "dimensions must be in 1..65535"}
+		}
+		o.rows, o.cols = rows, cols
+		return nil
+	}
 }
 
-// Start starts program with literal arguments in a new session and process group.
-// Cancellation sends SIGHUP to that group. WaitDelay kills an unresponsive direct
-// child after two seconds; descendants must cooperate with group SIGHUP.
+// WithSessionOptions configures the owned conversation Session.
+func WithSessionOptions(opts ...expect.SessionOption) Option {
+	opts = append([]expect.SessionOption(nil), opts...)
+	return func(o *options) error { o.session = append(o.session, opts...); return nil }
+}
+
+// WithEnv replaces the child's environment. Nil inherits; an empty nonnil slice
+// creates an empty environment, following os/exec semantics.
+func WithEnv(env []string) Option {
+	var snapshot []string
+	if env != nil {
+		snapshot = append([]string{}, env...)
+	}
+	return func(o *options) error {
+		for _, v := range snapshot {
+			if strings.ContainsRune(v, 0) || !strings.ContainsRune(v, '=') {
+				return &expect.ConfigError{Option: "environment", Reason: "invalid entry"}
+			}
+		}
+		o.env = snapshot
+		return nil
+	}
+}
+
+// WithDir sets the child working directory; empty inherits the parent directory.
+func WithDir(dir string) Option {
+	return func(o *options) error {
+		if strings.ContainsRune(dir, 0) {
+			return &expect.ConfigError{Option: "directory", Reason: "contains NUL"}
+		}
+		o.dir = dir
+		return nil
+	}
+}
+
+// WithRaw configures a raw Unix slave. Windows returns ErrUnsupported.
+func WithRaw() Option { return func(o *options) error { o.raw = true; return nil } }
+
+// ErrUnsupported identifies a process or terminal capability unavailable here.
+var ErrUnsupported = errors.New("spawn: capability unsupported")
+
+// ExitStatus is a detached, payload-free child status. Signal is empty for a
+// normal exit; a signaled Unix exit has Code -1. PID identifies the started child.
+type ExitStatus struct {
+	PID, Code int
+	Signal    string
+}
+
+// ExitError reports failed completion without formatting program arguments.
+type ExitError struct {
+	Status ExitStatus
+	Cause  error
+}
+
+func (e *ExitError) Error() string {
+	return fmt.Sprintf("spawn: process exited (code=%d signal=%s)", e.Status.Code, e.Status.Signal)
+}
+func (e *ExitError) Unwrap() error { return e.Cause }
+
+// GoString omits the underlying process error.
+func (e *ExitError) GoString() string { return e.Error() }
+
+// Terminal exposes portable resizing. Assert EchoController for Unix echo control.
+type Terminal interface{ SetSize(rows, cols int) error }
+
+// EchoController is an optional terminal capability, absent on Windows.
+type EchoController interface{ SetEcho(bool) error }
+
+// Process owns a child, terminal and Session. Do not copy it. Wait and Close are
+// safe concurrently. Consume output before Wait; Close interrupts undrained I/O.
+type Process struct{ state *processState }
+
+// Start selects the platform terminal backend and starts a literal command.
 func Start(ctx context.Context, program string, args []string, opts ...Option) (*Process, error) {
 	if ctx == nil {
 		return nil, &expect.ConfigError{Option: "context", Reason: "nil context"}
@@ -52,7 +115,15 @@ func Start(ctx context.Context, program string, args []string, opts ...Option) (
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-	var o options
+	if program == "" || strings.ContainsRune(program, 0) {
+		return nil, &expect.ConfigError{Option: "program", Reason: "empty or contains NUL"}
+	}
+	for _, arg := range args {
+		if strings.ContainsRune(arg, 0) {
+			return nil, &expect.ConfigError{Option: "argument", Reason: "contains NUL"}
+		}
+	}
+	o := options{rows: 24, cols: 80}
 	for _, opt := range opts {
 		if opt == nil {
 			return nil, &expect.ConfigError{Option: "spawn", Reason: "nil option"}
@@ -61,49 +132,33 @@ func Start(ctx context.Context, program string, args []string, opts ...Option) (
 			return nil, err
 		}
 	}
-	c, err := expect.NewConsole(o.console...)
+	state, err := startProcess(ctx, program, append([]string(nil), args...), o)
 	if err != nil {
 		return nil, err
 	}
-	childCtx, cancel := context.WithCancel(ctx)
-	cmd := exec.CommandContext(childCtx, program, args...)
-	cmd.WaitDelay = 2 * time.Second
-	cmd.Cancel = func() error {
-		err := syscall.Kill(-cmd.Process.Pid, syscall.SIGHUP)
-		if errors.Is(err, syscall.ESRCH) {
-			return os.ErrProcessDone
-		}
-		return err
-	}
-	if err = c.Start(cmd); err != nil {
-		cancel()
-		return nil, errors.Join(err, c.Close())
-	}
-	p := &Process{console: c, cmd: cmd, cancel: cancel, done: make(chan struct{})}
-	go func() { p.waitErr = cmd.Wait(); cancel(); close(p.done) }()
-	return p, nil
+	return &Process{state: state}, nil
 }
 
-// Session returns the owned conversation session.
-func (p *Process) Session() *expect.Session { return p.console.Session() }
+// Session returns the owned conversation Session.
+func (p *Process) Session() *expect.Session { return p.state.sessionHandle() }
 
-// Wait joins the child once and retains its actual exit error or signal.
-func (p *Process) Wait() error { <-p.done; return p.waitErr }
+// PID returns the immutable child process identifier.
+func (p *Process) PID() int { return p.state.pid() }
 
-// Close cancels the process, closes its PTY, and waits for it to be reaped.
-func (p *Process) Close() error {
-	p.once.Do(func() { p.cancel(); p.closeErr = p.console.Close(); <-p.done })
-	return p.closeErr
-}
+// Wait joins the child and returns its status plus a typed error on failure.
+func (p *Process) Wait() (ExitStatus, error) { return p.state.wait() }
 
-// SetSize resizes the child's terminal.
-func (p *Process) SetSize(rows, cols int) error { return p.console.SetSize(rows, cols) }
+// Close interrupts I/O, cancels the child and joins cleanup. It does not erase status.
+func (p *Process) Close() error { return p.state.close() }
 
-// SetEcho changes terminal echo.
-func (p *Process) SetEcho(enabled bool) error { return p.console.SetEcho(enabled) }
+// SetSize resizes the terminal.
+func (p *Process) SetSize(rows, cols int) error { return p.state.terminal().SetSize(rows, cols) }
 
-// String formats the handle without exposing owned stream or command state.
+// Terminal returns the backend's terminal controls without exposing its transport.
+func (p *Process) Terminal() Terminal { return p.state.terminal() }
+
+// String omits child program and environment data.
 func (*Process) String() string { return "spawn.Process" }
 
-// GoString formats the handle without exposing owned stream or command state.
+// GoString omits child program and environment data.
 func (p *Process) GoString() string { return p.String() }

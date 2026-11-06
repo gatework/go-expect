@@ -2,17 +2,17 @@
 
 // SPDX-License-Identifier: Apache-2.0
 
-// Package conpty runs Windows console programs through an owned pseudoconsole.
-// Windows 10 1809 or newer is required. Streams contain UTF-8 and VT sequences.
-package conpty
+package spawn
 
 import (
 	"context"
 	"errors"
-	"fmt"
 	"os"
 	"os/exec"
+	"sort"
+	"strings"
 	"sync"
+	"unicode/utf16"
 	"unsafe"
 
 	expect "github.com/gatework/go-expect"
@@ -23,65 +23,27 @@ import (
 // accepted by x/sys Update. Keep its uintptr conversion at the syscall boundary.
 var updateAttribute = windows.NewLazySystemDLL("kernel32.dll").NewProc("UpdateProcThreadAttribute")
 
-// Option configures a process before any child is started.
-type Option func(*options) error
-type options struct {
-	rows, cols int
-	session    []expect.SessionOption
-}
-
-// WithSize sets terminal rows and columns; both default to 24 by 80.
-func WithSize(rows, cols int) Option {
-	return func(o *options) error {
-		if rows < 1 || rows > 32767 || cols < 1 || cols > 32767 {
-			return &expect.ConfigError{Option: "size", Reason: "dimensions must be in 1..32767"}
-		}
-		o.rows, o.cols = rows, cols
-		return nil
-	}
-}
-
-// WithSessionOptions configures the conversation session.
-func WithSessionOptions(opts ...expect.SessionOption) Option {
-	opts = append([]expect.SessionOption(nil), opts...)
-	return func(o *options) error { o.session = append(o.session, opts...); return nil }
-}
-
-// ExitError reports a nonzero child exit code without retaining command text.
-type ExitError struct{ Code uint32 }
-
-func (e *ExitError) Error() string { return fmt.Sprintf("conpty: process exited (code=%d)", e.Code) }
-
 // Process owns a Windows job, its child, pseudoconsole and conversation session.
 // Close terminates the job and joins the child. Wait returns its exit status.
 // Wait requires output to be consumed; Close can interrupt an undrained stream.
-type Process struct {
+type processState struct {
 	session   *expect.Session
 	transport *transport
 	done      chan struct{}
 	waitErr   error
+	status    ExitStatus
+	processID int
 	stop      func() bool
 	once      sync.Once
 	closeErr  error
 }
 
-// Start runs program and literal arguments with a controlling pseudoconsole.
-// Child creation is suspended until it belongs to the kill-on-close Windows job.
-func Start(ctx context.Context, program string, args []string, opts ...Option) (*Process, error) {
-	if ctx == nil {
-		return nil, &expect.ConfigError{Option: "context", Reason: "nil context"}
+func startProcess(ctx context.Context, program string, args []string, o options) (*processState, error) {
+	if o.rows > 32767 || o.cols > 32767 {
+		return nil, &expect.ConfigError{Option: "size", Reason: "Windows dimensions must be in 1..32767"}
 	}
-	if err := ctx.Err(); err != nil {
-		return nil, err
-	}
-	o := options{rows: 24, cols: 80}
-	for _, opt := range opts {
-		if opt == nil {
-			return nil, &expect.ConfigError{Option: "conpty", Reason: "nil option"}
-		}
-		if err := opt(&o); err != nil {
-			return nil, err
-		}
+	if o.raw {
+		return nil, ErrUnsupported
 	}
 	executable, err := exec.LookPath(program)
 	if err != nil {
@@ -125,7 +87,36 @@ func Start(ctx context.Context, program string, args []string, opts ...Option) (
 	if err = ctx.Err(); err != nil {
 		return nil, err
 	}
-	if err = windows.CreateProcess(app, command, nil, nil, false, windows.EXTENDED_STARTUPINFO_PRESENT|windows.CREATE_UNICODE_ENVIRONMENT|windows.CREATE_SUSPENDED, nil, nil, &si.StartupInfo, &pi); err != nil {
+	var directory *uint16
+	if o.dir != "" {
+		directory, err = windows.UTF16PtrFromString(o.dir)
+		if err != nil {
+			return nil, err
+		}
+	}
+	var environment *uint16
+	if o.env != nil {
+		entries := make([]string, 0, len(o.env))
+		seen := make(map[string]bool, len(o.env))
+		for i := len(o.env) - 1; i >= 0; i-- {
+			entry := o.env[i]
+			separator := strings.IndexByte(entry, '=')
+			if separator == 0 {
+				if next := strings.IndexByte(entry[1:], '='); next >= 0 {
+					separator = next + 1
+				}
+			}
+			key := strings.ToUpper(entry[:separator])
+			if !seen[key] {
+				seen[key] = true
+				entries = append(entries, entry)
+			}
+		}
+		sort.SliceStable(entries, func(i, j int) bool { return strings.ToUpper(entries[i]) < strings.ToUpper(entries[j]) })
+		block := utf16.Encode([]rune(strings.Join(entries, "\x00") + "\x00\x00"))
+		environment = &block[0]
+	}
+	if err = windows.CreateProcess(app, command, nil, nil, false, windows.EXTENDED_STARTUPINFO_PRESENT|windows.CREATE_UNICODE_ENVIRONMENT|windows.CREATE_SUSPENDED, environment, directory, &si.StartupInfo, &pi); err != nil {
 		return nil, err
 	}
 	defer windows.CloseHandle(pi.Thread)
@@ -141,15 +132,16 @@ func Start(ctx context.Context, program string, args []string, opts ...Option) (
 		_ = windows.CloseHandle(pi.Process)
 		return nil, err
 	}
-	p := &Process{session: s, transport: t, done: make(chan struct{})}
+	p := &processState{session: s, transport: t, done: make(chan struct{}), processID: int(pi.ProcessId)}
 	go func() {
 		_, waitErr := windows.WaitForSingleObject(pi.Process, windows.INFINITE)
 		var code uint32
 		statusErr := windows.GetExitCodeProcess(pi.Process, &code)
 		_ = windows.CloseHandle(pi.Process)
+		p.status = ExitStatus{PID: p.processID, Code: int(code)}
 		p.waitErr = errors.Join(waitErr, statusErr)
 		if p.waitErr == nil && code != 0 {
-			p.waitErr = &ExitError{Code: code}
+			p.waitErr = &ExitError{Status: p.status}
 		}
 		// Normal teardown drains the final frame. Explicit Close closes the pipes
 		// first, so a full receive queue cannot deadlock process cancellation.
@@ -161,20 +153,21 @@ func Start(ctx context.Context, program string, args []string, opts ...Option) (
 	return p, nil
 }
 
-// Session returns the owned conversation session.
-func (p *Process) Session() *expect.Session { return p.session }
-
-// Wait joins the child and pseudoconsole teardown.
-func (p *Process) Wait() error { <-p.done; return p.waitErr }
-
-// Close terminates every process in the job, closes I/O and joins teardown.
-func (p *Process) Close() error {
+func (p *processState) sessionHandle() *expect.Session { return p.session }
+func (p *processState) pid() int                       { return p.processID }
+func (p *processState) wait() (ExitStatus, error)      { <-p.done; return p.status, p.waitErr }
+func (p *processState) close() error {
 	p.once.Do(func() { p.stop(); p.closeErr = p.session.Close(); <-p.done })
 	return p.closeErr
 }
+func (p *processState) terminal() Terminal { return windowsTerminal{p} }
+
+type windowsTerminal struct{ p *processState }
+
+func (t windowsTerminal) SetSize(rows, cols int) error { return t.p.setSize(rows, cols) }
 
 // SetSize resizes the active pseudoconsole.
-func (p *Process) SetSize(rows, cols int) error {
+func (p *processState) setSize(rows, cols int) error {
 	if rows < 1 || rows > 32767 || cols < 1 || cols > 32767 {
 		return &expect.ConfigError{Option: "size", Reason: "dimensions must be in 1..32767"}
 	}
@@ -256,9 +249,3 @@ func (t *transport) Close() error {
 	})
 	return t.err
 }
-
-// String formats the handle without exposing owned stream or command state.
-func (*Process) String() string { return "conpty.Process" }
-
-// GoString formats the handle without exposing owned stream or command state.
-func (p *Process) GoString() string { return p.String() }

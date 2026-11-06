@@ -2,7 +2,7 @@
 
 // SPDX-License-Identifier: Apache-2.0
 
-package conpty
+package spawn
 
 import (
 	"context"
@@ -31,7 +31,7 @@ func TestProcessDialogueAndCancellation(t *testing.T) {
 	if _, err = p.Session().Expect(ctx, []expect.Case{{Pattern: expect.EOF()}}); err != nil {
 		t.Fatal(err)
 	}
-	if err = p.Wait(); err != nil {
+	if _, err = p.Wait(); err != nil {
 		t.Fatal(err)
 	}
 	if err = p.Close(); err != nil {
@@ -50,7 +50,7 @@ func TestProcessDialogueAndCancellation(t *testing.T) {
 		t.Fatal(err)
 	}
 	var exit *ExitError
-	if err = child.Wait(); err == nil || !errors.As(err, &exit) {
+	if _, err = child.Wait(); err == nil || !errors.As(err, &exit) {
 		t.Fatalf("canceled process: %v", err)
 	}
 }

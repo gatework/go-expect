@@ -29,7 +29,7 @@ func TestControllingTerminalLifecycle(t *testing.T) {
 	if _, err = p.Session().SendLine(ctx, "yes"); err != nil {
 		t.Fatal(err)
 	}
-	if err = p.Wait(); err != nil {
+	if _, err = p.Wait(); err != nil {
 		t.Fatal(err)
 	}
 	if err = p.Close(); err != nil {

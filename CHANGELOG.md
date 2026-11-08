@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.4.1
+
+- Retire transports when setting, updating or clearing a write deadline fails;
+  retain accepted byte counts and all primary/cleanup errors without replay.
+- Separate interruption from worker joining so cancellation callbacks can retire
+  blocked writes without deadlock. Abnormal deadline callbacks preserve safe errors.
+- Keep lifecycle, the sole input pump, writes, options and diagnostic redaction
+  with their state owners. The public Go API remains unchanged.
+- Add deterministic deadline/cancellation regressions and document the downstream
+  network-automation ownership and migration contracts.
+
 ## v0.4.0
 
 - BREAKING: replace ExpectAny with mutable Group/Case.Sessions, WithNoConsume

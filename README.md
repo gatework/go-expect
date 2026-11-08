@@ -145,7 +145,7 @@ drains queued output; errors cancel and join admitted writes without replay.
 | Tcl ARE expressions | Go RE2; no backreferences or lookahead |
 | Typical send terminator CR | `Send`/`Reply` verbatim, `SendLine` defaults to LF |
 
-See [contracts](docs/contracts.md), [migration](docs/migration.md),
+See [module organization](docs/architecture.md), [contracts](docs/contracts.md), [migration](docs/migration.md),
 [verification](docs/verification.md) and [release operations](docs/releasing.md).
 The source retains Netflix's Apache-2.0 license and copyright notices.
 

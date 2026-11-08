@@ -2,7 +2,10 @@
 
 package expect
 
-import "context"
+import (
+	"context"
+	"slices"
+)
 
 // RuleScope identifies a persistent or call-scoped rule group.
 type RuleScope string
@@ -211,12 +214,7 @@ func bindSession(c Case, s *Session) bool {
 	if len(c.Sessions) == 0 {
 		return true
 	}
-	for _, v := range c.Sessions {
-		if v == s {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(c.Sessions, s)
 }
 
 // waitForControl rejects controls called using a callback's execution context.

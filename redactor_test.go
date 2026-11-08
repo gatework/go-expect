@@ -23,7 +23,7 @@ func TestRedactorBoundaries(t *testing.T) {
 	}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			var r redactor
+			var r diagnosticRedactor
 			r.add(tt.secrets)
 			var out []byte
 			for _, part := range tt.parts {
@@ -37,7 +37,7 @@ func TestRedactorBoundaries(t *testing.T) {
 	}
 }
 func TestRedactorRuleAdditionPreservesHiddenBytes(t *testing.T) {
-	var r redactor
+	var r diagnosticRedactor
 	r.add([]string{"aba"})
 	got := r.append([]byte("aba"), false)
 	r.add([]string{"abc"})
@@ -81,10 +81,7 @@ func referenceRedaction(input []byte, secrets []string) []byte {
 				continue
 			}
 			rest := input[start:]
-			n := len(secret)
-			if len(rest) < n {
-				n = len(rest)
-			}
+			n := min(len(rest), len(secret))
 			if bytes.Equal(rest[:n], []byte(secret)[:n]) {
 				for j := start; j < start+n; j++ {
 					output[j] = '*'
@@ -109,15 +106,12 @@ func FuzzRedactorChunks(f *testing.F) {
 				secrets = append(secrets, v)
 			}
 		}
-		var r redactor
+		var r diagnosticRedactor
 		r.add(secrets)
 		var got []byte
 		chunk := int(size)%32 + 1
 		for pos := 0; pos < len(data); {
-			end := pos + chunk
-			if end > len(data) {
-				end = len(data)
-			}
+			end := min(pos+chunk, len(data))
 			got = append(got, r.append(data[pos:end], false)...)
 			pos = end
 		}
@@ -138,10 +132,7 @@ func FuzzMatchChunks(f *testing.F) {
 		scanned := 0
 		found := -1
 		for end := 0; ; {
-			from := scanned - len(needle) + 1
-			if from < 0 {
-				from = 0
-			}
+			from := max(scanned-len(needle)+1, 0)
 			loc, ok, err := pattern.find(data[:end], false, from)
 			if err != nil {
 				t.Fatal(err)

@@ -44,6 +44,9 @@ func (s *Session) expect(ctx context.Context, cases []Case, opts ...ExpectOption
 	result.CaseIndex = -1
 	result.RuleIndex = -1
 	if !s.expecting.CompareAndSwap(false, true) {
+		if s.isClosed() {
+			return result, ErrClosed
+		}
 		return result, ErrBusy
 	}
 	defer s.releaseWait()

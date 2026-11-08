@@ -5,6 +5,7 @@ package expect
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"net"
 	"os"
@@ -130,17 +131,13 @@ func (s *Session) abortWrite(results <-chan writeResult, cause error) (int, erro
 // deadlineWriter can interrupt a synchronous write without an owned worker.
 type deadlineWriter interface{ SetWriteDeadline(time.Time) error }
 
-// writeSync falls back before transport entry if deadlines are unsupported.
-// The lifecycle counter includes the syscall, so Close still joins all I/O.
+// writeSync falls back only on an explicit unsupported-deadline error.
+// The lifecycle counter includes deadline management and the syscall.
 func (s *Session) writeSync(ctx context.Context, text string, deadline time.Time) (result writeResult, supported bool, admission error) {
 	d, ok := s.transport.(deadlineWriter)
 	if !ok {
 		return writeResult{}, false, nil
 	}
-	if err := d.SetWriteDeadline(deadline); err != nil {
-		return writeResult{}, false, nil
-	}
-	data := []byte(text)
 	s.lifeMu.Lock()
 	if s.isClosed() {
 		s.lifeMu.Unlock()
@@ -148,34 +145,41 @@ func (s *Session) writeSync(ctx context.Context, text string, deadline time.Time
 	}
 	if err := writeAdmissionError(ctx, deadline); err != nil {
 		s.lifeMu.Unlock()
-		_ = d.SetWriteDeadline(time.Time{})
 		return writeResult{}, true, err
 	}
 	s.workers.Add(1)
 	s.lifeMu.Unlock()
-	// Release lifecycle references even when a borrowed sink panics or exits.
-	var canceled chan struct{}
-	var stop func() bool
-	completed := false
+	// Release lifecycle references even when a transport or borrowed sink exits.
+	completed, cleaned := false, false
 	defer func() {
-		if stop != nil && !stop() {
-			<-canceled
-		}
-		resetErr := d.SetWriteDeadline(time.Time{})
-		if errors.Is(resetErr, io.ErrClosedPipe) || errors.Is(resetErr, net.ErrClosed) || errors.Is(resetErr, os.ErrClosed) {
-			resetErr = nil
-		}
 		s.workers.Done()
-		result.err = errors.Join(result.err, resetErr)
-		if !completed {
+		if !completed || !cleaned {
 			_ = s.Close()
 		}
 	}()
-	if ctx.Done() != nil {
-		done := make(chan struct{})
-		canceled = done
-		stop = context.AfterFunc(ctx, func() { _ = d.SetWriteDeadline(time.Now()); close(done) })
+	if err := d.SetWriteDeadline(deadline); err != nil {
+		if onlyDeadlineErrors(err, os.ErrNoDeadline, errors.ErrUnsupported) {
+			completed, cleaned = true, true
+			return writeResult{}, false, nil
+		}
+		cleanupErr := s.interrupt()
+		completed, cleaned = true, true
+		return writeResult{}, true, errors.Join(fmt.Errorf("expect: set write deadline: %w", err), cleanupErr)
 	}
+	data := []byte(text)
+	if err := writeAdmissionError(ctx, deadline); err != nil {
+		cleanupErr := s.clearWriteDeadline(d)
+		completed, cleaned = true, true
+		return writeResult{}, true, errors.Join(err, cleanupErr)
+	}
+	finishCancellation := s.watchWriteCancellation(ctx, d)
+	defer func() {
+		if finishCancellation != nil {
+			result.err = errors.Join(result.err, finishCancellation())
+		}
+		result.err = errors.Join(result.err, s.clearWriteDeadline(d))
+		cleaned = true
+	}()
 
 	n, err := s.transport.Write(data)
 	if n < 0 || n > len(data) {
@@ -198,10 +202,91 @@ func (s *Session) writeSync(ctx context.Context, text string, deadline time.Time
 	return writeResult{n, err}, true, nil
 }
 
+// watchWriteCancellation owns the cancellation callback and returns its join.
+// A failed deadline wake must interrupt I/O without waiting for this write.
+func (s *Session) watchWriteCancellation(ctx context.Context, d deadlineWriter) func() error {
+	if ctx.Done() == nil {
+		return nil
+	}
+	done := make(chan struct{})
+	var wakeErr error
+	stop := context.AfterFunc(ctx, func() {
+		defer close(done)
+		completed := false
+		defer func() {
+			if !completed {
+				kind := CallbackExited
+				if recover() != nil {
+					kind = CallbackPanicked
+				}
+				wakeErr = errors.Join(wakeErr, &CallbackError{Kind: kind})
+				wakeErr = errors.Join(wakeErr, s.interrupt())
+			}
+		}()
+		if err := d.SetWriteDeadline(time.Now()); err != nil {
+			wakeErr = fmt.Errorf("expect: interrupt write deadline: %w", err)
+			wakeErr = errors.Join(wakeErr, s.interrupt())
+		}
+		completed = true
+	})
+	return func() error {
+		if !stop() {
+			<-done
+		}
+		return wakeErr
+	}
+}
+
+func (s *Session) clearWriteDeadline(d deadlineWriter) error {
+	err := d.SetWriteDeadline(time.Time{})
+	if err == nil {
+		return nil
+	}
+	// A peer may close immediately after accepting the write. Its final input
+	// must remain drainable; the closed transport has no deadline left to reuse.
+	if onlyDeadlineErrors(err, io.ErrClosedPipe, net.ErrClosed, os.ErrClosed) {
+		return nil
+	}
+	return errors.Join(fmt.Errorf("expect: clear write deadline: %w", err), s.interrupt())
+}
+
+// Every cause must match an allowed capability or terminal error. A sentinel in
+// one branch must not discard another branch's actual deadline failure.
+//
+//nolint:errorlint // Inspect every unwrap branch; errors.As could hide another failure.
+func onlyDeadlineErrors(err error, allowed ...error) bool {
+	switch wrapped := err.(type) {
+	case interface{ Unwrap() []error }:
+		matched := false
+		for _, cause := range wrapped.Unwrap() {
+			if cause == nil {
+				continue
+			}
+			if !onlyDeadlineErrors(cause, allowed...) {
+				return false
+			}
+			matched = true
+		}
+		return matched
+	case interface{ Unwrap() error }:
+		return onlyDeadlineErrors(wrapped.Unwrap(), allowed...)
+	default:
+		for _, target := range allowed {
+			if errors.Is(err, target) {
+				return true
+			}
+		}
+		return false
+	}
+}
+
 // writeOnce runs under writeGate and preserves pre-admission cancellation.
 func (s *Session) writeOnce(ctx context.Context, text string, deadline time.Time) (n int, err error) {
 	if r, ok, admission := s.writeSync(ctx, text, deadline); ok {
 		if admission != nil {
+			if s.isClosed() {
+				admission = errors.Join(admission, s.Close())
+			}
 			return 0, admission
 		}
 		return s.finishWrite(ctx, r)
@@ -234,4 +319,45 @@ func writeAdmissionError(ctx context.Context, deadline time.Time) error {
 		return context.DeadlineExceeded
 	}
 	return nil
+}
+
+// Send writes text once. No partial write is retried. A failure after entering
+// transport.Write closes the Session and returns its progress in WriteError.
+// Deadline setup or restoration failure also closes the Session. An invalid
+// transport count is rejected and reported as zero.
+func (s *Session) Send(ctx context.Context, text string) (n int, err error) {
+	defer func() {
+		s.notify(ctx, Event{SessionID: s.id, RuleIndex: -1, Operation: OpSend, CaseIndex: -1, Bytes: n, Error: errorClass(err)})
+	}()
+	if ctx == nil {
+		return 0, &ConfigError{Option: "context", Reason: "nil context"}
+	}
+	if err = ctx.Err(); err != nil {
+		return 0, err
+	}
+	if s.isClosed() {
+		return 0, ErrClosed
+	}
+	deadline, _ := ctx.Deadline()
+	if s.opts.writeTimeout > 0 {
+		deadline = earlier(deadline, after(time.Now(), s.opts.writeTimeout))
+	}
+	if err = s.writeGate.acquire(ctx, s.done, deadline); err != nil {
+		return 0, err
+	}
+	defer s.writeGate.release()
+	if len(text) == 0 {
+		return 0, nil
+	}
+	return s.writeOnce(ctx, text, deadline)
+}
+
+type writeResult struct {
+	n   int
+	err error
+}
+
+// SendLine appends the configured line ending (LF by default).
+func (s *Session) SendLine(ctx context.Context, text string) (int, error) {
+	return s.Send(ctx, text+s.opts.lineEnding)
 }

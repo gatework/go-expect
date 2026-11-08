@@ -76,10 +76,22 @@ continuations preserve timers. EOF continuations terminate with io.EOF after one
 callback, preventing spins. Invalid read counts remain errors even with EOF causes.
 
 Send makes one non-retried Write. Deadline-capable transports write synchronously;
-others use a joined worker. Before-admission cancellation preserves the Session.
+others use a joined worker. Only os.ErrNoDeadline or errors.ErrUnsupported selects
+the worker fallback; every cause in a joined error must be unsupported. Other
+deadline setup failures retire the Session without writing.
+Before-admission cancellation preserves the Session if the deadline is restored.
+Failed restoration retires it, retaining both cancellation and restoration causes.
 Failure after entry closes it and returns WriteError with exact progress and causes.
 Invalid counts become zero; short nil-error writes become io.ErrShortWrite. Ready
 cancellation beats completion. Bytes accepted do not prove remote execution.
+Cancellation that cannot wake the writer with a deadline interrupts the transport
+instead. It never joins its own active write; the caller joins and flushes through
+Close. Deadline errors remain inspectable with errors.Is/As. Clearing an already
+closed transport is harmless: a peer's final input remains drainable. A joined
+error that also contains another failure is retained and retires the Session.
+Foreground deadline setter panic/Goexit propagates after lifecycle cleanup and
+retires the Session. At the owned cancellation callback boundary it becomes
+CallbackError without a panic payload, interrupts the write, and retains progress.
 
 SendAll writes positive-progress suffixes while draining bounded peer input to
 avoid duplex deadlock. Its parent context bounds the whole operation. SendSlow and

@@ -16,9 +16,10 @@
 
 // Package expect automates interactive byte streams with bounded waits,
 // continuation callbacks and reusable response rules. Session owns a supplied
-// duplex transport; Console adapts Unix PTYs. The spawn and conpty subpackages own
-// child process lifetimes. Callers own connections and command success checks.
+// duplex transport; Console adapts Unix PTYs. The spawn package owns child process
+// lifetimes on supported platforms. Callers own connections and command success checks.
 //
-// Matching preserves input unless explicit normalization options are enabled. Diagnostics and output copies use explicit
-// streaming secret redaction. Result fields are raw, detached snapshots.
+// Matching preserves input unless explicit normalization options are enabled.
+// Diagnostics and output copies use explicit streaming secret redaction.
+// Result fields are raw, detached snapshots.
 package expect

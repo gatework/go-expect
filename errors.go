@@ -5,6 +5,7 @@ package expect
 import (
 	"errors"
 	"fmt"
+	"regexp/syntax"
 )
 
 // Sentinel errors describe protocol and lifecycle failures.
@@ -64,3 +65,21 @@ func (e *CaseLimitError) GoString() string { return e.Error() }
 
 // GoString formats callback failure metadata without a panic value.
 func (e *CallbackError) GoString() string { return e.Error() }
+
+// ConfigError identifies a rejected option without retaining caller payloads.
+type ConfigError struct {
+	Option string
+	Reason string
+}
+
+func (e *ConfigError) Error() string { return "expect: invalid " + e.Option + ": " + e.Reason }
+
+// CompileError retains the syntax category, never the original expression.
+type CompileError struct{ Code syntax.ErrorCode }
+
+func (e *CompileError) Error() string {
+	return fmt.Sprintf("expect: invalid regular expression (%s)", e.Code)
+}
+
+// Unwrap identifies a rejected pattern without revealing its expression.
+func (e *CompileError) Unwrap() error { return ErrInvalidPattern }

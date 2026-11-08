@@ -124,3 +124,56 @@ func WithLogger(logger *slog.Logger) SessionOption {
 func WithOSPolling() SessionOption {
 	return func(o *sessionOptions) error { o.osPolling = true; return nil }
 }
+
+func applySessionOptions(o sessionOptions, opts []SessionOption) (sessionOptions, error) {
+	for _, opt := range opts {
+		if opt == nil {
+			return o, &ConfigError{Option: "session", Reason: "nil option"}
+		}
+		if err := opt(&o); err != nil {
+			return o, err
+		}
+	}
+
+	return o, nil
+}
+
+// WithRemoveNulls explicitly removes NUL bytes from the matching/receive view.
+// The default preserves every transport byte.
+func WithRemoveNulls(enabled bool) SessionOption {
+	return func(o *sessionOptions) error { o.removeNulls = enabled; return nil }
+}
+
+// WithStripParity explicitly clears the high bit before optional NUL removal.
+func WithStripParity(enabled bool) SessionOption {
+	return func(o *sessionOptions) error { o.stripParity = enabled; return nil }
+}
+
+// WithTrace enables payload-free candidate diagnostics, independently of completion observers.
+func WithTrace(observers ...TraceObserver) SessionOption {
+	observers = append([]TraceObserver(nil), observers...)
+	return func(o *sessionOptions) error {
+		for _, f := range observers {
+			if f == nil {
+				return &ConfigError{Option: "trace", Reason: "nil observer"}
+			}
+		}
+		o.trace = append(o.trace, observers...)
+		return nil
+	}
+}
+
+// WithSendOutput records actual transport-accepted bytes through a separate
+// streaming secret filter. Writers are borrowed, synchronous and never retried.
+func WithSendOutput(writers ...io.Writer) SessionOption {
+	writers = append([]io.Writer(nil), writers...)
+	return func(o *sessionOptions) error {
+		for _, w := range writers {
+			if nilInterface(w) {
+				return &ConfigError{Option: "send output", Reason: "nil writer"}
+			}
+		}
+		o.sendOutputs = append(o.sendOutputs, writers...)
+		return nil
+	}
+}

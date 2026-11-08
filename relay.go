@@ -52,7 +52,7 @@ type relayQueue struct {
 type relayRoute struct {
 	route     Route
 	targets   []*relayQueue
-	filter    redactor
+	filter    diagnosticRedactor
 	outputErr error
 }
 

@@ -51,10 +51,7 @@ func (w *testWriter) Write(p []byte) (int, error) {
 	defer w.mu.Unlock()
 	n := len(p)
 	for len(p) > 0 {
-		size := 4096 - len(w.pending)
-		if size > len(p) {
-			size = len(p)
-		}
+		size := min(4096-len(w.pending), len(p))
 		w.pending = append(w.pending, p[:size]...)
 		p = p[size:]
 		for {

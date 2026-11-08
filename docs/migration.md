@@ -100,8 +100,8 @@ semantics, including for imported POSIX/Longest patterns.
 
 Replace manual child stdio attachment with Console.Start to obtain a controlling
 terminal, or use spawn.Start for owned process cleanup. A successful Start closes
-the parent's slave. Windows uses the dedicated conpty package. Neither process
-adapter changes the core transport ownership contract.
+the parent's slave. On Windows, spawn.Start owns the pseudoconsole and child job.
+Neither process adapter changes the core transport ownership contract.
 
 The earlier device connector was moved to
 [go-net-connector](https://github.com/gatework/go-net-connector). Historical release

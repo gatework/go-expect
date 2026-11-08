@@ -170,7 +170,7 @@ func (s *Session) interactOwned(ctx context.Context, input io.ReadCloser, output
 		s.diagnostics.interactSink = output
 		s.diagnostics.interactDeferred = !o.outputForward
 		s.diagnostics.interactOutputErr = nil
-		s.diagnostics.interactRedactor = &redactor{}
+		s.diagnostics.interactRedactor = &diagnosticRedactor{}
 		s.diagnostics.interactRedactor.add(s.diagnostics.secrets)
 		installed = true
 		if o.outputForward {

@@ -90,7 +90,7 @@ func BenchmarkSessionFilter(b *testing.B) {
 		for _, chunk := range []int{1, 32, 16384} {
 			for _, mode := range []string{"safe", "dense", "mixed"} {
 				b.Run(fmt.Sprintf("rule=%d/chunk=%d/%s", size, chunk, mode), func(b *testing.B) {
-					var r redactor
+					var r diagnosticRedactor
 					secret := strings.Repeat("a", size)
 					r.add([]string{secret})
 					if mode == "mixed" {

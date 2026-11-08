@@ -3,8 +3,10 @@
 package expect
 
 import (
-	"fmt"
-	"regexp/syntax"
+	"context"
+	"errors"
+	"io"
+	"log/slog"
 	"sync/atomic"
 )
 
@@ -39,21 +41,6 @@ const (
 
 func (c ErrClass) String() string { return string(c) }
 
-// ConfigError identifies a rejected option without retaining caller payloads.
-type ConfigError struct {
-	Option string
-	Reason string
-}
-
-func (e *ConfigError) Error() string { return "expect: invalid " + e.Option + ": " + e.Reason }
-
-// CompileError retains the syntax category, never the original expression.
-type CompileError struct{ Code syntax.ErrorCode }
-
-func (e *CompileError) Error() string {
-	return fmt.Sprintf("expect: invalid regular expression (%s)", e.Code)
-}
-
 // Event contains metadata only. Error is a classification, never a raw message.
 type Event struct {
 	SessionID        SessionID
@@ -68,9 +55,6 @@ type Event struct {
 // Observer is invoked once per completed public Expect, Send or SendAll operation.
 // Observers run synchronously outside locks and must not block indefinitely.
 type Observer func(Event)
-
-// Unwrap identifies a rejected pattern without revealing its expression.
-func (e *CompileError) Unwrap() error { return ErrInvalidPattern }
 
 // MatchSource identifies the byte stream evaluated by a match.
 type MatchSource uint8
@@ -99,3 +83,56 @@ var nextSessionID atomic.Uint64
 
 // ID returns this Session's immutable identity.
 func (s *Session) ID() SessionID { return s.id }
+
+func errorClass(err error) ErrClass {
+	switch {
+	case err == nil:
+		return ClassOK
+	case errors.Is(err, errInvalidReadCount):
+		return ClassError
+	case errors.Is(err, context.Canceled):
+		return ClassCanceled
+	case errors.Is(err, context.DeadlineExceeded):
+		return ClassDeadline
+	case errors.Is(err, ErrClosed):
+		return ClassClosed
+	case errors.Is(err, ErrBusy):
+		return ClassBusy
+	case errors.Is(err, ErrTimeout):
+		return ClassTimeout
+	case errors.Is(err, ErrIdleTimeout):
+		return ClassIdleTimeout
+	case errors.Is(err, io.EOF):
+		return ClassEOF
+	default:
+		return ClassError
+	}
+}
+
+//nolint:contextcheck // Rejected nil-context calls still emit metadata; they have no parent context.
+func (s *Session) notify(ctx context.Context, event Event) {
+	if s.opts.structuredLogger != nil {
+		if ctx == nil {
+			ctx = context.Background()
+		}
+		s.opts.structuredLogger.LogAttrs(ctx, slog.LevelInfo, "expect", slog.Uint64("session", uint64(event.SessionID)), slog.String("op", event.Operation.String()), slog.Int("case", event.CaseIndex), slog.Int("bytes", event.Bytes), slog.String("class", event.Error.String()), slog.String("source", event.Source.String()), slog.String("scope", string(event.Scope)), slog.Int("rule", event.RuleIndex))
+	}
+
+	for _, observer := range s.opts.observers {
+		observer(event)
+	}
+}
+
+// TraceEvent describes a candidate evaluation without retaining payloads or causes.
+type TraceEvent struct {
+	SessionID                       SessionID
+	Source                          MatchSource
+	Scope                           RuleScope
+	RuleIndex                       int
+	CaseIndex, Buffered, Start, End int
+	Pattern                         string
+	Matched                         bool
+}
+
+// TraceObserver runs synchronously outside locks; it must not reenter Session.
+type TraceObserver func(TraceEvent)

@@ -231,7 +231,7 @@ func TestSessionRedactorReleasesLargeStorage(t *testing.T) {
 			name = "prefix"
 		}
 		t.Run(name, func(t *testing.T) {
-			var r redactor
+			var r diagnosticRedactor
 			r.add([]string{"secret"})
 			input := append(bytes.Repeat([]byte("x"), 8<<20), tail...)
 			out := r.append(input, false)
@@ -258,7 +258,7 @@ func TestSessionRedactorLongMixedAdditiveRules(t *testing.T) {
 	for _, size := range []int{256, 257, 4096} {
 		t.Run(strconv.Itoa(size), func(t *testing.T) {
 			long := strings.Repeat("a", size) + "b"
-			var r redactor
+			var r diagnosticRedactor
 			r.add([]string{long, "aaa"})
 			var got []byte
 			prefix := strings.Repeat("a", size-2)
@@ -352,7 +352,7 @@ func FuzzSessionRedactorAdditiveRules(f *testing.F) {
 			return
 		}
 		split := int(at) % (len(data) + 1)
-		var r redactor
+		var r diagnosticRedactor
 		r.add([]string{first})
 		oracle := referenceAdditiveRedactor{secrets: []string{first}}
 		chunk := int(size)%64 + 1

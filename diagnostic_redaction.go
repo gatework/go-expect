@@ -8,16 +8,16 @@ import (
 	"github.com/gatework/go-expect/internal/redact"
 )
 
-// redactor retains only an ambiguous suffix. Hidden flags survive overlap and
+// diagnosticRedactor retains only an ambiguous suffix. Hidden flags survive overlap and
 // rule additions, so a byte once suppressed can never become visible again.
 // The owning Session serializes access; raw protocol buffers never enter it.
-type redactor struct {
+type diagnosticRedactor struct {
 	buffer  redact.Buffer
 	secrets [][]byte
 	rules   []redact.Rule
 }
 
-func (r *redactor) add(secrets []string) {
+func (r *diagnosticRedactor) add(secrets []string) {
 	for _, s := range secrets {
 		duplicate := false
 		for _, old := range r.secrets {
@@ -42,7 +42,7 @@ func (r *redactor) add(secrets []string) {
 	}
 }
 
-func (r *redactor) append(data []byte, finish bool) []byte {
+func (r *diagnosticRedactor) append(data []byte, finish bool) []byte {
 	if len(r.secrets) == 0 {
 		return data
 	}
@@ -98,7 +98,7 @@ func (r *redactor) append(data []byte, finish bool) []byte {
 	return out
 }
 
-func (r *redactor) resetStream() {
+func (r *diagnosticRedactor) resetStream() {
 	r.buffer.Pending, r.buffer.Hidden, r.buffer.Storage, r.buffer.Marks = nil, nil, nil, nil
 	for i := range r.rules {
 		r.rules[i].Matched, r.rules[i].Covered = 0, 0

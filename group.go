@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"io"
+	"slices"
 	"sync"
 	"time"
 )
@@ -168,10 +169,8 @@ func (g *Group) change(ctx context.Context, s *Session, add bool) error {
 			if s.isClosed() {
 				return ErrClosed
 			}
-			for _, v := range g.sessions {
-				if v == s {
-					return &ConfigError{Option: "group", Reason: "duplicate session"}
-				}
+			if slices.Contains(g.sessions, s) {
+				return &ConfigError{Option: "group", Reason: "duplicate session"}
 			}
 			if err := r.admit(s); err != nil {
 				return err

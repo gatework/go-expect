@@ -222,10 +222,7 @@ func (p *prefixProgram) start(data []byte, base int, eof bool) int {
 	p.seed(visible)
 	p.hasMatch = p.stableMatch || p.containsMatch(p.expand(p.active, syntax.EmptyOpContext(p.previous, -1), false, visible, p.previous))
 	ready := p.expand(p.active, 0, true, visible, p.previous)
-	first := len(data)
-	if visible < len(data) {
-		first = visible
-	}
+	first := min(visible, len(data))
 	for _, start := range ready {
 		first = min(first, start)
 	}

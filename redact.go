@@ -4,6 +4,7 @@ package expect
 
 import (
 	"bytes"
+	"slices"
 	"sync"
 
 	"github.com/gatework/go-expect/internal/redact"
@@ -40,10 +41,8 @@ func (*Redactor) String() string { return "expect.Redactor" }
 // GoString formats metadata without exposing payloads.
 func (r *Redactor) GoString() string { return r.String() }
 func validateSecrets(secrets []string) error {
-	for _, s := range secrets {
-		if s == "" {
-			return &ConfigError{Option: "redact", Reason: "empty secret"}
-		}
+	if slices.Contains(secrets, "") {
+		return &ConfigError{Option: "redact", Reason: "empty secret"}
 	}
 	return nil
 }

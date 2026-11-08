@@ -45,7 +45,7 @@ func BenchmarkLongLiteralCursor(b *testing.B) {
 	}
 }
 func TestPrivateSafeFilterBorrowsOnlySafeChunk(t *testing.T) {
-	var r redactor
+	var r diagnosticRedactor
 	r.add([]string{"secret"})
 	data := []byte("xxxx")
 	if n := testing.AllocsPerRun(100, func() { r.append(data, false) }); n != 0 {

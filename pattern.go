@@ -104,8 +104,7 @@ func (p Pattern) ValidateText() error {
 func Compile(expr string) (Pattern, error) {
 	r, e := regexp.Compile(expr)
 	if e != nil {
-		var detail *syntax.Error
-		if errors.As(e, &detail) {
+		if detail, ok := errors.AsType[*syntax.Error](e); ok {
 			return Pattern{}, &CompileError{Code: detail.Code}
 		}
 		return Pattern{}, ErrInvalidPattern
@@ -295,10 +294,7 @@ func (loc location) capturesFromSnapshot(data []byte, match string) []Capture {
 
 // Retain only a trailing incomplete encoding, never rewrite invalid bytes.
 func completeUTF8(data []byte) int {
-	start := len(data) - utf8.UTFMax
-	if start < 0 {
-		start = 0
-	}
+	start := max(len(data)-utf8.UTFMax, 0)
 	for i := len(data) - 1; i >= start; i-- {
 		if utf8.RuneStart(data[i]) {
 			if !utf8.FullRune(data[i:]) {

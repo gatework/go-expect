@@ -76,7 +76,8 @@ func resumePatterns(t testing.TB) []Pattern {
 }
 
 // Each resumed scan must agree with a full-view search of the same prefix until
-// the first match; the waiter clears offsets once any candidate matches.
+// the first match; the waiter then clears that case's progress. Consumption
+// invalidates every case's progress through the receive generation.
 func checkRegexpResume(t *testing.T, p Pattern, data []byte, chunk int) {
 	t.Helper()
 	var prior scanProgress

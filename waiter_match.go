@@ -97,10 +97,10 @@ func (w *waiter) scanText() (int, location, error) {
 		if v, ok := w.suppressed[i]; ok && v == w.session.receive.version {
 			continue
 		}
-		from := 0
-		if c.Pattern.kind == literalPattern {
-			from = max(0, w.scanOffset(i)-len(c.Pattern.text)+1)
-		}
+		// Offsets are cleared whenever input is consumed or rules change, so a
+		// nonzero offset records an unsuccessful scan of an unchanged prefix.
+		prior := w.scanOffset(i)
+		from := c.Pattern.resumeFrom(prior)
 		var hit location
 		var ok bool
 		var e error
@@ -122,7 +122,7 @@ func (w *waiter) scanText() (int, location, error) {
 				observer(event)
 			}
 		}
-		w.setScanOffset(i, len(w.session.receive.pending))
+		w.setScanOffset(i, c.Pattern.advance(w.session.receive.pending, prior))
 		if e != nil {
 			return -1, location{}, e
 		}

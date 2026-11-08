@@ -53,6 +53,35 @@ func BenchmarkReceivePatterns(b *testing.B) {
 	}
 }
 
+// BenchmarkPromptRegexp measures line-oriented command output followed by a
+// prompt expression that has no literal prefix for regexp to skip with.
+func BenchmarkPromptRegexp(b *testing.B) {
+	input := append(bytes.Repeat([]byte("interface Gi0/1 is up, line protocol is up\r\n"), 1500), "router# "...)
+	for _, expr := range []string{`[#>] ?$`, `(?m)^\S+[#>] ?$`} {
+		pattern, err := Compile(expr)
+		if err != nil {
+			b.Fatal(err)
+		}
+		for _, chunk := range []int{256, 4096} {
+			b.Run(fmt.Sprintf("%s/chunk_%d", expr, chunk), func(b *testing.B) {
+				b.SetBytes(int64(len(input)))
+				b.ReportAllocs()
+				for b.Loop() {
+					s, err := NewSession(&chunkStream{Reader: bytes.NewReader(input), chunk: chunk}, WithBufferLimit(1<<20))
+					if err != nil {
+						b.Fatal(err)
+					}
+					result, err := s.Expect(context.Background(), []Case{{Pattern: pattern}})
+					closeErr := s.Close()
+					if err != nil || closeErr != nil || result.End != len(input) {
+						b.Fatalf("end=%d err=%v close=%v", result.End, err, closeErr)
+					}
+				}
+			})
+		}
+	}
+}
+
 func BenchmarkCompetingCaptures(b *testing.B) {
 	for _, count := range []int{1, 8} {
 		for _, all := range []bool{false, true} {

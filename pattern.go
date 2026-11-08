@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"regexp"
 	"regexp/syntax"
+	"slices"
 	"unicode/utf8"
 
 	"github.com/gatework/go-expect/internal/redact"
@@ -27,6 +28,9 @@ type Pattern struct {
 	re      *regexp.Regexp
 	all     []Pattern
 	failure []int
+	// lineLocal regexps cannot consume LF or assert the start of text, so a
+	// failed scan only needs to resume at the final incomplete line.
+	lineLocal bool
 }
 
 const literalKMPThreshold = 256
@@ -109,7 +113,7 @@ func Compile(expr string) (Pattern, error) {
 		}
 		return Pattern{}, ErrInvalidPattern
 	}
-	return Pattern{kind: regexpPattern, re: r}, nil
+	return Pattern{kind: regexpPattern, re: r, lineLocal: lineLocal(expr, syntax.Perl)}, nil
 }
 
 // FromRegexp snapshots a compiled expression, including POSIX/Longest semantics.
@@ -120,7 +124,55 @@ func FromRegexp(re *regexp.Regexp) (Pattern, error) {
 	}
 	// Copy is appropriate here to isolate Longest settings, as documented by regexp.
 	//nolint:staticcheck // SA1019: preserving independent Longest configuration.
-	return Pattern{kind: regexpPattern, re: re.Copy()}, nil
+	// The source syntax is not recorded, so both Compile and CompilePOSIX
+	// interpretations of the expression must qualify.
+	return Pattern{kind: regexpPattern, re: re.Copy(), lineLocal: lineLocal(re.String(), syntax.Perl, syntax.POSIX)}, nil
+}
+
+// lineLocal reports whether every match lies within one LF-delimited line and
+// observes the same assertions after that LF as at the start of a slice.
+// Each flag set that parses the expression must satisfy both conditions.
+func lineLocal(expr string, flags ...syntax.Flags) bool {
+	parsed := false
+	for _, f := range flags {
+		tree, err := syntax.Parse(expr, f)
+		if err != nil {
+			continue
+		}
+		if !avoidsLF(tree) {
+			return false
+		}
+		parsed = true
+	}
+	return parsed
+}
+
+// avoidsLF rejects any node that can consume LF. A text-start assertion is
+// rejected because it is true at a resumed slice start but false after LF.
+// Line-start, word-boundary and end assertions agree at both positions.
+func avoidsLF(re *syntax.Regexp) bool {
+	switch re.Op {
+	case syntax.OpAnyChar, syntax.OpBeginText:
+		return false
+	case syntax.OpLiteral:
+		// No rune folds to LF, so FoldCase literals are covered by their runes.
+		if slices.Contains(re.Rune, '\n') {
+			return false
+		}
+	case syntax.OpCharClass:
+		for i := 0; i+1 < len(re.Rune); i += 2 {
+			if re.Rune[i] <= '\n' && '\n' <= re.Rune[i+1] {
+				return false
+			}
+		}
+	default:
+	}
+	for _, sub := range re.Sub {
+		if !avoidsLF(sub) {
+			return false
+		}
+	}
+	return true
 }
 
 // Timeout matches the relative wait deadline, never parent cancellation.
@@ -203,6 +255,39 @@ func (p Pattern) find(data []byte, terminal bool, scanFrom int) (location, bool,
 	return p.findLocation(data, terminal, scanFrom, true)
 }
 
+// scanProgress records an unsuccessful scan of an unchanged prefix. The zero
+// value means nothing was scanned. mark is where the next search may start
+// (adjusted for literal length); scanned bounds bytes already searched for LF.
+type scanProgress struct{ mark, scanned int }
+
+// resumeFrom returns where a match can start after prior unsuccessful scans.
+// A literal can only end in bytes after its mark. A lineLocal mark is already
+// the start of the last scanned line. Other patterns search the whole view.
+func (p Pattern) resumeFrom(prior scanProgress) int {
+	switch {
+	case p.kind == literalPattern:
+		return max(0, prior.mark-len(p.text)+1)
+	case p.kind == regexpPattern && p.lineLocal:
+		return prior.mark
+	default:
+		return 0
+	}
+}
+
+// advance records an unsuccessful search of data. A lineLocal match starting
+// before the last LF would end before it with unchanged context, so the failed
+// scan would already have found it. Each byte is searched for LF once per wait.
+func (p Pattern) advance(data []byte, prior scanProgress) scanProgress {
+	if p.kind != regexpPattern || !p.lineLocal {
+		return scanProgress{mark: len(data), scanned: len(data)}
+	}
+	mark := prior.mark
+	if i := bytes.LastIndexByte(data[min(prior.scanned, len(data)):], '\n'); i >= 0 {
+		mark = min(prior.scanned, len(data)) + i + 1
+	}
+	return scanProgress{mark: mark, scanned: len(data)}
+}
+
 // All children only need their extent; ordinary candidates retain capture
 // offsets until Expect chooses its final winner. No candidate copies payloads.
 func (p Pattern) findLocation(data []byte, terminal bool, scanFrom int, captures bool) (location, bool, error) {
@@ -221,14 +306,23 @@ func (p Pattern) findLocation(data []byte, terminal bool, scanFrom int, captures
 		if !terminal {
 			view = data[:completeUTF8(data)]
 		}
+		// Only resumeFrom supplies a nonzero regexp offset (lineLocal patterns).
+		from := min(scanFrom, len(view))
 		var idx []int
 		if captures {
-			idx = p.re.FindSubmatchIndex(view)
+			idx = p.re.FindSubmatchIndex(view[from:])
 		} else {
-			idx = p.re.FindIndex(view)
+			idx = p.re.FindIndex(view[from:])
 		}
 		if idx == nil {
 			return location{}, false, nil
+		}
+		if from > 0 {
+			for k, v := range idx {
+				if v >= 0 {
+					idx[k] = v + from
+				}
+			}
 		}
 		if idx[0] == idx[1] {
 			return location{}, false, ErrEmptyMatch

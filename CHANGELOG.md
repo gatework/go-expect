@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.3
+
+- Resume unsuccessful Go regexp/Glob scans at the last scanned line when the
+  expression cannot consume LF or assert the start of text. Prompt expressions
+  over long line-oriented output no longer rescan the whole buffer per read.
+  Matches, captures, offsets and empty-match errors are unchanged.
+- Add a prompt-expression benchmark and a resumed-scan parity fuzz target.
+
 ## v0.4.2
 
 - Track agent guidance and ownership documentation with the source tree.

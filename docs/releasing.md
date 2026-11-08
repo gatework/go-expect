@@ -26,7 +26,7 @@ Queue capacity is GitHub's documented maximum of 100 pending runs.
 ## Gates and artifacts
 
 - Four Unix test jobs run formatting, module verification/tidy checks, vet, shuffled
-  race tests with goleak, ten fuzz smokes, benchmarks, the dialogue example and
+  race tests with goleak, eleven fuzz smokes, benchmarks, the dialogue example and
   the independent stream/PTY consumer. Two Windows jobs run native generic/ConPTY tests.
 - The quality job runs pinned golangci-lint and govulncheck, actionlint and release
   regression tests. Static checks also cover error wrapping, context propagation, naming

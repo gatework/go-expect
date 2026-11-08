@@ -1,7 +1,7 @@
 # Verification
 
 `bash script/ci` checks gofmt, the compiled README example copy, module integrity,
-vet, Windows and FreeBSD cross-compilation, shuffled race tests with goleak, ten
+vet, Windows and FreeBSD cross-compilation, shuffled race tests with goleak, eleven
 bounded fuzz targets, benchmark smokes, the dialogue and an independent consumer.
 It also checks package ownership from the production import graph and runs
 negative controls for forbidden application and reverse ownership dependencies.

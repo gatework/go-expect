@@ -20,8 +20,8 @@ type waiter struct {
 	cases             []Case
 	origins           []caseOrigin
 	counts            []int
-	scanned           []int
-	smallScans        [8]int
+	scanned           []scanProgress
+	smallScans        [8]scanProgress
 	lastReset         bool
 	control           <-chan func()
 	park              func(context.Context) error
@@ -106,7 +106,7 @@ func (w *waiter) prepare(ctx context.Context, cases []Case, opts []ExpectOption)
 	w.relative = after(now, w.o.timeout)
 	w.idle = after(now, w.o.idle)
 	if len(w.cases) > 8 {
-		w.scanned = make([]int, len(w.cases)-8)
+		w.scanned = make([]scanProgress, len(w.cases)-8)
 	}
 	return nil
 
@@ -185,13 +185,13 @@ func applyExpectOptions(o expectOptions, opts []ExpectOption) (expectOptions, er
 	}
 	return o, nil
 }
-func (w *waiter) scanOffset(i int) int {
+func (w *waiter) scanOffset(i int) scanProgress {
 	if i < 8 {
 		return w.smallScans[i]
 	}
 	return w.scanned[i-8]
 }
-func (w *waiter) setScanOffset(i, n int) {
+func (w *waiter) setScanOffset(i int, n scanProgress) {
 	if i < 8 {
 		w.smallScans[i] = n
 	} else {

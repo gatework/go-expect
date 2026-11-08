@@ -199,7 +199,7 @@ func (w *waiter) refreshRules() {
 	}
 	w.scanned = nil
 	if len(w.cases) > 8 {
-		w.scanned = make([]int, len(w.cases)-8)
+		w.scanned = make([]scanProgress, len(w.cases)-8)
 	}
 	clear(w.smallScans[:])
 	w.cursors = nil

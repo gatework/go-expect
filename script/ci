@@ -6,6 +6,8 @@ if [ -n "$(gofmt -l .)" ]; then
   exit 1
 fi
 python3 script/readme.py
+python3 script/check-architecture.py
+python3 script/test_architecture.py
 go mod verify
 go mod tidy -diff
 go vet ./...

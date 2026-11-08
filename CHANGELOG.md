@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.2
+
+- Track agent guidance and ownership documentation with the source tree.
+- Enforce generic stream, process and redaction boundaries from the resolved
+  production import graph, including indirect reverse dependencies.
+- Run architecture checks and positive/negative controls in the local and CI
+  gates. The stream runtime and public Go API are unchanged.
+
 ## v0.4.1
 
 - Retire transports when setting, updating or clearing a write deadline fails;

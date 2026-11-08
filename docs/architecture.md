@@ -43,6 +43,11 @@ CLI configuration belong to callers such as go-net-connector. This package does
 not import the network automation applications. Existing race, cancellation,
 partial-write, fuzz and external-consumer checks exercise these ownership rules.
 
+`script/check-architecture.py` checks the production import graph: generic stream
+packages cannot import the applications, the root session cannot depend on its
+process or fixture consumers, and the redaction algorithm cannot depend on the
+session owner. Its negative controls run alongside the check in `script/ci`.
+
 ## Organization verification
 
 The 2026-11-07 organization pass moved declarations using Go AST positions and

@@ -57,6 +57,7 @@ func (w *waiter) dispatch(ctx context.Context, hit selection) (bool, error) {
 	// Advance without copying the remaining burst on every continuation.
 	if (streaming || !w.cases[chosen].NoConsume) && !deadlineEvent {
 		w.session.receive.version++
+		w.session.receive.consumed++
 		if w.forwardMatcher != nil {
 			w.forwardMatcher.consume(loc.end)
 		}
@@ -65,13 +66,6 @@ func (w *waiter) dispatch(ctx context.Context, hit selection) (bool, error) {
 	if len(w.session.receive.pending) == 0 {
 		w.session.receive.pending = nil
 		w.session.receive.pendingAlloc = 0
-	}
-	clear(w.scanned)
-	clear(w.smallScans[:])
-	for i := range w.cursors {
-		if w.cursors[i] != nil {
-			w.cursors[i].reset()
-		}
 	}
 	var handler Handler
 	if streaming {

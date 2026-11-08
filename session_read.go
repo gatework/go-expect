@@ -16,9 +16,11 @@ type readEvent struct {
 	err  error
 }
 
-// receiveState is accessed only by the exclusive wait owner.
+// receiveState is accessed only by the exclusive wait owner. version changes
+// on every append or consumption; consumed changes only when a prefix is
+// consumed, so scan progress recorded against it survives appended input.
 type receiveState struct {
-	version                   uint64
+	version, consumed         uint64
 	pending, staged           []byte
 	pendingAlloc, stagedAlloc int
 	stagedErr, terminal       error

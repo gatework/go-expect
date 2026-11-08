@@ -4,7 +4,9 @@ package expect
 
 import (
 	"bytes"
+	"context"
 	"errors"
+	"net"
 	"regexp"
 	"slices"
 	"strings"
@@ -149,4 +151,60 @@ func TestSessionRegexpResumeAcrossChunks(t *testing.T) {
 			t.Fatalf("chunk=%d result=%+v err=%v", chunk, result, err)
 		}
 	}
+}
+
+// A NoConsume candidate is observed again once input grows. Its own scan
+// progress must not let a literal resume past the hit it left unconsumed.
+func TestNoConsumeLiteralReobservedAfterAppend(t *testing.T) {
+	s, err := NewSession(&chunkStream{Reader: bytes.NewReader([]byte("abc")), chunk: 2})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+	var starts []int
+	result, err := s.Expect(t.Context(), []Case{
+		{Pattern: Literal("ab"), NoConsume: true, Handler: func(_ context.Context, _ *Session, r Result) (Action, error) {
+			starts = append(starts, r.Start)
+			return Continue, nil
+		}},
+		{Pattern: Literal("c")},
+	})
+	if err != nil || result.CaseIndex != 1 || !slices.Equal(starts, []int{0, 0}) {
+		t.Fatalf("starts=%v result=%+v err=%v", starts, result, err)
+	}
+}
+
+// Progress recorded before another owner consumed input is discarded by the
+// consume generation, without that owner resetting this waiter.
+func TestScanProgressFollowsConsumeGeneration(t *testing.T) {
+	a, b := net.Pipe()
+	defer b.Close()
+	s, err := NewSession(a)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+	prompt, err := Compile(`router#`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, p := range []Pattern{Literal("needle"), prompt} {
+		w := waiter{session: s}
+		if err := w.prepare(t.Context(), []Case{{Pattern: p}}, nil); err != nil {
+			t.Fatal(err)
+		}
+		s.receive.pending = []byte("xx\nneedl\nroute")
+		if chosen, _, err := w.scanText(); chosen >= 0 || err != nil {
+			t.Fatalf("premature match %d %v", chosen, err)
+		}
+		// Another owner consumes "xx\n" and new bytes arrive.
+		s.receive.consumed++
+		s.receive.pending = []byte("needle\nrouter#")
+		chosen, loc, err := w.scanText()
+		want := map[bool]int{true: 0, false: 7}[p.kind == literalPattern]
+		if chosen != 0 || err != nil || loc.start != want {
+			t.Fatalf("%s: chosen=%d loc=%+v err=%v", p, chosen, loc, err)
+		}
+	}
+	s.receive.pending = nil
 }

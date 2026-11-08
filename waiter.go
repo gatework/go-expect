@@ -32,6 +32,7 @@ type waiter struct {
 	relative, idle    time.Time
 	timer             *time.Timer
 	cursors           []*matchCursor
+	progressAt        uint64 // receive.consumed when scan progress was recorded
 	pollAck           chan struct{}
 	pollOwned, polled bool
 	handlerCtx        context.Context
@@ -198,6 +199,27 @@ func (w *waiter) setScanOffset(i int, n scanProgress) {
 		w.scanned[i-8] = n
 	}
 }
+
+// resetProgress discards resumable scan state: offsets and incremental cursors.
+func (w *waiter) resetProgress() {
+	clear(w.scanned)
+	clear(w.smallScans[:])
+	for i := range w.cursors {
+		if w.cursors[i] != nil {
+			w.cursors[i].reset()
+		}
+	}
+}
+
+// resetCaseProgress discards one case's resumable state after it matched: its
+// progress described a successful scan, so it cannot skip the unconsumed hit.
+func (w *waiter) resetCaseProgress(i int) {
+	w.setScanOffset(i, scanProgress{})
+	if i < len(w.cursors) && w.cursors[i] != nil {
+		w.cursors[i].reset()
+	}
+}
+
 func (w *waiter) streamHigh() int { return min(streamTriggerBytes, w.session.opts.limit) }
 func (w *waiter) streamLow() int  { return max(1, w.streamHigh()/2) }
 

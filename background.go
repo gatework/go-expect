@@ -166,9 +166,8 @@ func (b *Background) Resume(ctx context.Context) error {
 		}
 		r.owns = true
 		r.paused = false
-		clear(r.w.smallScans[:])
-		clear(r.w.scanned)
-		r.w.cursors = nil
+		// Scan progress checks the consume generation; a foreground owner that
+		// consumed input while paused invalidates it without a reset here.
 		r.w.suppressed = nil
 		return nil
 	})

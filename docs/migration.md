@@ -1,3 +1,16 @@
+# Migration to v0.5.0
+
+Diagnostic metadata names now follow Go conventions: the `Err` prefix is
+reserved for error values, and the `Event` field holding a classification is no
+longer named like an error. Constant names and their string values are
+unchanged, so log and metric output does not change. No aliases remain.
+
+| Previous API | Replacement |
+| --- | --- |
+| `expect.ErrClass` | `expect.ErrorClass` |
+| `expect.Op` | `expect.Operation` |
+| `Event.Error` | `Event.Class` |
+
 # Migration to v0.4.0
 
 This is a direct API evolution. Removed names have no aliases or transition code.

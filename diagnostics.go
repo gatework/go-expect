@@ -10,46 +10,46 @@ import (
 	"sync/atomic"
 )
 
-// Op identifies an observed operation.
-type Op string
+// Operation identifies an observed operation.
+type Operation string
 
 // Operation names emitted by completion observers.
 const (
-	OpExpect   Op = "expect"
-	OpInteract Op = "interact"
-	OpSend     Op = "send"
-	OpSendAll  Op = "send_all"
+	OpExpect   Operation = "expect"
+	OpInteract Operation = "interact"
+	OpSend     Operation = "send"
+	OpSendAll  Operation = "send_all"
 )
 
-func (o Op) String() string { return string(o) }
+func (o Operation) String() string { return string(o) }
 
-// ErrClass is a payload-free error classification.
-type ErrClass string
+// ErrorClass is a payload-free error classification.
+type ErrorClass string
 
 // Error classes exposed by metadata diagnostics.
 const (
-	ClassOK          ErrClass = ""
-	ClassCanceled    ErrClass = "canceled"
-	ClassDeadline    ErrClass = "deadline"
-	ClassClosed      ErrClass = "closed"
-	ClassBusy        ErrClass = "busy"
-	ClassTimeout     ErrClass = "timeout"
-	ClassIdleTimeout ErrClass = "idle_timeout"
-	ClassEOF         ErrClass = "eof"
-	ClassError       ErrClass = "error"
+	ClassOK          ErrorClass = ""
+	ClassCanceled    ErrorClass = "canceled"
+	ClassDeadline    ErrorClass = "deadline"
+	ClassClosed      ErrorClass = "closed"
+	ClassBusy        ErrorClass = "busy"
+	ClassTimeout     ErrorClass = "timeout"
+	ClassIdleTimeout ErrorClass = "idle_timeout"
+	ClassEOF         ErrorClass = "eof"
+	ClassError       ErrorClass = "error"
 )
 
-func (c ErrClass) String() string { return string(c) }
+func (c ErrorClass) String() string { return string(c) }
 
-// Event contains metadata only. Error is a classification, never a raw message.
+// Event contains metadata only. Class classifies the error, never a raw message.
 type Event struct {
 	SessionID        SessionID
 	Source           MatchSource
 	Scope            RuleScope
 	RuleIndex        int
-	Operation        Op
+	Operation        Operation
 	CaseIndex, Bytes int
-	Error            ErrClass
+	Class            ErrorClass
 }
 
 // Observer is invoked once per completed public Expect, Send or SendAll operation.
@@ -84,7 +84,7 @@ var nextSessionID atomic.Uint64
 // ID returns this Session's immutable identity.
 func (s *Session) ID() SessionID { return s.id }
 
-func errorClass(err error) ErrClass {
+func errorClass(err error) ErrorClass {
 	switch {
 	case err == nil:
 		return ClassOK
@@ -115,7 +115,7 @@ func (s *Session) notify(ctx context.Context, event Event) {
 		if ctx == nil {
 			ctx = context.Background()
 		}
-		s.opts.structuredLogger.LogAttrs(ctx, slog.LevelInfo, "expect", slog.Uint64("session", uint64(event.SessionID)), slog.String("op", event.Operation.String()), slog.Int("case", event.CaseIndex), slog.Int("bytes", event.Bytes), slog.String("class", event.Error.String()), slog.String("source", event.Source.String()), slog.String("scope", string(event.Scope)), slog.Int("rule", event.RuleIndex))
+		s.opts.structuredLogger.LogAttrs(ctx, slog.LevelInfo, "expect", slog.Uint64("session", uint64(event.SessionID)), slog.String("op", event.Operation.String()), slog.Int("case", event.CaseIndex), slog.Int("bytes", event.Bytes), slog.String("class", event.Class.String()), slog.String("source", event.Source.String()), slog.String("scope", string(event.Scope)), slog.Int("rule", event.RuleIndex))
 	}
 
 	for _, observer := range s.opts.observers {

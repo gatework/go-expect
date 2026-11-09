@@ -214,7 +214,7 @@ func TestExpectCanceledInsideHandlerCannotReturnSuccess(t *testing.T) {
 func TestExpectBusyObservers(t *testing.T) {
 	busy := 0
 	s, p := pair(t, WithObserver(func(e Event) {
-		if e.Error == "busy" {
+		if e.Class == "busy" {
 			busy++
 		}
 	}))

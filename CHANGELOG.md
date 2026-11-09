@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.5.0
+
+- BREAKING: rename the diagnostic `ErrClass` type to `ErrorClass`, `Op` to
+  `Operation`, and `Event.Error` to `Event.Class`. `Err` names are reserved for
+  error values, and the field is a classification rather than an error.
+  Constants (`ClassBusy`, `OpExpect`, ...) and emitted strings are unchanged;
+  see docs/migration.md. No aliases remain.
+
 ## v0.4.4
 
 - spawn on Windows now sorts the child environment block by variable name, not

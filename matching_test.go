@@ -210,7 +210,7 @@ func TestResultFormattingIsSafe(t *testing.T) {
 func TestRulesRejectedWaitNotifiesObservers(t *testing.T) {
 	calls := 0
 	s, _ := pair(t, WithObserver(func(e Event) {
-		if e.Operation == "expect" && e.Error != "" {
+		if e.Operation == "expect" && e.Class != "" {
 			calls++
 		}
 	}))
@@ -321,7 +321,7 @@ func TestRulesEventsAndNoConsume(t *testing.T) {
 
 func TestMultiAndBackgroundOwnership(t *testing.T) {
 	checkReleased := func(s *Session, e Event) {
-		if e.Operation == OpExpect && e.Error != ClassBusy && s.expecting.Load() {
+		if e.Operation == OpExpect && e.Class != ClassBusy && s.expecting.Load() {
 			t.Error("completion observer still owns receive reservation")
 		}
 	}

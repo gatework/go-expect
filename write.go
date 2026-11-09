@@ -327,7 +327,7 @@ func writeAdmissionError(ctx context.Context, deadline time.Time) error {
 // transport count is rejected and reported as zero.
 func (s *Session) Send(ctx context.Context, text string) (n int, err error) {
 	defer func() {
-		s.notify(ctx, Event{SessionID: s.id, RuleIndex: -1, Operation: OpSend, CaseIndex: -1, Bytes: n, Error: errorClass(err)})
+		s.notify(ctx, Event{SessionID: s.id, RuleIndex: -1, Operation: OpSend, CaseIndex: -1, Bytes: n, Class: errorClass(err)})
 	}()
 	if ctx == nil {
 		return 0, &ConfigError{Option: "context", Reason: "nil context"}

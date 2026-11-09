@@ -13,7 +13,7 @@ import (
 // between chunks; it never splits a write retry. Context bounds the whole send.
 func (s *Session) SendSlow(ctx context.Context, text string, chunk int, interval time.Duration) (n int, err error) {
 	defer func() {
-		s.notify(ctx, Event{SessionID: s.id, RuleIndex: -1, Operation: OpSend, CaseIndex: -1, Bytes: n, Error: errorClass(err)})
+		s.notify(ctx, Event{SessionID: s.id, RuleIndex: -1, Operation: OpSend, CaseIndex: -1, Bytes: n, Class: errorClass(err)})
 	}()
 	if ctx == nil {
 		return 0, &ConfigError{Option: "context", Reason: "nil context"}
@@ -56,7 +56,7 @@ func (s *Session) SendSlow(ctx context.Context, text string, chunk int, interval
 // WithWriteTimeout bounds the whole operation, including admission.
 func (s *Session) SendNull(ctx context.Context, count int) (n int, err error) {
 	defer func() {
-		s.notify(ctx, Event{SessionID: s.id, Operation: OpSend, CaseIndex: -1, RuleIndex: -1, Bytes: n, Error: errorClass(err)})
+		s.notify(ctx, Event{SessionID: s.id, Operation: OpSend, CaseIndex: -1, RuleIndex: -1, Bytes: n, Class: errorClass(err)})
 	}()
 	if ctx == nil {
 		return 0, &ConfigError{Option: "context", Reason: "nil context"}
@@ -91,7 +91,7 @@ type Pacer func(offset int) time.Duration
 // write is retried; cancellation after any progress retires the Session.
 func (s *Session) SendPaced(ctx context.Context, text string, pacer Pacer) (n int, err error) {
 	defer func() {
-		s.notify(ctx, Event{SessionID: s.id, Operation: OpSend, CaseIndex: -1, RuleIndex: -1, Bytes: n, Error: errorClass(err)})
+		s.notify(ctx, Event{SessionID: s.id, Operation: OpSend, CaseIndex: -1, RuleIndex: -1, Bytes: n, Class: errorClass(err)})
 	}()
 	if ctx == nil || pacer == nil {
 		return 0, &ConfigError{Option: "pacer", Reason: "context and policy required"}

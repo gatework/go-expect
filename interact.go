@@ -275,5 +275,5 @@ func (s *Session) notifyInteract(ctx context.Context, w *waiter, err error) {
 	if w != nil {
 		r = w.result
 	}
-	s.notify(ctx, Event{SessionID: s.id, Operation: OpInteract, Source: r.Source, Scope: r.Scope, CaseIndex: r.CaseIndex, RuleIndex: r.RuleIndex, Bytes: len(r.Before) + len(r.Match), Error: errorClass(err)})
+	s.notify(ctx, Event{SessionID: s.id, Operation: OpInteract, Source: r.Source, Scope: r.Scope, CaseIndex: r.CaseIndex, RuleIndex: r.RuleIndex, Bytes: len(r.Before) + len(r.Match), Class: errorClass(err)})
 }

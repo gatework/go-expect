@@ -37,7 +37,7 @@ func (s *Session) Expect(ctx context.Context, cases []Case, opts ...ExpectOption
 	return result, err
 }
 func (s *Session) notifyExpect(ctx context.Context, result Result, err error) {
-	s.notify(ctx, Event{SessionID: s.id, Source: result.Source, Scope: result.Scope, RuleIndex: result.RuleIndex, Operation: OpExpect, CaseIndex: result.CaseIndex, Bytes: len(result.Before) + len(result.Match), Error: errorClass(err)})
+	s.notify(ctx, Event{SessionID: s.id, Source: result.Source, Scope: result.Scope, RuleIndex: result.RuleIndex, Operation: OpExpect, CaseIndex: result.CaseIndex, Bytes: len(result.Before) + len(result.Match), Class: errorClass(err)})
 }
 func (s *Session) expect(ctx context.Context, cases []Case, opts ...ExpectOption) (result Result, err error) {
 	result.SessionID = s.id

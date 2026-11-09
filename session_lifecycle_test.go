@@ -331,7 +331,7 @@ func TestSessionSinkFailureStopsBeforeReply(t *testing.T) {
 
 func TestSessionLogsAndObserversDoNotLeak(t *testing.T) {
 	var out bytes.Buffer
-	s, p := pair(t, WithLogger(slog.New(slog.NewTextHandler(&out, nil))), WithObserver(func(e Event) { out.WriteString(e.Error.String()) }))
+	s, p := pair(t, WithLogger(slog.New(slog.NewTextHandler(&out, nil))), WithObserver(func(e Event) { out.WriteString(e.Class.String()) }))
 	go p.Write([]byte("secret"))
 	waitText(t, s, "secret")
 	if strings.Contains(out.String(), "secret") {

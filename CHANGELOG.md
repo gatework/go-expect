@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.4.4
+
+- spawn on Windows now sorts the child environment block by variable name, not
+  by the whole "name=value" entry, so names such as `A` and `A1` follow the
+  case-insensitive order CreateProcess expects.
+- CaseLimitError now reports "case limit exceeded", matching its type and
+  `Case.Limit`.
+- Internal cleanups with no API change: `slices.Clone`/`bytes.Clone` replace
+  hand-written copies, compile-time assertions pin the optional PTY
+  capabilities that Session probes at runtime, `Pattern` packs its flags into 80
+  bytes, and golangci-lint now enables the `modernize` analyzer.
+
 ## v0.4.3
 
 - Regexp prompts over long line-oriented output no longer rescan the whole

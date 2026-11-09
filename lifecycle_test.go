@@ -20,7 +20,7 @@ func TestSessionCloseReportsOriginalCause(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for i := 0; i < 2; i++ {
+	for range 2 {
 		if err := s.Close(); !errors.Is(err, failure) {
 			t.Fatal(err)
 		}

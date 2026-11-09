@@ -122,7 +122,7 @@ func TestExpectHardDeadlineAndIdleTimeout(t *testing.T) {
 		defer func() { s.Close(); <-done }()
 		go func() {
 			defer close(done)
-			for i := 0; i < 5; i++ {
+			for range 5 {
 				time.Sleep(400 * time.Millisecond)
 				if _, e := p.Write([]byte("again")); e != nil {
 					return
@@ -153,7 +153,7 @@ func TestRulesRepeatedCommands(t *testing.T) {
 	device := make(chan error, 1)
 	go func() {
 		defer p.Close()
-		for command := 0; command < 2; command++ {
+		for range 2 {
 			for _, step := range []struct{ prompt, reply string }{{"confirm?", "y\r"}, {"confirm?", "y\r"}, {"--More--", " "}, {"code 42:", "42\r"}} {
 				if _, e := io.WriteString(p, step.prompt); e != nil {
 					device <- e
@@ -173,7 +173,7 @@ func TestRulesRepeatedCommands(t *testing.T) {
 		}
 		device <- nil
 	}()
-	for i := 0; i < 2; i++ {
+	for range 2 {
 		res, e := s.Expect(t.Context(), []Case{{Pattern: Literal("device>")}}, r)
 		if e != nil || res.Match != "device>" {
 			t.Fatalf("%v %q", e, res.Match)

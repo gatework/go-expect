@@ -20,7 +20,7 @@ func Then(response Response) Handler {
 // ReplyThenContinue sends text verbatim and continues without resetting timers.
 func ReplyThenContinue(text string) Handler { return Then(Reply(text)) }
 
-// Reply returns an action that sends text verbatim, including explicit line ends.
+// Reply returns a Response that sends text verbatim, including explicit line ends.
 func Reply(text string) Response {
 	return func(ctx context.Context, s *Session, _ Result) error { _, err := s.Send(ctx, text); return err }
 }

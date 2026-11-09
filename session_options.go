@@ -5,6 +5,7 @@ package expect
 import (
 	"io"
 	"log/slog"
+	"slices"
 	"time"
 )
 
@@ -77,7 +78,7 @@ func WithLineEnding(s string) SessionOption {
 // Writers are borrowed, synchronous and must not reenter Session methods.
 // Failure closes the Session; delivery to earlier writers is not replayed.
 func WithOutput(writers ...io.Writer) SessionOption {
-	writers = append([]io.Writer(nil), writers...)
+	writers = slices.Clone(writers)
 	return func(o *sessionOptions) error {
 		for _, w := range writers {
 			if nilInterface(w) {
@@ -91,7 +92,7 @@ func WithOutput(writers ...io.Writer) SessionOption {
 
 // WithObserver adds metadata observers in declaration order.
 func WithObserver(observers ...Observer) SessionOption {
-	observers = append([]Observer(nil), observers...)
+	observers = slices.Clone(observers)
 	return func(o *sessionOptions) error {
 		for _, f := range observers {
 			if f == nil {
@@ -151,7 +152,7 @@ func WithStripParity(enabled bool) SessionOption {
 
 // WithTrace enables payload-free candidate diagnostics, independently of completion observers.
 func WithTrace(observers ...TraceObserver) SessionOption {
-	observers = append([]TraceObserver(nil), observers...)
+	observers = slices.Clone(observers)
 	return func(o *sessionOptions) error {
 		for _, f := range observers {
 			if f == nil {
@@ -166,7 +167,7 @@ func WithTrace(observers ...TraceObserver) SessionOption {
 // WithSendOutput records actual transport-accepted bytes through a separate
 // streaming secret filter. Writers are borrowed, synchronous and never retried.
 func WithSendOutput(writers ...io.Writer) SessionOption {
-	writers = append([]io.Writer(nil), writers...)
+	writers = slices.Clone(writers)
 	return func(o *sessionOptions) error {
 		for _, w := range writers {
 			if nilInterface(w) {

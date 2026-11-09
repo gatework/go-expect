@@ -3,6 +3,7 @@
 package expect
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"io"
@@ -233,7 +234,7 @@ func (q *relayQueue) enqueue(ctx context.Context, data []byte) error {
 			return ErrClosed
 		}
 		if q.used+n <= q.limit {
-			q.chunks = append(q.chunks, append([]byte(nil), data[:n]...))
+			q.chunks = append(q.chunks, bytes.Clone(data[:n]))
 			q.used += n
 			q.mu.Unlock()
 			q.signal(q.wake)

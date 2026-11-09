@@ -16,6 +16,12 @@ import (
 	expect "github.com/gatework/go-expect"
 )
 
+// Console provides the Unix Terminal and optional echo capability.
+var (
+	_ Terminal       = (*expect.Console)(nil)
+	_ EchoController = (*expect.Console)(nil)
+)
+
 // Process owns a child and its PTY. Do not copy it. Wait and Close are concurrent safe.
 // Close cancels the child and joins Wait; exit status is reported by Wait.
 type processState struct {

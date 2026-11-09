@@ -2,7 +2,10 @@
 
 package expect
 
-import "context"
+import (
+	"context"
+	"slices"
+)
 
 // Poll matches buffered bytes and performs one OS readiness pass without waiting
 // for future input. No match returns ErrTimeout. A zero Expect timeout instead
@@ -11,7 +14,7 @@ func (s *Session) Poll(ctx context.Context, cases []Case, opts ...ExpectOption) 
 	if s.osIO == nil {
 		return Result{SessionID: s.id, CaseIndex: -1, RuleIndex: -1}, ErrPollUnsupported
 	}
-	opts = append(append([]ExpectOption(nil), opts...), func(o *expectOptions) error { o.poll = true; return nil })
+	opts = append(slices.Clone(opts), func(o *expectOptions) error { o.poll = true; return nil })
 	return s.Expect(ctx, cases, opts...)
 }
 

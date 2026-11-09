@@ -149,4 +149,4 @@ func (s *Session) Close() error {
 func (*Session) String() string { return "expect.Session" }
 
 // GoString formats the handle without exposing owned stream or command state.
-func (p *Session) GoString() string { return p.String() }
+func (s *Session) GoString() string { return s.String() }

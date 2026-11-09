@@ -212,7 +212,7 @@ func TestConsoleInitializationFailureClosesDescriptors(t *testing.T) {
 	}
 	c.Close()
 	before := count()
-	for i := 0; i < 20; i++ {
+	for range 20 {
 		if c, err := NewConsole(WithSessionOptions(WithBufferLimit(0))); err == nil {
 			c.Close()
 			t.Fatal("invalid limit accepted")

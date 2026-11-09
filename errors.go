@@ -43,7 +43,7 @@ type CaseLimitError struct {
 	CaseIndex, RuleIndex int
 }
 
-func (e *CaseLimitError) Error() string { return "expect: response limit exceeded" }
+func (e *CaseLimitError) Error() string { return "expect: case limit exceeded" }
 
 // CallbackFailure identifies how an asynchronous callback failed.
 type CallbackFailure string

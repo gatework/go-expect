@@ -9,7 +9,6 @@ import (
 	"errors"
 	"os"
 	"os/exec"
-	"sort"
 	"strings"
 	"sync"
 	"unicode/utf16"
@@ -96,23 +95,7 @@ func startProcess(ctx context.Context, program string, args []string, o options)
 	}
 	var environment *uint16
 	if o.env != nil {
-		entries := make([]string, 0, len(o.env))
-		seen := make(map[string]bool, len(o.env))
-		for i := len(o.env) - 1; i >= 0; i-- {
-			entry := o.env[i]
-			separator := strings.IndexByte(entry, '=')
-			if separator == 0 {
-				if next := strings.IndexByte(entry[1:], '='); next >= 0 {
-					separator = next + 1
-				}
-			}
-			key := strings.ToUpper(entry[:separator])
-			if !seen[key] {
-				seen[key] = true
-				entries = append(entries, entry)
-			}
-		}
-		sort.SliceStable(entries, func(i, j int) bool { return strings.ToUpper(entries[i]) < strings.ToUpper(entries[j]) })
+		entries := windowsEnvironment(o.env)
 		block := utf16.Encode([]rune(strings.Join(entries, "\x00") + "\x00\x00"))
 		environment = &block[0]
 	}

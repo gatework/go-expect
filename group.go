@@ -31,7 +31,7 @@ func NewGroup(sessions ...*Session) (*Group, error) {
 		}
 		seen[s] = true
 	}
-	return &Group{sessions: append([]*Session(nil), sessions...)}, nil
+	return &Group{sessions: slices.Clone(sessions)}, nil
 }
 
 // SessionError associates a failed member with its immutable identity.
@@ -91,9 +91,9 @@ func (g *Group) Expect(ctx context.Context, cases []Case, opts ...ExpectOption) 
 		g.mu.Unlock()
 		return nil, empty, ErrBusy
 	}
-	r := &groupRun{group: g, ctx: ctx, cases: cloneCases(cases), opts: append([]ExpectOption(nil), opts...), commands: make(chan groupCommand), done: make(chan struct{}), wake: make(chan struct{}, 1)}
+	r := &groupRun{group: g, ctx: ctx, cases: cloneCases(cases), opts: slices.Clone(opts), commands: make(chan groupCommand), done: make(chan struct{}), wake: make(chan struct{}, 1)}
 	g.run = r
-	sessions := append([]*Session(nil), g.sessions...)
+	sessions := slices.Clone(g.sessions)
 	g.mu.Unlock()
 	defer r.close()
 	if len(sessions) == 0 {

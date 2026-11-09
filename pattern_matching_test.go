@@ -94,7 +94,7 @@ func FuzzLineCursor(f *testing.F) {
 		}
 		for _, pattern := range []Pattern{p, All(Literal(text), p), All(p, All(Literal(text), p))} {
 			cursor := newMatchCursor(pattern)
-			for pass := 0; pass < 2; pass++ {
+			for range 2 {
 				for end := 0; ; end = min(len(data), end+1+int(chunk)%32) {
 					got, ok, err := cursor.find(data[:end], false, 0, true)
 					want, wok, we := pattern.find(data[:end], false, 0)

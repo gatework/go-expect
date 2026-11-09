@@ -46,6 +46,7 @@ func (g gate) acquire(ctx context.Context, done <-chan struct{}, deadline time.T
 		return nil
 	}
 }
+
 func (g gate) release() { <-g }
 
 // awaitControl prefers a published acknowledgement over simultaneous cancellation.

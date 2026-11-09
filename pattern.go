@@ -22,15 +22,15 @@ import (
 // Pattern is an immutable literal, regular expression, EOF or All pattern.
 // Its zero value is invalid. It never contains per-operation match state.
 type Pattern struct {
-	kind    patternKind
-	glob    bool
-	text    string
-	re      *regexp.Regexp
-	all     []Pattern
-	failure []int
+	kind patternKind
+	glob bool
 	// lineLocal regexps cannot consume LF or assert the start of text, so a
 	// failed scan only needs to resume at the final incomplete line.
 	lineLocal bool
+	text      string
+	re        *regexp.Regexp
+	all       []Pattern
+	failure   []int
 }
 
 const literalKMPThreshold = 256
@@ -190,8 +190,10 @@ func EOF() Pattern { return Pattern{kind: eofPattern} }
 // All matches all supplied text patterns, in any order, consuming through the
 // last match. Repeated patterns may refer to the same bytes. Captures are omitted.
 func All(patterns ...Pattern) Pattern {
-	return Pattern{kind: allPattern, all: append([]Pattern(nil), patterns...)}
+	return Pattern{kind: allPattern, all: slices.Clone(patterns)}
 }
+
+// String formats the pattern kind and size without exposing its text.
 func (p Pattern) String() string {
 	names := []string{"invalid", "literal", "regexp", "eof", "all", "line", "timeout", "default", "full_buffer"}
 	kind := "invalid"

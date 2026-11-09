@@ -3,6 +3,7 @@
 package expect
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"io"
@@ -56,7 +57,7 @@ func relayInput(ctx context.Context, s *Session, input io.ReadCloser, o interact
 					data = buf[:n]
 					buf = make([]byte, 4096)
 				} else {
-					data = append([]byte(nil), buf[:n]...)
+					data = bytes.Clone(buf[:n])
 				}
 				select {
 				case events <- readEvent{data: data, err: e}:

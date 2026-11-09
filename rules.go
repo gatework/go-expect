@@ -25,6 +25,7 @@ func WithBefore(cases ...Case) SessionOption { return sessionRules(true, cases) 
 
 // WithAfter installs session rules consulted after call cases.
 func WithAfter(cases ...Case) SessionOption { return sessionRules(false, cases) }
+
 func sessionRules(before bool, cases []Case) SessionOption {
 	snapshot := cloneCases(cases)
 	return func(o *sessionOptions) error {
@@ -125,9 +126,9 @@ type ruleProgram struct {
 }
 
 func cloneCases(cases []Case) []Case {
-	out := append([]Case(nil), cases...)
+	out := slices.Clone(cases)
 	for i := range out {
-		out[i].Sessions = append([]*Session(nil), out[i].Sessions...)
+		out[i].Sessions = slices.Clone(out[i].Sessions)
 	}
 	return out
 }
@@ -217,9 +218,10 @@ func bindSession(c Case, s *Session) bool {
 	return slices.Contains(c.Sessions, s)
 }
 
-// waitForControl rejects controls called using a callback's execution context.
+// callbackContextKey marks contexts passed to asynchronous callbacks.
 type callbackContextKey struct{}
 
+// validateControlContext rejects controls called using a callback's execution context.
 func validateControlContext(ctx context.Context) error {
 	if ctx == nil {
 		return &ConfigError{Option: "context", Reason: "nil context"}
@@ -229,6 +231,8 @@ func validateControlContext(ctx context.Context) error {
 	}
 	return nil
 }
+
+// waitForControl validates ctx and reports its cancellation.
 func waitForControl(ctx context.Context) error {
 	if err := validateControlContext(ctx); err != nil {
 		return err

@@ -19,10 +19,12 @@
 package expect
 
 import (
+	"context"
 	"errors"
 	"io"
 	"os"
 	"os/exec"
+	"slices"
 	"sync"
 	"syscall"
 	"time"
@@ -50,7 +52,7 @@ type ConsoleOption func(*consoleOptions) error
 
 // WithSessionOptions configures the Console's underlying Session.
 func WithSessionOptions(opts ...SessionOption) ConsoleOption {
-	opts = append([]SessionOption(nil), opts...)
+	opts = slices.Clone(opts)
 	return func(o *consoleOptions) error { o.session = append(o.session, opts...); return nil }
 }
 
@@ -139,6 +141,18 @@ type ptyTransport struct {
 	once          sync.Once
 	err           error
 }
+
+// Session probes these optional capabilities at runtime; renaming a method
+// would silently select a fallback path, so the compiler checks them here.
+var (
+	_ deadlineWriter                                = (*ptyTransport)(nil)
+	_ syscall.Conn                                  = (*ptyTransport)(nil)
+	_ interface{ SetReadDeadline(time.Time) error } = (*ptyTransport)(nil)
+	_ interface{ NormalizeReadError(error) error }  = (*ptyTransport)(nil)
+	_ interface {
+		SendBreak(context.Context, time.Duration) error
+	} = (*ptyTransport)(nil)
+)
 
 func (p *ptyTransport) Read(b []byte) (int, error) {
 	n, err := p.master.Read(b)
@@ -262,4 +276,4 @@ func (c *Console) Start(cmd *exec.Cmd) error {
 func (*Console) String() string { return "expect.Console" }
 
 // GoString formats the handle without exposing owned stream or command state.
-func (p *Console) GoString() string { return p.String() }
+func (c *Console) GoString() string { return c.String() }

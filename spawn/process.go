@@ -8,6 +8,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
 	"strings"
 
 	expect "github.com/gatework/go-expect"
@@ -37,7 +38,7 @@ func WithSize(rows, cols int) Option {
 
 // WithSessionOptions configures the owned conversation Session.
 func WithSessionOptions(opts ...expect.SessionOption) Option {
-	opts = append([]expect.SessionOption(nil), opts...)
+	opts = slices.Clone(opts)
 	return func(o *options) error { o.session = append(o.session, opts...); return nil }
 }
 
@@ -132,7 +133,7 @@ func Start(ctx context.Context, program string, args []string, opts ...Option) (
 			return nil, err
 		}
 	}
-	state, err := startProcess(ctx, program, append([]string(nil), args...), o)
+	state, err := startProcess(ctx, program, slices.Clone(args), o)
 	if err != nil {
 		return nil, err
 	}

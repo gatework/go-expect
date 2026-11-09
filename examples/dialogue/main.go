@@ -93,7 +93,7 @@ func simulate(conn net.Conn) error {
 		if actual != command {
 			return fmt.Errorf("unexpected command")
 		}
-		for i := 0; i < 2; i++ {
+		for range 2 {
 			if err := exchange("Apply? [y/N] ", "y\n"); err != nil {
 				return err
 			}

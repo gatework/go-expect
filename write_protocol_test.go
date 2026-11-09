@@ -18,7 +18,7 @@ import (
 )
 
 func TestSendCancellationBeforeWriteCompletion(t *testing.T) {
-	for i := 0; i < 100; i++ {
+	for range 100 {
 		ctx, cancel := context.WithCancel(t.Context())
 		transport := &cancelingWriter{cancel: cancel}
 		s, err := NewSession(transport)
@@ -41,7 +41,7 @@ type cancelingWriter struct{ cancel context.CancelFunc }
 func (w *cancelingWriter) Write(p []byte) (int, error) { w.cancel(); return len(p), nil }
 
 func TestSendCloseBeforeWriteCompletion(t *testing.T) {
-	for i := 0; i < 100; i++ {
+	for range 100 {
 		transport := &cancelingWriter{}
 		s, err := NewSession(transport)
 		if err != nil {

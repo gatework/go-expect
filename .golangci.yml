@@ -15,6 +15,7 @@ linters:
     - errname
     - gocyclo
     - funlen
+    - modernize
   settings:
     exhaustive:
       default-signifies-exhaustive: true

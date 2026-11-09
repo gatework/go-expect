@@ -7,6 +7,7 @@ import (
 	"errors"
 	"io"
 	"os"
+	"slices"
 	"time"
 )
 
@@ -68,7 +69,7 @@ func WithInteractOutputCases(cases ...Case) InteractOption {
 
 // WithInteractExpectOptions configures matching and timing during interaction.
 func WithInteractExpectOptions(opts ...ExpectOption) InteractOption {
-	opts = append([]ExpectOption(nil), opts...)
+	opts = slices.Clone(opts)
 	return func(o *interactOptions) error { o.expect = append(o.expect, opts...); return nil }
 }
 
@@ -102,7 +103,7 @@ func (s *Session) prepareInteraction(ctx context.Context, input io.ReadCloser, o
 			return interactOptions{}, nil, err
 		}
 	}
-	cases := append(append([]Case(nil), o.cases...), Case{Pattern: EOF()})
+	cases := append(slices.Clone(o.cases), Case{Pattern: EOF()})
 	expectOpts := append([]ExpectOption{WithTimeout(NoTimeout)}, o.expect...)
 	expectOpts = append(expectOpts, WithStreamingFallback(func(context.Context, *Session, Result) (Action, error) { return ContinueKeepTimer, nil }))
 	w := waiter{session: s, result: Result{CaseIndex: -1, RuleIndex: -1}}

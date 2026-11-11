@@ -37,17 +37,10 @@ func (s *Session) InteractTerminal(ctx context.Context, input *os.File, output i
 	if s.isClosed() {
 		return ErrClosed
 	}
-	raw, err := input.SyscallConn()
+	local, fd, err := duplicateInput(input)
 	if err != nil {
 		return err
 	}
-	fd := -1
-	var inner error
-	err = raw.Control(func(original uintptr) { fd, inner = unix.FcntlInt(original, unix.F_DUPFD_CLOEXEC, 0) })
-	if err != nil || inner != nil {
-		return errors.Join(err, inner)
-	}
-	local := os.NewFile(uintptr(fd), input.Name())
 	defer func() {
 		if e := local.Close(); !errors.Is(e, os.ErrClosed) {
 			err = errors.Join(err, e)
@@ -91,4 +84,21 @@ func (s *Session) InteractTerminal(ctx context.Context, input *os.File, output i
 	}
 	defer owned.Close()
 	return s.interactOwned(ctx, owned, output, o, w)
+}
+
+// duplicateInput duplicates input's descriptor (close-on-exec) so that the
+// caller's handle stays open and untouched while the duplicate is closed to
+// cancel the input worker.
+func duplicateInput(input *os.File) (local *os.File, fd int, err error) {
+	raw, err := input.SyscallConn()
+	if err != nil {
+		return nil, -1, err
+	}
+	fd = -1
+	var inner error
+	err = raw.Control(func(original uintptr) { fd, inner = unix.FcntlInt(original, unix.F_DUPFD_CLOEXEC, 0) })
+	if err != nil || inner != nil {
+		return nil, -1, errors.Join(err, inner)
+	}
+	return os.NewFile(uintptr(fd), input.Name()), fd, nil
 }

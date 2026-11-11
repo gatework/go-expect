@@ -26,7 +26,7 @@ func TestOSReadTransfersCompactTinyBuffer(t *testing.T) {
 		t.Fatal(e)
 	}
 	var scratch []byte
-	data, e, ready := access.read(0, &scratch)
+	data, ready, e := access.read(0, &scratch)
 	if e != nil || !ready || string(data) != "x" {
 		t.Fatalf("data=%q ready=%v err=%v", data, ready, e)
 	}
@@ -98,7 +98,7 @@ func TestOSSmallReadsReuseScratch(t *testing.T) {
 		if _, err = b.Write([]byte("x")); err != nil {
 			t.Fatal(err)
 		}
-		data, err, ready := access.read(0, &scratch)
+		data, ready, err := access.read(0, &scratch)
 		if err != nil || !ready || string(data) != "x" {
 			t.Fatalf("data=%q ready=%v err=%v", data, ready, err)
 		}
@@ -127,7 +127,7 @@ func TestOSReadScratchTransferOwnership(t *testing.T) {
 		if _, err := b.Write(input); err != nil {
 			t.Fatal(err)
 		}
-		data, err, ready := access.read(0, &scratch)
+		data, ready, err := access.read(0, &scratch)
 		if err != nil || !ready || !bytes.Equal(data, input) {
 			t.Fatalf("read length=%d ready=%v err=%v", len(data), ready, err)
 		}
@@ -138,7 +138,7 @@ func TestOSReadScratchTransferOwnership(t *testing.T) {
 			t.Fatalf("read %d changed after scratch reuse", i)
 		}
 	}
-	if data, err, ready := access.read(0, &scratch); len(data) != 0 || err != nil || ready {
+	if data, ready, err := access.read(0, &scratch); len(data) != 0 || err != nil || ready {
 		t.Fatalf("idle data=%q err=%v ready=%v", data, err, ready)
 	}
 }
@@ -180,7 +180,7 @@ func TestOSReadClosedRawConn(t *testing.T) {
 		t.Fatal("closed RawConn did not return an error")
 	}
 	var scratch []byte
-	data, err, ready := access.read(0, &scratch)
+	data, ready, err := access.read(0, &scratch)
 	if len(data) != 0 || !ready || !errors.Is(err, want) {
 		t.Fatalf("data=%q ready=%v err=%v", data, ready, err)
 	}

@@ -60,59 +60,20 @@ type relayRoute struct {
 // Relay connects sources and targets with one receive owner per source. EOF or
 // Return ends the relay and drains queued output. Failure cancels all routes,
 // joins admitted writes and never replays bytes. Sessions and sinks are borrowed.
-func Relay(ctx context.Context, routes []Route, opts ...ExpectOption) (err error) {
+func Relay(ctx context.Context, routes []Route, opts ...MatchOption) (err error) {
 	if e := waitForControl(ctx); e != nil {
 		return e
 	}
 	if len(routes) == 0 {
 		return &ConfigError{Option: "relay", Reason: "empty routes"}
 	}
-	sources := make([]*Session, 0, len(routes))
-	bySource := make(map[*Session]*relayRoute, len(routes))
-	var cases []Case
-	var queues []*relayQueue
-	for _, route := range routes {
-		if route.Source == nil || bySource[route.Source] != nil {
-			return &ConfigError{Option: "route", Reason: "nil or duplicate source"}
-		}
-		if route.QueueLimit < 0 {
-			return &ConfigError{Option: "route queue", Reason: "negative limit"}
-		}
-		if route.Output != nil && nilInterface(route.Output) {
-			return &ConfigError{Option: "route output", Reason: "nil writer"}
-		}
-		if e := validateCases(route.Cases); e != nil {
-			return e
-		}
-		r := &relayRoute{route: route}
-		bySource[route.Source] = r
-		sources = append(sources, route.Source)
-		limit := route.QueueLimit
-		if limit == 0 {
-			limit = route.Source.opts.limit
-		}
-		seen := make(map[*Session]bool, len(route.Targets))
-		for _, target := range route.Targets {
-			if target == nil || target == route.Source || seen[target] {
-				return &ConfigError{Option: "route target", Reason: "nil, duplicate or self target"}
-			}
-			seen[target] = true
-			q := &relayQueue{source: route.Source, target: target, limit: limit, wake: make(chan struct{}, 1), space: make(chan struct{}, 1), done: make(chan struct{})}
-			r.targets = append(r.targets, q)
-			queues = append(queues, q)
-		}
-		for _, c := range cloneCases(route.Cases) {
-			if c.NoConsume {
-				return &ConfigError{Option: "route case", Reason: "NoConsume would replay forwarded bytes"}
-			}
-			c.Sessions = []*Session{route.Source}
-			cases = append(cases, c)
-		}
-		cases = append(cases, Case{Pattern: EOF(), Sessions: []*Session{route.Source}})
+	p, err := newRelayPlan(routes)
+	if err != nil {
+		return err
 	}
 	runCtx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	for _, q := range queues {
+	for _, q := range p.queues {
 		go q.run(runCtx, cancel)
 	}
 	completed := false
@@ -120,49 +81,14 @@ func Relay(ctx context.Context, routes []Route, opts ...ExpectOption) (err error
 		if !completed {
 			cancel()
 		}
-		for _, q := range queues {
-			q.finish()
-		}
-		for _, q := range queues {
-			<-q.done
-			err = errors.Join(err, q.err)
-		}
-		for _, r := range bySource {
-			if e := r.output(nil, true); e != nil {
-				err = errors.Join(err, e, r.route.Source.Close())
-			}
-		}
+		p.close(&err)
 	}()
-	g, _ := NewGroup(sources...)
+	g, _ := NewGroup(p.sources...)
 	g.failFast = true
-	g.prepare = func(w *waiter) error {
-		route := bySource[w.session]
-		for _, c := range w.cases {
-			if c.NoConsume {
-				return &ConfigError{Option: "route rule", Reason: "NoConsume would replay forwarded bytes"}
-			}
-		}
-		if e := w.enableForwarding(); e != nil {
-			return e
-		}
-		w.deliver = func(result Result, hit selection) error {
-			if !hit.streaming && w.cases[hit.chosen].NoConsume {
-				return &ConfigError{Option: "route rule", Reason: "NoConsume would replay forwarded bytes"}
-			}
-			if hit.deadlineEvent {
-				return nil
-			}
-			data := result.Before
-			if hit.streaming || route.route.ForwardMatches {
-				data += result.Match
-			}
-			return route.forward(runCtx, []byte(data))
-		}
-		return nil
-	}
-	options := append([]ExpectOption{WithTimeout(NoTimeout)}, opts...)
+	g.prepare = func(w *waiter) error { return p.bySource[w.session].prepare(runCtx, w) }
+	options := append([]MatchOption{WithTimeout(NoTimeout)}, opts...)
 	options = append(options, WithStreamingFallback(func(context.Context, *Session, Result) (Action, error) { return ContinueKeepTimer, nil }))
-	_, _, err = g.Expect(runCtx, cases, options...)
+	_, _, err = g.Expect(runCtx, p.cases, options...)
 	if err != nil {
 		cancel()
 	} else {
@@ -170,6 +96,112 @@ func Relay(ctx context.Context, routes []Route, opts ...ExpectOption) (err error
 	}
 	return err
 }
+
+// relayPlan is the validated wiring of a Relay: one route per source, one
+// queue per target and the group cases that end each source at EOF.
+type relayPlan struct {
+	sources  []*Session
+	bySource map[*Session]*relayRoute
+	cases    []Case
+	queues   []*relayQueue
+}
+
+func newRelayPlan(routes []Route) (*relayPlan, error) {
+	p := &relayPlan{sources: make([]*Session, 0, len(routes)), bySource: make(map[*Session]*relayRoute, len(routes))}
+	for _, route := range routes {
+		if err := p.add(route); err != nil {
+			return nil, err
+		}
+	}
+	return p, nil
+}
+
+// add validates route and adds its queues and cases.
+func (p *relayPlan) add(route Route) error {
+	if route.Source == nil || p.bySource[route.Source] != nil {
+		return &ConfigError{Option: "route", Reason: "nil or duplicate source"}
+	}
+	if route.QueueLimit < 0 {
+		return &ConfigError{Option: "route queue", Reason: "negative limit"}
+	}
+	if route.Output != nil && nilInterface(route.Output) {
+		return &ConfigError{Option: "route output", Reason: "nil writer"}
+	}
+	if e := validateCases(route.Cases); e != nil {
+		return e
+	}
+	r := &relayRoute{route: route}
+	p.bySource[route.Source] = r
+	p.sources = append(p.sources, route.Source)
+	limit := route.QueueLimit
+	if limit == 0 {
+		limit = route.Source.opts.limit
+	}
+	seen := make(map[*Session]bool, len(route.Targets))
+	for _, target := range route.Targets {
+		if target == nil || target == route.Source || seen[target] {
+			return &ConfigError{Option: "route target", Reason: "nil, duplicate or self target"}
+		}
+		seen[target] = true
+		q := &relayQueue{source: route.Source, target: target, limit: limit, wake: make(chan struct{}, 1), space: make(chan struct{}, 1), done: make(chan struct{})}
+		r.targets = append(r.targets, q)
+		p.queues = append(p.queues, q)
+	}
+	for _, c := range cloneCases(route.Cases) {
+		if c.NoConsume {
+			return &ConfigError{Option: "route case", Reason: "NoConsume would replay forwarded bytes"}
+		}
+		c.Sessions = []*Session{route.Source}
+		p.cases = append(p.cases, c)
+	}
+	p.cases = append(p.cases, Case{Pattern: EOF(), Sessions: []*Session{route.Source}})
+	return nil
+}
+
+// close finishes every queue, joins the target writers and flushes route
+// output, joining their failures into *err.
+func (p *relayPlan) close(err *error) {
+	for _, q := range p.queues {
+		q.finish()
+	}
+	for _, q := range p.queues {
+		<-q.done
+		*err = errors.Join(*err, q.err)
+	}
+	for _, r := range p.bySource {
+		if e := r.output(nil, true); e != nil {
+			*err = errors.Join(*err, e, r.route.Source.Close())
+		}
+	}
+}
+
+// prepare makes w forward this route's unmatched (and, with ForwardMatches,
+// matched) source bytes to the targets and output.
+func (r *relayRoute) prepare(ctx context.Context, w *waiter) error {
+	for _, c := range w.cases {
+		if c.NoConsume {
+			return &ConfigError{Option: "route rule", Reason: "NoConsume would replay forwarded bytes"}
+		}
+	}
+	if e := w.enableForwarding(); e != nil {
+		return e
+	}
+	w.deliver = func(result Result, hit selection) error {
+		if !hit.streaming && w.cases[hit.chosen].NoConsume {
+			return &ConfigError{Option: "route rule", Reason: "NoConsume would replay forwarded bytes"}
+		}
+		if hit.deadlineEvent {
+			return nil
+		}
+		data := result.Before
+		if hit.streaming || r.route.ForwardMatches {
+			data += result.Match
+		}
+		return r.forward(ctx, []byte(data))
+	}
+	return nil
+}
+
 func (r *relayRoute) forward(ctx context.Context, data []byte) error {
 	if len(data) == 0 {
 		return nil

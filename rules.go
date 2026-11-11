@@ -43,9 +43,9 @@ func sessionRules(before bool, cases []Case) SessionOption {
 
 // WithRules activates reusable cases alongside foreground cases. Foreground
 // cases win equal-position ties. A zero rule limit means one response per wait.
-func WithRules(cases ...Case) ExpectOption {
+func WithRules(cases ...Case) MatchOption {
 	snapshot := cloneCases(cases)
-	return func(o *expectOptions) error {
+	return func(o *matchOptions) error {
 		if err := validateCases(snapshot); err != nil {
 			return err
 		}

@@ -16,17 +16,17 @@ import (
 
 // NewConsole creates a Console, forwards filtered receive output to t.Log and
 // registers cleanup. It fails the test if construction fails.
-func NewConsole(t testing.TB, opts ...expect.ConsoleOption) *expect.Console {
-	t.Helper()
-	writer := NewWriter(t)
+func NewConsole(tb testing.TB, opts ...expect.ConsoleOption) *expect.Console {
+	tb.Helper()
+	writer := NewWriter(tb)
 	opts = append(opts, expect.WithSessionOptions(expect.WithOutput(writer)))
 	c, err := expect.NewConsole(opts...)
 	if err != nil {
-		t.Fatal(err)
+		tb.Fatal(err)
 	}
-	t.Cleanup(func() {
+	tb.Cleanup(func() {
 		if err := c.Close(); err != nil {
-			t.Errorf("close console: %v", err)
+			tb.Errorf("close console: %v", err)
 		}
 	})
 	return c
@@ -34,9 +34,10 @@ func NewConsole(t testing.TB, opts ...expect.ConsoleOption) *expect.Console {
 
 // NewWriter logs complete lines synchronously and flushes the last fragment at
 // test cleanup. Long lines flush in bounded fragments. No reader goroutine exists.
-func NewWriter(t testing.TB) io.Writer {
-	w := &testWriter{t: t}
-	t.Cleanup(w.flush)
+func NewWriter(tb testing.TB) io.Writer {
+	tb.Helper()
+	w := &testWriter{t: tb}
+	tb.Cleanup(w.flush)
 	return w
 }
 

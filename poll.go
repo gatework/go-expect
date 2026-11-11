@@ -10,11 +10,11 @@ import (
 // Poll matches buffered bytes and performs one OS readiness pass without waiting
 // for future input. No match returns ErrTimeout. A zero Expect timeout instead
 // disables that timer and continues waiting. Requires WithOSPolling.
-func (s *Session) Poll(ctx context.Context, cases []Case, opts ...ExpectOption) (Result, error) {
+func (s *Session) Poll(ctx context.Context, cases []Case, opts ...MatchOption) (Result, error) {
 	if s.osIO == nil {
 		return Result{SessionID: s.id, CaseIndex: -1, RuleIndex: -1}, ErrPollUnsupported
 	}
-	opts = append(slices.Clone(opts), func(o *expectOptions) error { o.poll = true; return nil })
+	opts = append(slices.Clone(opts), func(o *matchOptions) error { o.poll = true; return nil })
 	return s.Expect(ctx, cases, opts...)
 }
 

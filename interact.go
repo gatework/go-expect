@@ -18,7 +18,7 @@ type interactOptions struct {
 	cases                                     []Case
 	inputs                                    []Case
 	escape                                    byte
-	expect                                    []ExpectOption
+	expect                                    []MatchOption
 	inputTimeout                              time.Duration
 	inputForward, outputForward, echo, cooked bool
 	callbackMode                              func() (func() error, error)
@@ -67,8 +67,8 @@ func WithInteractOutputCases(cases ...Case) InteractOption {
 	}
 }
 
-// WithInteractExpectOptions configures matching and timing during interaction.
-func WithInteractExpectOptions(opts ...ExpectOption) InteractOption {
+// WithInteractMatchOptions configures matching and timing during interaction.
+func WithInteractMatchOptions(opts ...MatchOption) InteractOption {
 	opts = slices.Clone(opts)
 	return func(o *interactOptions) error { o.expect = append(o.expect, opts...); return nil }
 }
@@ -104,7 +104,7 @@ func (s *Session) prepareInteraction(ctx context.Context, input io.ReadCloser, o
 		}
 	}
 	cases := append(slices.Clone(o.cases), Case{Pattern: EOF()})
-	expectOpts := append([]ExpectOption{WithTimeout(NoTimeout)}, o.expect...)
+	expectOpts := append([]MatchOption{WithTimeout(NoTimeout)}, o.expect...)
 	expectOpts = append(expectOpts, WithStreamingFallback(func(context.Context, *Session, Result) (Action, error) { return ContinueKeepTimer, nil }))
 	w := waiter{session: s, result: Result{CaseIndex: -1, RuleIndex: -1}}
 	if err := w.prepare(ctx, cases, expectOpts); err != nil {
@@ -154,74 +154,28 @@ func (s *Session) interactOwned(ctx context.Context, input io.ReadCloser, output
 			_ = input.Close()
 		}
 	}()
-	// Install cleanup before invoking any borrowed writer.
+	// Install cleanup before invoking any borrowed writer, which may panic.
 	installed := false
 	defer func() {
 		if installed {
-			s.diagnostics.mu.Lock()
-			defer s.diagnostics.mu.Unlock()
-			s.diagnostics.interactSink = nil
-			s.diagnostics.interactRedactor = nil
-			s.diagnostics.interactDeferred = false
+			s.clearInteractSink()
 		}
 	}()
-	initialErr := func() error {
-		s.diagnostics.mu.Lock()
-		defer s.diagnostics.mu.Unlock()
-		s.diagnostics.interactSink = output
-		s.diagnostics.interactDeferred = !o.outputForward
-		s.diagnostics.interactOutputErr = nil
-		s.diagnostics.interactRedactor = &diagnosticRedactor{}
-		s.diagnostics.interactRedactor.add(s.diagnostics.secrets)
-		installed = true
-		if o.outputForward {
-			return s.emitInteractiveLocked(s.receive.pending, false)
-		}
-		return nil
-	}()
-	if initialErr != nil {
+	if initialErr := s.installInteractSink(output, o.outputForward, &installed); initialErr != nil {
 		return errors.Join(initialErr, s.Close())
 	}
 	if !o.outputForward {
-		if e := w.enableForwarding(); e != nil {
+		if e := s.forwardInteraction(w); e != nil {
 			return e
 		}
-		w.deliver = func(result Result, hit selection) error {
-			if hit.deadlineEvent {
-				return nil
-			}
-			if !hit.streaming && w.cases[hit.chosen].NoConsume {
-				return nil
-			}
-			data := result.Before
-			if hit.streaming {
-				data += result.Match
-			}
-			return s.interactiveWrite([]byte(data), false)
-		}
 	}
-
 	localDone := make(chan error, 1)
 	go func() { localDone <- relayInput(ctx, s, input, o, controls, w); cancel() }()
 	defer func() {
 		cancel()
 		closeErr := input.Close()
 		inputClosed = true
-		localErr := <-localDone
-		s.diagnostics.mu.Lock()
-		flushErr := func() error { defer s.diagnostics.mu.Unlock(); return s.emitInteractiveLocked(nil, true) }()
-		s.diagnostics.mu.Lock()
-		s.diagnostics.interactSink = nil
-		s.diagnostics.interactRedactor = nil
-		s.diagnostics.interactDeferred = false
-		s.diagnostics.mu.Unlock()
-		if errors.Is(closeErr, io.ErrClosedPipe) || errors.Is(closeErr, os.ErrClosed) {
-			closeErr = nil
-		}
-		if flushErr != nil {
-			flushErr = errors.Join(flushErr, s.Close())
-		}
-		err = errors.Join(err, localErr, closeErr, flushErr)
+		s.endInteraction(&err, <-localDone, closeErr)
 	}()
 	_, remoteErr := w.run(ctx)
 	//nolint:errorlint // Do not erase joined causes or WriteError progress.
@@ -229,6 +183,72 @@ func (s *Session) interactOwned(ctx context.Context, input io.ReadCloser, output
 		remoteErr = nil
 	}
 	return errors.Join(parent.Err(), remoteErr)
+}
+
+// installInteractSink routes diagnostics to the interaction output and, when
+// output is forwarded, writes the already received input to it. It sets
+// *installed before that first write so that the caller clears the sink even
+// if the borrowed writer fails or panics.
+func (s *Session) installInteractSink(output io.Writer, forward bool, installed *bool) error {
+	s.diagnostics.mu.Lock()
+	defer s.diagnostics.mu.Unlock()
+	s.diagnostics.interactSink = output
+	s.diagnostics.interactDeferred = !forward
+	s.diagnostics.interactOutputErr = nil
+	s.diagnostics.interactRedactor = &diagnosticRedactor{}
+	s.diagnostics.interactRedactor.add(s.diagnostics.secrets)
+	*installed = true
+	if forward {
+		return s.emitInteractiveLocked(s.receive.pending, false)
+	}
+	return nil
+}
+
+// clearInteractSink detaches the interaction output from diagnostics.
+func (s *Session) clearInteractSink() {
+	s.diagnostics.mu.Lock()
+	defer s.diagnostics.mu.Unlock()
+	s.diagnostics.interactSink = nil
+	s.diagnostics.interactRedactor = nil
+	s.diagnostics.interactDeferred = false
+}
+
+// forwardInteraction makes w write unmatched remote bytes (and streamed
+// matches) to the interaction output when output is not forwarded wholesale.
+func (s *Session) forwardInteraction(w *waiter) error {
+	if e := w.enableForwarding(); e != nil {
+		return e
+	}
+	w.deliver = func(result Result, hit selection) error {
+		if hit.deadlineEvent {
+			return nil
+		}
+		if !hit.streaming && w.cases[hit.chosen].NoConsume {
+			return nil
+		}
+		data := result.Before
+		if hit.streaming {
+			data += result.Match
+		}
+		return s.interactiveWrite([]byte(data), false)
+	}
+	return nil
+}
+
+// endInteraction flushes and detaches the interaction output after the local
+// relay ended, and joins the local, input-close and flush failures into *err.
+// Closing an already closed input is not a failure.
+func (s *Session) endInteraction(err *error, localErr, closeErr error) {
+	s.diagnostics.mu.Lock()
+	flushErr := func() error { defer s.diagnostics.mu.Unlock(); return s.emitInteractiveLocked(nil, true) }()
+	s.clearInteractSink()
+	if errors.Is(closeErr, io.ErrClosedPipe) || errors.Is(closeErr, os.ErrClosed) {
+		closeErr = nil
+	}
+	if flushErr != nil {
+		flushErr = errors.Join(flushErr, s.Close())
+	}
+	*err = errors.Join(*err, localErr, closeErr, flushErr)
 }
 
 // WithInteractInputTimeout sets the local idle interval. Timeout/Default input

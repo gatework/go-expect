@@ -87,6 +87,8 @@ func (w *waiter) eventCase(kind patternKind) int {
 	return -1
 }
 
+// scanText returns the winning text case: the highest-priority group, then
+// the earliest start unless declaration order was requested.
 func (w *waiter) scanText() (int, location, error) {
 	chosen := -1
 	var loc location
@@ -103,35 +105,7 @@ func (w *waiter) scanText() (int, location, error) {
 		if v, ok := w.suppressed[i]; ok && v == w.session.receive.version {
 			continue
 		}
-		// Nonzero progress records unsuccessful scans of an unchanged prefix.
-		prior := w.scanOffset(i)
-		from := c.Pattern.resumeFrom(prior)
-		var hit location
-		var ok bool
-		var e error
-		if c.Pattern.kind == allPattern || c.Pattern.kind == linePattern || (c.Pattern.kind == literalPattern && len(c.Pattern.failure) > 0) {
-			if w.cursors == nil {
-				w.cursors = make([]*matchCursor, len(w.cases))
-			}
-			if w.cursors[i] == nil {
-				cursor := newMatchCursor(c.Pattern)
-				w.cursors[i] = &cursor
-			}
-			hit, ok, e = w.cursors[i].find(w.session.receive.pending, w.session.receive.terminal != nil, from, true)
-		} else {
-			hit, ok, e = c.Pattern.find(w.session.receive.pending, w.session.receive.terminal != nil, from)
-		}
-		if len(w.session.opts.trace) > 0 {
-			event := TraceEvent{SessionID: w.session.id, Scope: w.origin(i).scope, RuleIndex: w.origin(i).rule, CaseIndex: w.origin(i).index, Buffered: len(w.session.receive.pending), Start: hit.start, End: hit.end, Pattern: c.Pattern.String(), Matched: ok}
-			for _, observer := range w.session.opts.trace {
-				observer(event)
-			}
-		}
-		if ok {
-			w.resetCaseProgress(i)
-		} else {
-			w.setScanOffset(i, c.Pattern.advance(w.session.receive.pending, prior))
-		}
+		hit, ok, e := w.findCase(i, c)
 		if e != nil {
 			return -1, location{}, e
 		}
@@ -144,4 +118,47 @@ func (w *waiter) scanText() (int, location, error) {
 		}
 	}
 	return chosen, loc, nil
+}
+
+// findCase matches case i on the receive buffer, resuming its recorded
+// progress, traces the attempt and records new progress.
+func (w *waiter) findCase(i int, c Case) (location, bool, error) {
+	receive := &w.session.receive
+	// Nonzero progress records unsuccessful scans of an unchanged prefix.
+	prior := w.scanOffset(i)
+	from := c.Pattern.resumeFrom(prior)
+	var hit location
+	var ok bool
+	var e error
+	if c.Pattern.kind == allPattern || c.Pattern.kind == linePattern || (c.Pattern.kind == literalPattern && len(c.Pattern.failure) > 0) {
+		hit, ok, e = w.cursor(i, c).find(receive.pending, receive.terminal != nil, from, true)
+	} else {
+		hit, ok, e = c.Pattern.find(receive.pending, receive.terminal != nil, from)
+	}
+	if len(w.session.opts.trace) > 0 {
+		origin := w.origin(i)
+		event := TraceEvent{SessionID: w.session.id, Scope: origin.scope, RuleIndex: origin.rule, CaseIndex: origin.index, Buffered: len(receive.pending), Start: hit.start, End: hit.end, Pattern: c.Pattern.String(), Matched: ok}
+		for _, observer := range w.session.opts.trace {
+			observer(event)
+		}
+	}
+	if ok {
+		w.resetCaseProgress(i)
+	} else {
+		w.setScanOffset(i, c.Pattern.advance(receive.pending, prior))
+	}
+	return hit, ok, e
+}
+
+// cursor returns the incremental match cursor of case i, creating it on
+// first use.
+func (w *waiter) cursor(i int, c Case) *matchCursor {
+	if w.cursors == nil {
+		w.cursors = make([]*matchCursor, len(w.cases))
+	}
+	if w.cursors[i] == nil {
+		cursor := newMatchCursor(c.Pattern)
+		w.cursors[i] = &cursor
+	}
+	return w.cursors[i]
 }

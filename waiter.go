@@ -27,7 +27,7 @@ type waiter struct {
 	park              func(context.Context) error
 	stopped           bool
 	controlErr        error
-	o                 expectOptions
+	o                 matchOptions
 	result            Result
 	relative, idle    time.Time
 	timer             *time.Timer
@@ -35,7 +35,7 @@ type waiter struct {
 	progressAt        uint64 // receive.consumed when scan progress was recorded
 	pollAck           chan struct{}
 	pollOwned, polled bool
-	handlerCtx        context.Context
+	handlerCtx        context.Context //nolint:containedctx // handler scope; Close cancels it through cancelHandlers
 	cancelHandlers    context.CancelFunc
 }
 type selection struct {
@@ -65,7 +65,7 @@ func (w *waiter) close() {
 		w.session.lifeMu.Unlock()
 	}
 }
-func (w *waiter) prepare(ctx context.Context, cases []Case, opts []ExpectOption) error {
+func (w *waiter) prepare(ctx context.Context, cases []Case, opts []MatchOption) error {
 	var err error
 	if ctx == nil {
 		return &ConfigError{Option: "context", Reason: "nil context"}
@@ -73,10 +73,10 @@ func (w *waiter) prepare(ctx context.Context, cases []Case, opts []ExpectOption)
 	if err = ctx.Err(); err != nil {
 		return err
 	}
-	o := expectOptions{timeout: w.session.opts.timeout}
+	o := matchOptions{timeout: w.session.opts.timeout}
 	if len(opts) > 0 {
 		var e error
-		o, e = applyExpectOptions(o, opts)
+		o, e = applyMatchOptions(o, opts)
 		if e != nil {
 			return e
 		}
@@ -175,7 +175,7 @@ func (w *waiter) limit(index int) int {
 
 func (w *waiter) reject(err error) (bool, error) { w.result, _ = w.failure(err); return true, err }
 
-func applyExpectOptions(o expectOptions, opts []ExpectOption) (expectOptions, error) {
+func applyMatchOptions(o matchOptions, opts []MatchOption) (matchOptions, error) {
 	for _, opt := range opts {
 		if opt == nil {
 			return o, &ConfigError{Option: "expect", Reason: "nil option"}

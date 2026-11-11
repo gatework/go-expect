@@ -70,11 +70,11 @@ func TestRejectedWaitReportsPendingInput(t *testing.T) {
 			waitText(t, s, "prompt")
 			ctx, cancel := context.WithCancel(t.Context())
 			defer cancel()
-			var opts []ExpectOption
+			var opts []MatchOption
 			if canceled {
 				cancel()
 			} else {
-				opts = []ExpectOption{nil}
+				opts = []MatchOption{nil}
 			}
 			r, err := s.Expect(ctx, []Case{{Pattern: Literal("TAIL")}}, opts...)
 			if err == nil || r.CaseIndex != -1 || r.Before != "TAIL" {
@@ -129,7 +129,7 @@ func TestHandlerAbruptExitCancelsDerivedContext(t *testing.T) {
 				defer close(finished)
 				defer func() { recover() }()
 				s.Expect(t.Context(), []Case{{Pattern: Literal("prompt"), Handler: func(ctx context.Context, _ *Session, _ Result) (Action, error) {
-					callbackCtx = ctx
+					callbackCtx = ctx //nolint:fatcontext // the test captures the handler context to assert it is cancelled
 					if kind == "goexit" {
 						runtime.Goexit()
 					}

@@ -54,12 +54,13 @@ func TestRegexpLineLocalClassification(t *testing.T) {
 	}
 }
 
-func resumePatterns(t testing.TB) []Pattern {
+func resumePatterns(tb testing.TB) []Pattern {
+	tb.Helper()
 	var patterns []Pattern
 	for _, expr := range []string{`[#>] ?$`, `(?m)^(\S+)[#>] ?$`, `\bend\b`, `(?i)a(b+)c`, `x(y)?z`, `\pL+#`, `设备>`, `(?s)a.b`, `^ab`, `[^x]+y`} {
 		p, err := Compile(expr)
 		if err != nil {
-			t.Fatal(err)
+			tb.Fatal(err)
 		}
 		patterns = append(patterns, p, p.Fold())
 	}
@@ -68,7 +69,7 @@ func resumePatterns(t testing.TB) []Pattern {
 	for _, re := range []*regexp.Regexp{regexp.MustCompilePOSIX(`a+b|ab+c`), longest} {
 		p, err := FromRegexp(re)
 		if err != nil {
-			t.Fatal(err)
+			tb.Fatal(err)
 		}
 		patterns = append(patterns, p)
 	}

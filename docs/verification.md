@@ -1,10 +1,11 @@
 # Verification
 
-`bash script/ci` checks gofmt, the compiled README example copy, module integrity,
-vet, Windows and FreeBSD cross-compilation, shuffled race tests with goleak, eleven
-bounded fuzz targets, benchmark smokes, the dialogue and an independent consumer.
-It also checks package ownership from the production import graph and runs
-negative controls for forbidden application and reverse ownership dependencies.
+`make check` checks the gatework standard files, formatting, module tidiness and
+integrity, vet, the shared lint configuration, package ownership from the
+production import graph (`architecture.yaml`), shuffled race tests with goleak,
+reachable vulnerabilities, the compiled README example copy, Windows and FreeBSD
+cross-compilation, eleven bounded fuzz targets, benchmark smokes, the dialogue
+and an independent consumer.
 The dialogue uses a local duplex stream; Unix process tests verify /dev/tty,
 window size, authentication, EOF, cancellation and process reaping.
 
@@ -20,10 +21,9 @@ not Windows/macOS/FreeBSD runtime behavior. FreeBSD is compile-checked only and 
 not in the runtime support matrix. Real network-device interoperability remains
 outside these local fixtures.
 
-Lint includes errorlint, revive, exhaustive, contextcheck and errname alongside
-vet/staticcheck/unused/ineffassign. Complexity caps are 44 for gocyclo and 160
-lines/100 statements for production functions. Tests are exempt from size caps;
-contextcheck cannot infer testing.Context inheritance across nested test bubbles.
+Lint comes from the shared gatework standard configuration. Production functions
+are limited to 80 lines, 50 statements and cognitive complexity 30; tests are
+exempt from size caps.
 Metadata reporting for rejected nil contexts and stored per-wait handler contexts
 have narrowly documented analyzer exceptions.
 

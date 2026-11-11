@@ -46,20 +46,6 @@ func validateSecrets(secrets []string) error {
 	}
 	return nil
 }
-func (r *Redactor) set(secrets []string) {
-	r.secrets = nil
-	r.rules = make([]redact.Rule, len(secrets))
-	r.keep = 0
-	for index, s := range secrets {
-		r.secrets = append(r.secrets, []byte(s))
-		r.keep = max(r.keep, len(s)-1)
-		if len(s) <= literalKMPThreshold {
-			continue
-		}
-		failure := redact.Prefix(s)
-		r.rules[index].Failure = failure
-	}
-}
 
 // SetSecrets ends the old rule scope and returns its safe final bytes. Suspected
 // old secret prefixes are masked before new rules take effect. Invalid rules
@@ -86,6 +72,21 @@ func (r *Redactor) Append(data []byte) []byte {
 // Finish ends a stream and conservatively masks any retained secret prefix.
 // Repeated calls are empty; the instance may then filter a fresh stream.
 func (r *Redactor) Finish() []byte { r.mu.Lock(); defer r.mu.Unlock(); return r.append(nil, true) }
+
+func (r *Redactor) set(secrets []string) {
+	r.secrets = nil
+	r.rules = make([]redact.Rule, len(secrets))
+	r.keep = 0
+	for index, s := range secrets {
+		r.secrets = append(r.secrets, []byte(s))
+		r.keep = max(r.keep, len(s)-1)
+		if len(s) <= literalKMPThreshold {
+			continue
+		}
+		failure := redact.Prefix(s)
+		r.rules[index].Failure = failure
+	}
+}
 func (r *Redactor) append(data []byte, finish bool) []byte {
 	if len(r.secrets) == 0 {
 		// Even the pass-through path returns independently owned bytes.
@@ -107,7 +108,7 @@ func (r *Redactor) append(data []byte, finish bool) []byte {
 		end = len(r.buffer.Pending)
 	}
 	var out []byte
-	for i := 0; i < end; i++ {
+	for i := range end {
 		if r.buffer.Hidden[i] {
 			if !r.masking {
 				if out == nil {

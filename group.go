@@ -59,16 +59,16 @@ type groupMember struct {
 	version                 uint64
 }
 type groupCommand struct {
-	ctx   context.Context
+	ctx   context.Context //nolint:containedctx // the caller's request context travels with the command to the run goroutine
 	apply func(*groupRun) error
 	reply chan error
 }
 type groupRun struct {
 	fatal    error
 	group    *Group
-	ctx      context.Context
+	ctx      context.Context //nolint:containedctx // a run is a lifecycle object bounded by its Start context
 	cases    []Case
-	opts     []ExpectOption
+	opts     []MatchOption
 	members  []*groupMember
 	commands chan groupCommand
 	done     chan struct{}
@@ -80,7 +80,7 @@ type groupRun struct {
 // Expect keeps every active member eligible across continuations. Before/call/
 // After groups apply across members, with round-robin ties. Case.Sessions binds
 // a declaration; an empty selector matches all members. Return completes the wait.
-func (g *Group) Expect(ctx context.Context, cases []Case, opts ...ExpectOption) (*Session, Result, error) {
+func (g *Group) Expect(ctx context.Context, cases []Case, opts ...MatchOption) (*Session, Result, error) {
 	empty := Result{CaseIndex: -1, RuleIndex: -1}
 	if err := waitForControl(ctx); err != nil {
 		return nil, empty, err
@@ -146,6 +146,13 @@ func (r *groupRun) close() {
 	close(r.done)
 	r.group.mu.Unlock()
 }
+
+// Add installs a member; during Expect its receive reservation is acquired first.
+func (g *Group) Add(ctx context.Context, s *Session) error { return g.change(ctx, s, true) }
+
+// Remove releases a member's reservation and preserves its unconsumed input.
+func (g *Group) Remove(ctx context.Context, s *Session) error { return g.change(ctx, s, false) }
+
 func (g *Group) change(ctx context.Context, s *Session, add bool) error {
 	if err := waitForControl(ctx); err != nil {
 		return err
@@ -162,43 +169,7 @@ func (g *Group) change(ctx context.Context, s *Session, add bool) error {
 	r := g.run
 	g.mu.Unlock()
 	c := groupCommand{ctx: ctx, reply: make(chan error, 1)}
-	c.apply = func(r *groupRun) error {
-		g.mu.Lock()
-		defer g.mu.Unlock()
-		if add {
-			if s.isClosed() {
-				return ErrClosed
-			}
-			if slices.Contains(g.sessions, s) {
-				return &ConfigError{Option: "group", Reason: "duplicate session"}
-			}
-			if err := r.admit(s); err != nil {
-				return err
-			}
-		} else {
-			found := -1
-			for i, m := range r.members {
-				if m.w.session == s {
-					found = i
-					break
-				}
-			}
-			if found < 0 {
-				return &ConfigError{Option: "group", Reason: "unknown session"}
-			}
-			r.members[found].release()
-			r.members = append(r.members[:found], r.members[found+1:]...)
-			if found < r.next {
-				r.next--
-			}
-			if len(r.members) > 0 {
-				r.next %= len(r.members)
-			} else {
-				r.next = 0
-			}
-		}
-		return g.changeMembers(s, add)
-	}
+	c.apply = func(r *groupRun) error { return g.applyChange(r, s, add) }
 	select {
 	case r.commands <- c:
 	case <-ctx.Done():
@@ -208,6 +179,27 @@ func (g *Group) change(ctx context.Context, s *Session, add bool) error {
 	}
 	return awaitControl(ctx, c.reply, r.done)
 }
+
+// applyChange changes membership on the run goroutine of an active Expect.
+func (g *Group) applyChange(r *groupRun, s *Session, add bool) error {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+	if add {
+		if s.isClosed() {
+			return ErrClosed
+		}
+		if slices.Contains(g.sessions, s) {
+			return &ConfigError{Option: "group", Reason: "duplicate session"}
+		}
+		if err := r.admit(s); err != nil {
+			return err
+		}
+	} else if err := r.remove(s); err != nil {
+		return err
+	}
+	return g.changeMembers(s, add)
+}
+
 func (g *Group) changeMembers(s *Session, add bool) error {
 	for i, v := range g.sessions {
 		if v == s {
@@ -224,12 +216,6 @@ func (g *Group) changeMembers(s *Session, add bool) error {
 	g.sessions = append(g.sessions, s)
 	return nil
 }
-
-// Add installs a member; during Expect its receive reservation is acquired first.
-func (g *Group) Add(ctx context.Context, s *Session) error { return g.change(ctx, s, true) }
-
-// Remove releases a member's reservation and preserves its unconsumed input.
-func (g *Group) Remove(ctx context.Context, s *Session) error { return g.change(ctx, s, false) }
 func (r *groupRun) command(c groupCommand) {
 	if err := c.ctx.Err(); err != nil {
 		c.reply <- err
@@ -250,59 +236,95 @@ func (r *groupRun) wait() (*Session, Result, error) {
 		default:
 		}
 		chosen, hit, progress, remaining, deadline := r.scan()
-		if r.fatal != nil {
+		switch {
+		case r.fatal != nil:
 			return nil, empty, r.fatal
-		}
-		if chosen >= 0 {
-			m := r.members[chosen]
-			w := &m.w
-			m.hasCached = false
-			done, err := w.dispatch(r.ctx, hit)
-			if done {
-				for _, member := range r.members {
-					member.release()
-				}
-				w.session.notifyExpect(r.ctx, w.result, err)
-				return w.session, w.result, err
+		case chosen >= 0:
+			if out, finished := r.dispatch(chosen, hit); finished {
+				return out.session, out.result, out.err
 			}
-			if w.lastReset {
-				now := time.Now()
-				for _, member := range r.members {
-					if member.active {
-						member.w.relative = after(now, member.w.o.timeout)
-					}
-				}
-			}
-			r.next = (chosen + 1) % len(r.members)
-			continue
-		}
-		if remaining == 0 {
+		case remaining == 0:
 			if len(r.failures) == 0 {
 				return nil, empty, ErrNoSessions
 			}
 			return nil, empty, errors.Join(r.failures...)
-		}
-		if progress {
-			continue
-		}
-		var timer *time.Timer
-		var tick <-chan time.Time
-		if !deadline.IsZero() {
-			timer = time.NewTimer(time.Until(deadline))
-			tick = timer.C
-		}
-		select {
-		case c := <-r.commands:
-			r.command(c)
-		case <-r.wake:
-		case <-tick:
-		case <-r.ctx.Done():
-		}
-		if timer != nil {
-			timer.Stop()
+		case !progress:
+			r.sleep(deadline)
 		}
 	}
 }
+
+// groupOutcome is how a group Expect ended.
+type groupOutcome struct {
+	session *Session
+	result  Result
+	err     error
+}
+
+// dispatch delivers the chosen member's match; finished reports that the
+// group operation ended with out.
+func (r *groupRun) dispatch(chosen int, hit selection) (out groupOutcome, finished bool) {
+	m := r.members[chosen]
+	w := &m.w
+	m.hasCached = false
+	done, err := w.dispatch(r.ctx, hit)
+	if done {
+		for _, member := range r.members {
+			member.release()
+		}
+		w.session.notifyExpect(r.ctx, w.result, err)
+		return groupOutcome{session: w.session, result: w.result, err: err}, true
+	}
+	if w.lastReset {
+		now := time.Now()
+		for _, member := range r.members {
+			if member.active {
+				member.w.relative = after(now, member.w.o.timeout)
+			}
+		}
+	}
+	r.next = (chosen + 1) % len(r.members)
+	return groupOutcome{}, false
+}
+
+// sleep blocks until a membership command, a wake-up, the deadline or
+// cancellation.
+func (r *groupRun) sleep(deadline time.Time) {
+	var tick <-chan time.Time
+	if !deadline.IsZero() {
+		timer := time.NewTimer(time.Until(deadline))
+		defer timer.Stop()
+		tick = timer.C
+	}
+	select {
+	case c := <-r.commands:
+		r.command(c)
+	case <-r.wake:
+	case <-tick:
+	case <-r.ctx.Done():
+	}
+}
+
+// remove releases member s and keeps the round-robin position on the member
+// that followed it.
+func (r *groupRun) remove(s *Session) error {
+	found := slices.IndexFunc(r.members, func(m *groupMember) bool { return m.w.session == s })
+	if found < 0 {
+		return &ConfigError{Option: "group", Reason: "unknown session"}
+	}
+	r.members[found].release()
+	r.members = append(r.members[:found], r.members[found+1:]...)
+	if found < r.next {
+		r.next--
+	}
+	if len(r.members) > 0 {
+		r.next %= len(r.members)
+	} else {
+		r.next = 0
+	}
+	return nil
+}
+
 func (r *groupRun) scan() (chosen int, hit selection, progress bool, remaining int, deadline time.Time) {
 	chosen = -1
 	for k := range r.members {

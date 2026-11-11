@@ -101,31 +101,6 @@ func nilInterface(value any) bool {
 	}
 }
 
-func (s *Session) isClosed() bool {
-	select {
-	case <-s.done:
-		return true
-	default:
-		return false
-	}
-}
-
-// interrupt is safe inside an owned worker: it retires the transport without
-// joining that worker. Close owns the subsequent join and diagnostic flush.
-func (s *Session) interrupt() error {
-	s.interruptOnce.Do(func() {
-		s.lifeMu.Lock()
-		close(s.done)
-		s.mailbox.notifyWait()
-		if s.handlerCancel != nil {
-			s.handlerCancel()
-		}
-		s.lifeMu.Unlock()
-		s.interruptErr = s.transport.Close()
-	})
-	return s.interruptErr
-}
-
 // Close interrupts I/O and joins owned workers. It never waits for application
 // callbacks or closes borrowed output writers. Repeated calls return the same error.
 func (s *Session) Close() error {
@@ -150,3 +125,28 @@ func (*Session) String() string { return "expect.Session" }
 
 // GoString formats the handle without exposing owned stream or command state.
 func (s *Session) GoString() string { return s.String() }
+
+func (s *Session) isClosed() bool {
+	select {
+	case <-s.done:
+		return true
+	default:
+		return false
+	}
+}
+
+// interrupt is safe inside an owned worker: it retires the transport without
+// joining that worker. Close owns the subsequent join and diagnostic flush.
+func (s *Session) interrupt() error {
+	s.interruptOnce.Do(func() {
+		s.lifeMu.Lock()
+		close(s.done)
+		s.mailbox.notifyWait()
+		if s.handlerCancel != nil {
+			s.handlerCancel()
+		}
+		s.lifeMu.Unlock()
+		s.interruptErr = s.transport.Close()
+	})
+	return s.interruptErr
+}

@@ -49,42 +49,75 @@ func (s *Session) sendAll(ctx context.Context, text string, poll bool) (n int, e
 	}
 	// Drain without competing with an active Expect receive. The input gate also
 	// preserves order when a later Expect claims queued input.
-	events := s.mailbox.events
+	wait := sendAllWait{session: s, ctx: ctx, results: results, events: s.mailbox.events}
+	return wait.run()
+}
+
+// sendAllWait waits for one admitted SendAll write while moving published
+// input into the receive buffer, so that a peer blocked on its own output
+// cannot deadlock the write.
+type sendAllWait struct {
+	session *Session
+	ctx     context.Context //nolint:containedctx // scoped to one sendAll call
+	results <-chan writeResult
+	events  <-chan readEvent
+}
+
+func (w *sendAllWait) run() (int, error) {
+	s := w.session
 	s.mailbox.signalInput() // Inspect already published input before relying on future notifications.
 	for {
 		select {
-		case r := <-results:
-			return s.finishWrite(ctx, r)
-		case <-ctx.Done():
-			return s.abortWrite(results, ctx.Err())
+		case r := <-w.results:
+			return s.finishWrite(w.ctx, r)
+		case <-w.ctx.Done():
+			return s.abortWrite(w.results, w.ctx.Err())
 		case <-s.done:
-			return s.abortWrite(results, ErrClosed)
+			return s.abortWrite(w.results, ErrClosed)
 		case <-s.mailbox.inputReady:
-			// Reserve ownership only after a readiness notification, and never hold
-			// it while waiting for future input. Existing queued bytes stay visible.
-			select {
-			case s.mailbox.inputGate <- struct{}{}:
-				select {
-				case event, ok := <-events:
-					if !ok {
-						events = nil
-					}
-					if ok {
-						if e := s.queueEvent(event); e != nil {
-							<-s.mailbox.inputGate
-							return s.abortWrite(results, e)
-						}
-					}
-				default:
-				}
-				<-s.mailbox.inputGate
-			case r := <-results:
-				return s.finishWrite(ctx, r)
-			case <-ctx.Done():
-				return s.abortWrite(results, ctx.Err())
-			case <-s.done:
-				return s.abortWrite(results, ErrClosed)
+			if n, done, err := w.onInputReady(); done {
+				return n, err
 			}
 		}
+	}
+}
+
+// onInputReady reserves the input gate only after a readiness notification,
+// queues at most one published event and releases the gate; it never holds
+// the gate while waiting for future input. done reports that the write
+// finished or was aborted instead.
+func (w *sendAllWait) onInputReady() (n int, done bool, err error) {
+	s := w.session
+	select {
+	case s.mailbox.inputGate <- struct{}{}:
+		err = w.queueOne()
+		<-s.mailbox.inputGate
+		if err != nil {
+			n, err = s.abortWrite(w.results, err)
+			return n, true, err
+		}
+		return 0, false, nil
+	case r := <-w.results:
+		n, err = s.finishWrite(w.ctx, r)
+	case <-w.ctx.Done():
+		n, err = s.abortWrite(w.results, w.ctx.Err())
+	case <-s.done:
+		n, err = s.abortWrite(w.results, ErrClosed)
+	}
+	return n, true, err
+}
+
+// queueOne moves one already published read event, if any, into the receive
+// buffer. Existing queued bytes stay visible.
+func (w *sendAllWait) queueOne() error {
+	select {
+	case event, ok := <-w.events:
+		if !ok {
+			w.events = nil
+			return nil
+		}
+		return w.session.queueEvent(event)
+	default:
+		return nil
 	}
 }

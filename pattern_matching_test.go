@@ -52,7 +52,7 @@ func TestExpectLiteralAllCompetesAndRestartsAfterEOF(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		options := []ExpectOption{}
+		options := []MatchOption{}
 		if declaration {
 			options = append(options, WithMatchOrder(Declaration))
 		}
@@ -346,7 +346,7 @@ func TestRegexpWinnerCapturesPreviewAndDetached(t *testing.T) {
 			patterns := []Case{{Pattern: mustPattern(t, `(a)(b)?()!`)}, {Pattern: mustPattern(t, `(z)()(x)?`)}}
 			chosen := 1
 			want := []Capture{{Text: "z", Matched: true, Start: 0, End: 1}, {Matched: true, Start: 1, End: 1}, {Start: -1, End: -1}}
-			var opts []ExpectOption
+			var opts []MatchOption
 			if declaration {
 				chosen = 0
 				want = []Capture{{Text: "a", Matched: true, Start: 2, End: 3}, {Text: "b", Matched: true, Start: 3, End: 4}, {Matched: true, Start: 4, End: 4}}

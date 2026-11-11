@@ -1,0 +1,24 @@
+# go-expect import boundaries (STANDARD.md ARC-1), enforced by archcheck.
+declared:
+  - .
+  - ./internal/redact
+  - ./spawn
+  - ./expecttest
+  - ./examples/dialogue
+
+rules:
+  - name: generic stream packages never import an application
+    packages: [./...]
+    deny: [github.com/gatework/go-net-connector/..., github.com/gatework/go-vxlan/..., github.com/gatework/go-wireless/..., github.com/gatework/go-netops/...]
+    transitive: true
+
+  - name: the session imports only its internal packages
+    packages: [.]
+    deny: [./...]
+    allow: [./internal/...]
+    transitive: true
+
+  - name: the redaction algorithm is independent of session ownership
+    packages: [./internal/redact/...]
+    deny: [., ./...]
+    transitive: true

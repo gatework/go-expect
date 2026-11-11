@@ -102,7 +102,7 @@ func (e *ExitError) GoString() string { return e.Error() }
 type Terminal interface{ SetSize(rows, cols int) error }
 
 // EchoController is an optional terminal capability, absent on Windows.
-type EchoController interface{ SetEcho(bool) error }
+type EchoController interface{ SetEcho(on bool) error }
 
 // Process owns a child, terminal and Session. Do not copy it. Wait and Close are
 // safe concurrently. Consume output before Wait; Close interrupts undrained I/O.

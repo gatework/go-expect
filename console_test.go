@@ -148,7 +148,7 @@ func TestConsoleCanonicalEchoAndRawClose(t *testing.T) {
 		t.Fatal(err)
 	}
 	remote, _ := pair(t)
-	if e := remote.InteractTerminal(t.Context(), c.TTY(), io.Discard, WithInteractExpectOptions(WithTimeout(-1))); e == nil {
+	if e := remote.InteractTerminal(t.Context(), c.TTY(), io.Discard, WithInteractMatchOptions(WithTimeout(-1))); e == nil {
 		t.Fatal("invalid options admitted")
 	}
 	if got := getState(); got != expected {
@@ -226,7 +226,7 @@ func TestConsoleInitializationFailureClosesDescriptors(t *testing.T) {
 func BenchmarkLiteral16K(b *testing.B) {
 	text := strings.Repeat("x", 16*1024) + "done!"
 	b.ReportAllocs()
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		c, err := NewConsole()
 		if err != nil {
 			b.Fatal(err)

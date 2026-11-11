@@ -14,8 +14,9 @@ import (
 	"unicode/utf16"
 	"unsafe"
 
-	expect "github.com/gatework/go-expect"
 	"golang.org/x/sys/windows"
+
+	expect "github.com/gatework/go-expect"
 )
 
 // This attribute takes a HANDLE value, unlike the pointer-valued attributes

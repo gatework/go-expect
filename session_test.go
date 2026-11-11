@@ -421,7 +421,7 @@ func TestInteractionEvolution(t *testing.T) {
 	t.Run("invalid configuration leaves input untouched", func(t *testing.T) {
 		s, _ := pair(t)
 		input := &interactionProbe{}
-		err := s.Interact(t.Context(), input, io.Discard, WithInteractExpectOptions(WithTimeout(-1)))
+		err := s.Interact(t.Context(), input, io.Discard, WithInteractMatchOptions(WithTimeout(-1)))
 		var config *ConfigError
 		if !errors.As(err, &config) || input.reads != 0 || input.closes != 0 || s.expecting.Load() {
 			t.Fatalf("err=%v reads=%d closes=%d busy=%v", err, input.reads, input.closes, s.expecting.Load())

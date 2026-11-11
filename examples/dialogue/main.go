@@ -21,7 +21,7 @@ func main() {
 		os.Exit(1)
 	}
 }
-func run() error {
+func run() (err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	client, device := net.Pipe()
@@ -37,8 +37,15 @@ func run() error {
 	}
 	done := make(chan error, 1)
 	go func() { defer device.Close(); done <- simulate(device) }()
-	// Always join the simulated peer, including early failure paths.
-	defer func() { s.Close(); device.Close(); <-done }()
+	// Always join the simulated peer, including early failure paths; its
+	// error is reported when the dialogue itself succeeded.
+	defer func() {
+		_ = s.Close()
+		_ = device.Close()
+		if peerErr := <-done; err == nil {
+			err = peerErr
+		}
+	}()
 	login := expect.WithRules(expect.Case{Pattern: expect.Literal("Password:"), Handler: expect.ReplyThenContinue("example-password\n")})
 	if _, err = s.Expect(ctx, []expect.Case{{Pattern: expect.Literal("device>")}}, login); err != nil {
 		return err

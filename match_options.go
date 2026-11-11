@@ -4,7 +4,7 @@ package expect
 
 import "time"
 
-type expectOptions struct {
+type matchOptions struct {
 	timeout, idle time.Duration
 	declaration   bool
 	streaming     Handler
@@ -12,13 +12,13 @@ type expectOptions struct {
 	rules         []Case
 }
 
-// ExpectOption configures matching or timing for a single Expect operation.
-type ExpectOption func(*expectOptions) error
+// MatchOption configures matching or timing for a single Expect operation.
+type MatchOption func(*matchOptions) error
 
 // WithTimeout sets the relative timer, including elapsed callback time.
 // Zero disables it. Continue can reset it; context deadlines cannot be reset.
-func WithTimeout(d time.Duration) ExpectOption {
-	return func(o *expectOptions) error {
+func WithTimeout(d time.Duration) MatchOption {
+	return func(o *matchOptions) error {
 		if d < 0 {
 			return &ConfigError{Option: "timeout", Reason: "must be nonnegative"}
 		}
@@ -28,8 +28,8 @@ func WithTimeout(d time.Duration) ExpectOption {
 }
 
 // WithIdleTimeout limits time without new input; zero disables it.
-func WithIdleTimeout(d time.Duration) ExpectOption {
-	return func(o *expectOptions) error {
+func WithIdleTimeout(d time.Duration) MatchOption {
+	return func(o *matchOptions) error {
 		if d < 0 {
 			return &ConfigError{Option: "idle timeout", Reason: "must be nonnegative"}
 		}
@@ -41,8 +41,8 @@ func WithIdleTimeout(d time.Duration) ExpectOption {
 // WithStreamingFallback consumes max(1, H/2) bytes when H bytes are pending,
 // where H is min(64 KiB, the session buffer limit), and no ordinary case matches. Result.CaseIndex is -1 and Match is the consumed data.
 // Continue and ContinueKeepTimer both preserve all existing timers.
-func WithStreamingFallback(handler Handler) ExpectOption {
-	return func(o *expectOptions) error {
+func WithStreamingFallback(handler Handler) MatchOption {
+	return func(o *matchOptions) error {
 		if handler == nil {
 			return &ConfigError{Option: "streaming fallback", Reason: "nil handler"}
 		}
@@ -64,8 +64,8 @@ const (
 )
 
 // WithMatchOrder selects earliest-byte or declaration-order matching.
-func WithMatchOrder(order MatchOrder) ExpectOption {
-	return func(o *expectOptions) error {
+func WithMatchOrder(order MatchOrder) MatchOption {
+	return func(o *matchOptions) error {
 		if order != Earliest && order != Declaration {
 			return &ConfigError{Option: "match order", Reason: "unknown order"}
 		}

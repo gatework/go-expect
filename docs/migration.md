@@ -1,3 +1,10 @@
+# Migration to v0.6.0
+
+Matching options use names that also fit Poll, background matching and Relay.
+Replace `expect.ExpectOption` with `expect.MatchOption`, and replace
+`expect.WithInteractExpectOptions` with `expect.WithInteractMatchOptions`.
+Option constructors and matching behavior are unchanged. No aliases remain.
+
 # Migration to v0.5.0
 
 Diagnostic metadata names now follow Go conventions: the `Err` prefix is

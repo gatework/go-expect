@@ -102,7 +102,7 @@ func TestOSPollingHonorsWrappedReadNormalizer(t *testing.T) {
 		t.Fatal(err)
 	}
 	var scratch []byte
-	_, got, ready := access.read(0, &scratch)
+	_, ready, got := access.read(0, &scratch)
 	if !ready || !errors.Is(got, want) {
 		t.Fatalf("ready=%v err=%v, want wrapped normalizer", ready, got)
 	}

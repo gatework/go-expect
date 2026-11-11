@@ -59,16 +59,16 @@ type groupMember struct {
 	version                 uint64
 }
 type groupCommand struct {
-	ctx   context.Context
+	ctx   context.Context //nolint:containedctx // the caller's request context travels with the command to the run goroutine
 	apply func(*groupRun) error
 	reply chan error
 }
 type groupRun struct {
 	fatal    error
 	group    *Group
-	ctx      context.Context
+	ctx      context.Context //nolint:containedctx // a run is a lifecycle object bounded by its Start context
 	cases    []Case
-	opts     []ExpectOption
+	opts     []MatchOption
 	members  []*groupMember
 	commands chan groupCommand
 	done     chan struct{}
@@ -80,7 +80,7 @@ type groupRun struct {
 // Expect keeps every active member eligible across continuations. Before/call/
 // After groups apply across members, with round-robin ties. Case.Sessions binds
 // a declaration; an empty selector matches all members. Return completes the wait.
-func (g *Group) Expect(ctx context.Context, cases []Case, opts ...ExpectOption) (*Session, Result, error) {
+func (g *Group) Expect(ctx context.Context, cases []Case, opts ...MatchOption) (*Session, Result, error) {
 	empty := Result{CaseIndex: -1, RuleIndex: -1}
 	if err := waitForControl(ctx); err != nil {
 		return nil, empty, err
@@ -146,6 +146,13 @@ func (r *groupRun) close() {
 	close(r.done)
 	r.group.mu.Unlock()
 }
+
+// Add installs a member; during Expect its receive reservation is acquired first.
+func (g *Group) Add(ctx context.Context, s *Session) error { return g.change(ctx, s, true) }
+
+// Remove releases a member's reservation and preserves its unconsumed input.
+func (g *Group) Remove(ctx context.Context, s *Session) error { return g.change(ctx, s, false) }
+
 func (g *Group) change(ctx context.Context, s *Session, add bool) error {
 	if err := waitForControl(ctx); err != nil {
 		return err
@@ -208,6 +215,7 @@ func (g *Group) change(ctx context.Context, s *Session, add bool) error {
 	}
 	return awaitControl(ctx, c.reply, r.done)
 }
+
 func (g *Group) changeMembers(s *Session, add bool) error {
 	for i, v := range g.sessions {
 		if v == s {
@@ -224,12 +232,6 @@ func (g *Group) changeMembers(s *Session, add bool) error {
 	g.sessions = append(g.sessions, s)
 	return nil
 }
-
-// Add installs a member; during Expect its receive reservation is acquired first.
-func (g *Group) Add(ctx context.Context, s *Session) error { return g.change(ctx, s, true) }
-
-// Remove releases a member's reservation and preserves its unconsumed input.
-func (g *Group) Remove(ctx context.Context, s *Session) error { return g.change(ctx, s, false) }
 func (r *groupRun) command(c groupCommand) {
 	if err := c.ctx.Err(); err != nil {
 		c.reply <- err

@@ -2,6 +2,4 @@
 
 package expect
 
-import ()
-
 var benchmarkDiagnostic []byte

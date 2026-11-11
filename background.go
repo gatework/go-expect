@@ -23,7 +23,7 @@ type Background struct {
 // StartBackground reserves the receiver synchronously. Relative timing defaults
 // to NoTimeout; explicit options override it. Callback panic/Goexit are reported
 // by Wait as CallbackError without retaining the panic value.
-func (s *Session) StartBackground(ctx context.Context, cases []Case, opts ...ExpectOption) (*Background, error) {
+func (s *Session) StartBackground(ctx context.Context, cases []Case, opts ...MatchOption) (*Background, error) {
 	if ctx == nil {
 		return nil, &ConfigError{Option: "context", Reason: "nil context"}
 	}
@@ -36,7 +36,7 @@ func (s *Session) StartBackground(ctx context.Context, cases []Case, opts ...Exp
 	ctx, cancel := context.WithCancel(context.WithValue(ctx, callbackContextKey{}, true))
 	b := &Background{sessionID: s.id, done: make(chan struct{}), cancel: cancel, controls: make(chan func()), result: Result{SessionID: s.id, CaseIndex: -1, RuleIndex: -1}}
 	w := waiter{session: s, result: b.result, control: b.controls}
-	options := append([]ExpectOption{WithTimeout(NoTimeout)}, opts...)
+	options := append([]MatchOption{WithTimeout(NoTimeout)}, opts...)
 	if err := w.prepare(ctx, cloneCases(cases), options); err != nil {
 		cancel()
 		s.releaseWait()
@@ -104,27 +104,6 @@ func (r *backgroundState) park(ctx context.Context) error {
 		}
 	}
 	return nil
-}
-func (b *Background) request(ctx context.Context, f func() error) error {
-	if err := waitForControl(ctx); err != nil {
-		return err
-	}
-	reply := make(chan error, 1)
-	command := func() {
-		if err := ctx.Err(); err != nil {
-			reply <- err
-			return
-		}
-		reply <- f()
-	}
-	select {
-	case b.controls <- command:
-	case <-ctx.Done():
-		return ctx.Err()
-	case <-b.done:
-		return ErrClosed
-	}
-	return awaitControl(ctx, reply, b.done)
 }
 
 // Pause waits for the current callback, freezes local budgets and releases input.
@@ -208,4 +187,26 @@ func (b *Background) Stop(ctx context.Context) error {
 	case <-ctx.Done():
 		return ctx.Err()
 	}
+}
+
+func (b *Background) request(ctx context.Context, f func() error) error {
+	if err := waitForControl(ctx); err != nil {
+		return err
+	}
+	reply := make(chan error, 1)
+	command := func() {
+		if err := ctx.Err(); err != nil {
+			reply <- err
+			return
+		}
+		reply <- f()
+	}
+	select {
+	case b.controls <- command:
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-b.done:
+		return ErrClosed
+	}
+	return awaitControl(ctx, reply, b.done)
 }

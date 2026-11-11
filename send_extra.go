@@ -160,7 +160,7 @@ func (s *Session) SendBreak(ctx context.Context, duration time.Duration) error {
 		return &ConfigError{Option: "break", Reason: "negative duration"}
 	}
 	breaker, ok := s.transport.(interface {
-		SendBreak(context.Context, time.Duration) error
+		SendBreak(ctx context.Context, d time.Duration) error
 	})
 	if !ok {
 		return ErrBreakUnsupported

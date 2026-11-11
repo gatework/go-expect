@@ -129,7 +129,7 @@ func (s *Session) abortWrite(results <-chan writeResult, cause error) (int, erro
 }
 
 // deadlineWriter can interrupt a synchronous write without an owned worker.
-type deadlineWriter interface{ SetWriteDeadline(time.Time) error }
+type deadlineWriter interface{ SetWriteDeadline(t time.Time) error }
 
 // writeSync falls back only on an explicit unsupported-deadline error.
 // The lifecycle counter includes deadline management and the syscall.

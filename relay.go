@@ -60,7 +60,7 @@ type relayRoute struct {
 // Relay connects sources and targets with one receive owner per source. EOF or
 // Return ends the relay and drains queued output. Failure cancels all routes,
 // joins admitted writes and never replays bytes. Sessions and sinks are borrowed.
-func Relay(ctx context.Context, routes []Route, opts ...ExpectOption) (err error) {
+func Relay(ctx context.Context, routes []Route, opts ...MatchOption) (err error) {
 	if e := waitForControl(ctx); e != nil {
 		return e
 	}
@@ -160,7 +160,7 @@ func Relay(ctx context.Context, routes []Route, opts ...ExpectOption) (err error
 		}
 		return nil
 	}
-	options := append([]ExpectOption{WithTimeout(NoTimeout)}, opts...)
+	options := append([]MatchOption{WithTimeout(NoTimeout)}, opts...)
 	options = append(options, WithStreamingFallback(func(context.Context, *Session, Result) (Action, error) { return ContinueKeepTimer, nil }))
 	_, _, err = g.Expect(runCtx, cases, options...)
 	if err != nil {

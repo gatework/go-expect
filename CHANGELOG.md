@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- BREAKING: rename `ExpectOption` to `MatchOption` and
+  `WithInteractExpectOptions` to `WithInteractMatchOptions`. `expect.ExpectOption`
+  stuttered (gatework Go standard NAM-2); the option configures how one call
+  matches and times out. No aliases remain.
+- The dialogue example reports the simulated peer's error instead of dropping it.
+
 ## v0.5.0
 
 - BREAKING: rename the diagnostic `ErrClass` type to `ErrorClass`, `Op` to

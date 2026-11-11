@@ -18,7 +18,7 @@ type interactOptions struct {
 	cases                                     []Case
 	inputs                                    []Case
 	escape                                    byte
-	expect                                    []ExpectOption
+	expect                                    []MatchOption
 	inputTimeout                              time.Duration
 	inputForward, outputForward, echo, cooked bool
 	callbackMode                              func() (func() error, error)
@@ -67,8 +67,8 @@ func WithInteractOutputCases(cases ...Case) InteractOption {
 	}
 }
 
-// WithInteractExpectOptions configures matching and timing during interaction.
-func WithInteractExpectOptions(opts ...ExpectOption) InteractOption {
+// WithInteractMatchOptions configures matching and timing during interaction.
+func WithInteractMatchOptions(opts ...MatchOption) InteractOption {
 	opts = slices.Clone(opts)
 	return func(o *interactOptions) error { o.expect = append(o.expect, opts...); return nil }
 }
@@ -104,7 +104,7 @@ func (s *Session) prepareInteraction(ctx context.Context, input io.ReadCloser, o
 		}
 	}
 	cases := append(slices.Clone(o.cases), Case{Pattern: EOF()})
-	expectOpts := append([]ExpectOption{WithTimeout(NoTimeout)}, o.expect...)
+	expectOpts := append([]MatchOption{WithTimeout(NoTimeout)}, o.expect...)
 	expectOpts = append(expectOpts, WithStreamingFallback(func(context.Context, *Session, Result) (Action, error) { return ContinueKeepTimer, nil }))
 	w := waiter{session: s, result: Result{CaseIndex: -1, RuleIndex: -1}}
 	if err := w.prepare(ctx, cases, expectOpts); err != nil {

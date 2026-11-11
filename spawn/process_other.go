@@ -6,6 +6,7 @@ package spawn
 
 import (
 	"context"
+
 	expect "github.com/gatework/go-expect"
 )
 

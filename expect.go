@@ -31,7 +31,7 @@ const (
 // buffer, without rereading or replaying bytes. Context cancellation and timeout
 // leave unmatched input available to a subsequent call. Callers must not change
 // the foreground cases until the call returns.
-func (s *Session) Expect(ctx context.Context, cases []Case, opts ...ExpectOption) (Result, error) {
+func (s *Session) Expect(ctx context.Context, cases []Case, opts ...MatchOption) (Result, error) {
 	result, err := s.expect(ctx, cases, opts...)
 	s.notifyExpect(ctx, result, err)
 	return result, err
@@ -39,7 +39,7 @@ func (s *Session) Expect(ctx context.Context, cases []Case, opts ...ExpectOption
 func (s *Session) notifyExpect(ctx context.Context, result Result, err error) {
 	s.notify(ctx, Event{SessionID: s.id, Source: result.Source, Scope: result.Scope, RuleIndex: result.RuleIndex, Operation: OpExpect, CaseIndex: result.CaseIndex, Bytes: len(result.Before) + len(result.Match), Class: errorClass(err)})
 }
-func (s *Session) expect(ctx context.Context, cases []Case, opts ...ExpectOption) (result Result, err error) {
+func (s *Session) expect(ctx context.Context, cases []Case, opts ...MatchOption) (result Result, err error) {
 	result.SessionID = s.id
 	result.CaseIndex = -1
 	result.RuleIndex = -1
@@ -60,7 +60,7 @@ func (s *Session) releaseWait() {
 		s.expecting.Store(false)
 	}
 }
-func (s *Session) expectOwned(ctx context.Context, cases []Case, opts ...ExpectOption) (Result, error) {
+func (s *Session) expectOwned(ctx context.Context, cases []Case, opts ...MatchOption) (Result, error) {
 	w := waiter{session: s, result: Result{CaseIndex: -1, RuleIndex: -1}}
 	if err := w.prepare(ctx, cases, opts); err != nil {
 		return w.failure(err)

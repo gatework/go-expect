@@ -492,7 +492,7 @@ func TestGroupContinueCanCompleteAnotherSession(t *testing.T) {
 }
 
 // expectGroupIndex keeps existing arbitration regressions expressed as indexes.
-func expectGroupIndex(ctx context.Context, sessions []*Session, cases []Case, opts ...ExpectOption) (int, Result, error) {
+func expectGroupIndex(ctx context.Context, sessions []*Session, cases []Case, opts ...MatchOption) (int, Result, error) {
 	g, err := NewGroup(sessions...)
 	if err != nil {
 		return -1, Result{CaseIndex: -1, RuleIndex: -1}, err

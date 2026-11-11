@@ -145,12 +145,12 @@ type ptyTransport struct {
 // Session probes these optional capabilities at runtime; renaming a method
 // would silently select a fallback path, so the compiler checks them here.
 var (
-	_ deadlineWriter                                = (*ptyTransport)(nil)
-	_ syscall.Conn                                  = (*ptyTransport)(nil)
-	_ interface{ SetReadDeadline(time.Time) error } = (*ptyTransport)(nil)
-	_ interface{ NormalizeReadError(error) error }  = (*ptyTransport)(nil)
+	_ deadlineWriter                                   = (*ptyTransport)(nil)
+	_ syscall.Conn                                     = (*ptyTransport)(nil)
+	_ interface{ SetReadDeadline(t time.Time) error }  = (*ptyTransport)(nil)
+	_ interface{ NormalizeReadError(err error) error } = (*ptyTransport)(nil)
 	_ interface {
-		SendBreak(context.Context, time.Duration) error
+		SendBreak(ctx context.Context, d time.Duration) error
 	} = (*ptyTransport)(nil)
 )
 

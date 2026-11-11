@@ -1,41 +1,198 @@
-version: '2'
+# gatework shared golangci-lint configuration.
+# Source of truth: github.com/gatework/go-standards/golangci.yml
+# Distributed to each repository as .golangci.yml by scripts/sync; do not edit
+# the copies. Rule IDs refer to STANDARD.md.
+# standard-version: 1.0.0
+version: "2"
+
 run:
   timeout: 5m
+  tests: true
+
 linters:
   default: none
   enable:
+    # Correctness
+    - errcheck
     - govet
-    - ineffassign
     - staticcheck
     - unused
+    - ineffassign
+    - wastedassign
+    - bodyclose
+    - durationcheck
+    - asasalint
+    - bidichk
+    - fatcontext
+    - nilerr
+    - gosec
+    # Errors (ERR-*)
     - errorlint
-    - revive
-    - exhaustive
-    - contextcheck
     - errname
-    - gocyclo
+    - nilnil
+    - wrapcheck
+    # Context and concurrency (CON-*)
+    - containedctx
+    - noctx
+    # Modelling and interfaces (OOP-*, IFC-*, CMP-*)
+    - exhaustive
+    - recvcheck
+    - iface
+    - inamedparam
+    - embeddedstructfieldcheck
+    - gochecknoinits
+    # Naming and documentation (NAM-*, DOC-*)
+    - revive
+    - predeclared
+    - misspell
+    # Layout and size (FIL-*, FMT-*)
+    - funcorder
     - funlen
+    - gocognit
+    - nolintlint
+    # Modern Go (FMT-4)
     - modernize
+    - intrange
+    - unconvert
+    - usestdlibvars
+    - exptostd
+    # Logging (LOG-*)
+    - forbidigo
+    - sloglint
+    # Tests (TST-*)
+    - thelper
+    - tparallel
+    - usetesting
+    - depguard
+
   settings:
+    govet:
+      enable-all: true
+      disable:
+        - fieldalignment # memory layout is a profiling decision, not a style rule
+        - shadow # idiomatic err shadowing is allowed
+    staticcheck:
+      checks:
+        - all
+        - -QF1001 # De Morgan rewrites are a matter of taste
+    errcheck:
+      check-type-assertions: true
+    gosec:
+      excludes:
+        - G104 # duplicates errcheck
+        - G304 # file paths come from operators by design
+        - G115 # integer conversions are bounded by parsers; review instead
+    wrapcheck:
+      ignore-sigs:
+        - .Errorf(
+        - errors.New(
+        - errors.Join(
+        - errors.Unwrap(
+        - .Wrap(
+        - .Wrapf(
+    embeddedstructfieldcheck:
+      empty-line: false # CMP-1 requires order, not blank lines
     exhaustive:
       default-signifies-exhaustive: true
+    iface:
+      enable:
+        - identical
+        - unused
+        - opaque
     revive:
       rules:
-        - name: exported
-          arguments: [disableStutteringCheck]
-        - name: var-naming
-        - name: error-naming
-        - name: error-strings
-        - name: package-comments
         - name: blank-imports
         - name: context-as-argument
-    gocyclo:
-      min-complexity: 45
+        - name: context-keys-type
+        - name: dot-imports
+        - name: error-naming
+        - name: error-return
+        - name: error-strings
+        - name: errorf
+        - name: exported
+        - name: increment-decrement
+        - name: indent-error-flow
+        - name: package-comments
+        - name: range
+        - name: receiver-naming
+        - name: redefines-builtin-id
+        - name: superfluous-else
+        - name: time-naming
+        - name: unexported-return
+        - name: unreachable-code
+        - name: var-declaration
+        - name: var-naming
+          arguments:
+            - [] # allow list
+            - ["VLAN", "VNI", "VRF", "BGP", "EVPN", "ACL", "SSID", "AP", "NVE", "OSPF", "MAC"] # extra initialisms
+            - - skip-package-name-checks: false
+        - name: early-return
+        - name: use-any
     funlen:
-      lines: 160
-      statements: 100
+      lines: 80
+      statements: 50
       ignore-comments: true
+    gocognit:
+      min-complexity: 30
+    nolintlint:
+      require-explanation: true
+      require-specific: true
+    forbidigo:
+      analyze-types: true
+      forbid:
+        - pattern: ^fmt\.Print.*$
+          msg: "LOG-1: libraries do not print; return values or log through an injected *slog.Logger"
+        - pattern: ^log\.(Print|Fatal|Panic).*$
+          msg: "LOG-1: use an injected *slog.Logger"
+        - pattern: ^os\.Exit$
+          msg: "PKG-5: only cmd/<binary>/main.go exits"
+    sloglint:
+      no-mixed-args: true
+      key-naming-case: snake
+      static-msg: true
+      context: scope
+    depguard:
+      rules:
+        main:
+          deny:
+            - pkg: io/ioutil
+              desc: "FMT-4: use io and os"
+            - pkg: github.com/pkg/errors
+              desc: "ERR-2: use fmt.Errorf with %w and errors"
+            - pkg: golang.org/x/exp/slices
+              desc: "FMT-4: use slices"
+            - pkg: golang.org/x/exp/maps
+              desc: "FMT-4: use maps"
+            - pkg: github.com/stretchr/testify
+              desc: "TST-6: use testing with cmp/slices/maps"
+            - pkg: github.com/golang/mock
+              desc: "TST-6/IFC-6: write a fake implementation of the port"
+            - pkg: go.uber.org/mock
+              desc: "TST-6/IFC-6: write a fake implementation of the port"
+
   exclusions:
+    generated: lax
+    presets:
+      - common-false-positives
+      - std-error-handling
     rules:
+      # Tests may be long, print, and use any error shape.
       - path: _test\.go
-        linters: [gocyclo, funlen, contextcheck]
+        linters: [funlen, gocognit, wrapcheck, forbidigo, gosec, containedctx, errcheck, noctx]
+      # ERR-2: wrapcheck applies at adapter boundaries only.
+      - path-except: (^|/)adapter/
+        linters: [wrapcheck]
+      # LOG-1 / PKG-5: command-line layers own standard streams and exit codes.
+      - path: (^|/)(cmd|internal/cli|examples|tools|scripts)/
+        linters: [forbidigo]
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/gatework
+  exclusions:
+    generated: lax

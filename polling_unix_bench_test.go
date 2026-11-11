@@ -58,6 +58,7 @@ func BenchmarkOSIdleHeap(b *testing.B) {
 }
 
 func benchmarkOSIdlePopulation(b *testing.B, latency bool) {
+	b.Helper()
 	for _, count := range []int{1, 64, 256, 1024} {
 		b.Run(fmt.Sprint(count), func(b *testing.B) {
 			beforeFDs, beforeThreads := benchmarkFDs(b), benchmarkThreads(b)

@@ -22,7 +22,7 @@ func TestMatchOrderOptIn(t *testing.T) {
 			defer s.Close()
 			defer b.Close()
 			go func() { _, _ = io.WriteString(b, "early late") }()
-			var opts []ExpectOption
+			var opts []MatchOption
 			if priority {
 				opts = append(opts, WithMatchOrder(Declaration))
 			}
@@ -168,7 +168,7 @@ func TestSendAllCancellationAndBackpressureLimit(t *testing.T) {
 					go func() { _, _ = io.WriteString(b, strings.Repeat("o", 128<<10)) }()
 				}
 				n, e := s.SendAll(ctx, strings.Repeat("i", 128<<10))
-				want := error(context.DeadlineExceeded)
+				want := context.DeadlineExceeded
 				if overflow {
 					want = ErrBufferLimit
 				}

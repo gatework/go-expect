@@ -41,19 +41,19 @@ func newOSAccess(transport io.ReadWriteCloser) (*osAccess, error) {
 		return nil, errors.Join(ErrPollUnsupported, e, inner)
 	}
 	a := &osAccess{raw: raw}
-	if p, ok := transport.(interface{ NormalizeReadError(error) error }); ok {
+	if p, ok := transport.(interface{ NormalizeReadError(err error) error }); ok {
 		a.normalize = p.NormalizeReadError
 	}
 	// Choose once, before ownership transfer. A transport that cannot wake the
 	// runtime reader with a deadline retains the bounded native-poll backend.
-	if p, ok := transport.(interface{ SetReadDeadline(time.Time) error }); ok {
+	if p, ok := transport.(interface{ SetReadDeadline(t time.Time) error }); ok {
 		if err := p.SetReadDeadline(time.Time{}); err == nil {
 			a.deadline = p.SetReadDeadline
 		}
 	}
 	return a, nil
 }
-func (a *osAccess) read(wait int, scratch *[]byte) ([]byte, error, bool) {
+func (a *osAccess) read(wait int, scratch *[]byte) ([]byte, bool, error) {
 	var data []byte
 	var err error
 	ready := false
@@ -71,18 +71,18 @@ func (a *osAccess) read(wait int, scratch *[]byte) ([]byte, error, bool) {
 		if n == 0 {
 			return
 		}
-		data, err, ready = a.readReady(fd, scratch)
+		data, ready, err = a.readReady(fd, scratch)
 	})
 	if control != nil {
-		return nil, control, true
+		return nil, true, control
 	}
-	return data, err, ready
+	return data, ready, err
 }
 
 // readReady is used only inside a RawConn callback, so the descriptor cannot be
 // closed and reused during the syscall. EAGAIN gives ownership back to the
 // runtime poller; no sleeping syscall or extra descriptor is required.
-func (a *osAccess) readReady(fd uintptr, scratch *[]byte) ([]byte, error, bool) {
+func (a *osAccess) readReady(fd uintptr, scratch *[]byte) ([]byte, bool, error) {
 	if *scratch == nil {
 		*scratch = make([]byte, readChunk)
 	}
@@ -95,7 +95,7 @@ func (a *osAccess) readReady(fd uintptr, scratch *[]byte) ([]byte, error, bool) 
 		}
 	}
 	if errors.Is(err, unix.EAGAIN) || errors.Is(err, unix.EWOULDBLOCK) {
-		return nil, nil, false
+		return nil, false, nil
 	}
 	var data []byte
 	if n > 0 && n < readChunk/2 {
@@ -113,10 +113,10 @@ func (a *osAccess) readReady(fd uintptr, scratch *[]byte) ([]byte, error, bool) 
 	if a.normalize != nil {
 		err = a.normalize(err)
 	}
-	return data, err, true
+	return data, true, err
 }
 
-func (a *osAccess) readWait(scratch *[]byte) ([]byte, error, bool) {
+func (a *osAccess) readWait(scratch *[]byte) ([]byte, bool, error) {
 	if a.deadline == nil {
 		return a.read(10, scratch)
 	}
@@ -144,13 +144,13 @@ func (a *osAccess) readWait(scratch *[]byte) ([]byte, error, bool) {
 				return false
 			}
 		}
-		data, err, ready = a.readReady(fd, scratch)
+		data, ready, err = a.readReady(fd, scratch)
 		return ready
 	})
 	if rawErr != nil {
-		return nil, rawErr, true
+		return nil, true, rawErr
 	}
-	return data, err, ready
+	return data, ready, err
 }
 func (a *osAccess) writeNow(data []byte) (int, error) {
 	n := 0
@@ -202,9 +202,9 @@ func (s *Session) osReadLoop() {
 		case wakeErr != nil:
 			err, ready = wakeErr, true
 		case request != nil:
-			data, err, ready = s.osIO.read(0, &scratch)
+			data, ready, err = s.osIO.read(0, &scratch)
 		default:
-			data, err, ready = s.osIO.readWait(&scratch)
+			data, ready, err = s.osIO.readWait(&scratch)
 			if s.osIO.deadline != nil && errors.Is(err, os.ErrDeadlineExceeded) {
 				// The request that interrupted this wait is processed on the
 				// next turn. Any earlier read is always published first.

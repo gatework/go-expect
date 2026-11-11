@@ -269,15 +269,17 @@ func TestRulesEventsAndNoConsume(t *testing.T) {
 		}
 	})
 	t.Run("persistent priority and snapshots", func(t *testing.T) {
-		hits := 0
-		s, p := pair(t, WithBefore(Case{Pattern: Literal("before"), Limit: 2, Handler: func(context.Context, *Session, Result) (Action, error) { hits++; return ContinueKeepTimer, nil }}))
-		snapshot := s.Rules()
-		snapshot.Before[0].Pattern = Literal("broken")
-		go func() { _, _ = p.Write([]byte("done before")) }()
-		_, err := s.Expect(t.Context(), []Case{{Pattern: Literal("done")}}, WithTimeout(time.Millisecond))
-		if !errors.Is(err, ErrTimeout) || hits != 1 {
-			t.Fatalf("before priority: hits=%d err=%v", hits, err)
-		}
+		synctest.Test(t, func(t *testing.T) {
+			hits := 0
+			s, p := pair(t, WithBefore(Case{Pattern: Literal("before"), Limit: 2, Handler: func(context.Context, *Session, Result) (Action, error) { hits++; return ContinueKeepTimer, nil }}))
+			snapshot := s.Rules()
+			snapshot.Before[0].Pattern = Literal("broken")
+			go func() { _, _ = p.Write([]byte("done before")) }()
+			_, err := s.Expect(t.Context(), []Case{{Pattern: Literal("done")}}, WithTimeout(time.Millisecond))
+			if !errors.Is(err, ErrTimeout) || hits != 1 {
+				t.Fatalf("before priority: hits=%d err=%v", hits, err)
+			}
+		})
 	})
 	t.Run("glob fold captures and preview", func(t *testing.T) {
 		s, p := pair(t)

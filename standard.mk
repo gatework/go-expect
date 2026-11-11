@@ -23,12 +23,15 @@ STDSYNC ?= $(GO) run github.com/gatework/go-standards/cmd/stdsync@$(STANDARDS_VE
 ARCHCHECK ?= $(GO) run github.com/gatework/go-standards/cmd/archcheck@$(STANDARDS_VERSION)
 endif
 
-# Extra prerequisites a repository adds to check (for example fuzz or delivery checks).
+# Targets a repository appends to check (for example fuzz or delivery
+# checks). It may be set before or after the include: it is expanded when
+# check runs, not when this file is read.
 CHECK_EXTRA ?=
 
 .PHONY: check standard fmt tidy vet lint arch test vuln
 
-check: standard fmt tidy vet lint arch test vuln $(CHECK_EXTRA)
+check: standard fmt tidy vet lint arch test vuln
+	@$(if $(strip $(CHECK_EXTRA)),$(MAKE) --no-print-directory $(CHECK_EXTRA))
 
 standard:
 	$(STDSYNC) check $(CURDIR)

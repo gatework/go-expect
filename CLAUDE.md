@@ -11,26 +11,26 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-GOWORK=off bash script/ci           # full local gate (what CI runs on Linux/macOS)
+make check                          # full local gate (what CI runs on Linux/macOS)
 go test ./...                       # quick test pass
 go test -race -shuffle=on -count=1 -timeout=90s ./...   # CI test invocation
 go test -run 'TestName' -count=1 .  # single test in root package
 go test -run 'TestName' ./spawn     # single test in a subpackage
 go test -run '^$' -fuzz '^FuzzMatchChunks$' -fuzztime=100000x -parallel=2 .   # one fuzz target
 go test -run '^$' -bench . -benchmem -benchtime=3x .                           # benchmark smoke
-golangci-lint run                   # lint (CI pins v2.15.0; config in .golangci.yml)
+make lint                           # shared gatework lint config (.golangci.yml, do not edit)
 go run ./examples/dialogue          # runnable dialogue example
 bash script/consumer                # compile a consumer against a snapshot of this module
 python3 -m unittest discover -s script/tests -v                                # release-script tests
 ```
 
-`script/ci` also enforces `gofmt -l` and `go mod tidy -diff` cleanliness, the import-graph ownership gate (`script/check-architecture.py`), Windows test cross-compilation, FreeBSD vet and every bounded fuzz target listed in the script; add new fuzz targets there.
+`make check` runs the shared targets from `standard.mk` (standard files, formatting, tidy, vet, lint, the `architecture.yaml` import gate, race tests, govulncheck) plus this repository's `CHECK_EXTRA`: README sync, module verification, Windows test cross-compilation, FreeBSD vet, every bounded fuzz target in `FUZZ_TARGETS` (add new targets there), a benchmark smoke run, the example and the consumer build.
 
 The full benchmark suite exceeds `go test`'s default 10-minute timeout; pass `-timeout 0` or select benchmarks with `-bench`. Compare revisions with repeated runs and benchstat, measured serially (see `docs/benchmarks/README.md`).
 
 **README example sync:** the README code block between `<!-- example:start -->`/`<!-- example:end -->` must be an exact copy of `example_test.go`. After editing `example_test.go`, run `python3 script/readme.py --write`.
 
-Lint caps for production code: gocyclo `min-complexity: 45`, funlen 160 lines / 100 statements (tests exempt). `exhaustive` treats `default` as exhaustive.
+Lint limits come from the gatework Go standard (FMT-2): functions at most 80 lines / 50 statements and cognitive complexity 30 (tests exempt). Split long functions into named steps rather than adding `nolint`.
 
 ## Architecture
 

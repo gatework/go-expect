@@ -87,7 +87,7 @@ release. Selecting another branch validates it without publishing.
 ## Local checks
 
 ```sh
-bash script/ci
+make check
 python3 -m unittest discover -s script/tests -v
 # actionlint 1.7.12 predates GitHub's concurrency queue property:
 actionlint -ignore '^unexpected key "queue" for "concurrency" section\.'

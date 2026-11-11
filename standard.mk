@@ -2,14 +2,14 @@
 # Source of truth: github.com/gatework/go-standards/standard.mk
 # Distributed by `stdsync write`; do not edit the copies. A repository's
 # Makefile includes this file and may add targets or extend CHECK_EXTRA.
-# standard-version: 1.0.0
+# standard-version: 1.0.1
 
 GO ?= go
 export GOWORK := off
 export GOFLAGS := -mod=readonly
 export GOTOOLCHAIN := local
 
-STANDARDS_VERSION ?= v1.0.0
+STANDARDS_VERSION ?= v1.0.1
 GOLANGCI_LINT ?= $(GO) run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.15.0
 GOVULNCHECK ?= $(GO) run golang.org/x/vuln/cmd/govulncheck@v1.9.0
 
@@ -36,8 +36,9 @@ check: standard fmt tidy vet lint arch test vuln
 standard:
 	$(STDSYNC) check $(CURDIR)
 
+# Only the diff on stdout counts; tool and download chatter goes to stderr.
 fmt:
-	@out=$$($(GOLANGCI_LINT) fmt --diff ./... 2>&1); if [ -n "$$out" ]; then echo "$$out"; echo "run: $(GOLANGCI_LINT) fmt ./..."; exit 1; fi
+	@out=$$($(GOLANGCI_LINT) fmt --diff ./...) || exit 1; if [ -n "$$out" ]; then echo "$$out"; echo "run: $(GOLANGCI_LINT) fmt ./..."; exit 1; fi
 
 tidy:
 	$(GO) mod tidy -diff

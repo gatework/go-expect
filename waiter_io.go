@@ -60,18 +60,11 @@ func (w *waiter) fill() error {
 	return nil
 
 }
+
+// wait blocks for the next receive step: input, a rules change, a control
+// function, the deadline, cancellation or closure.
 func (w *waiter) wait(ctx context.Context) error {
-	var err error
-	deadline := earlier(w.relative, w.idle)
-	var wake <-chan time.Time
-	if !deadline.IsZero() {
-		if w.timer == nil {
-			w.timer = time.NewTimer(time.Until(deadline))
-		} else {
-			w.timer.Reset(time.Until(deadline))
-		}
-		wake = w.timer.C
-	}
+	wake := w.armTimer()
 	select {
 	case w.session.mailbox.inputGate <- struct{}{}:
 	case <-w.session.rulesChanged:
@@ -86,6 +79,26 @@ func (w *waiter) wait(ctx context.Context) error {
 	case <-w.session.done:
 		return ErrClosed
 	}
+	return w.receiveGated(ctx, wake)
+}
+
+// armTimer arms the reusable timer for the earlier deadline and returns its
+// channel, or nil without a deadline.
+func (w *waiter) armTimer() <-chan time.Time {
+	deadline := earlier(w.relative, w.idle)
+	if deadline.IsZero() {
+		return nil
+	}
+	if w.timer == nil {
+		w.timer = time.NewTimer(time.Until(deadline))
+	} else {
+		w.timer.Reset(time.Until(deadline))
+	}
+	return w.timer.C
+}
+
+// receiveGated runs while w holds the input gate; every path releases it.
+func (w *waiter) receiveGated(ctx context.Context, wake <-chan time.Time) error {
 	if event, ok := w.session.mailbox.takeQueued(); ok {
 		<-w.session.mailbox.inputGate
 		if e := w.session.acceptEvent(event); e != nil {
@@ -102,21 +115,32 @@ func (w *waiter) wait(ctx context.Context) error {
 		}
 	}
 	if w.o.poll && w.polled {
-		select {
-		case event, ok := <-w.session.mailbox.events:
-			<-w.session.mailbox.inputGate
-			if ok {
-				if e := w.session.acceptEvent(event); e != nil {
-					return errors.Join(e, w.session.Close())
-				}
-				return nil
+		return w.takePolled()
+	}
+	return w.awaitGated(ctx, wake)
+}
+
+// takePolled completes a Poll whose readiness boundary was reached: it accepts
+// one published event or reports ErrTimeout. It releases the input gate.
+func (w *waiter) takePolled() error {
+	select {
+	case event, ok := <-w.session.mailbox.events:
+		<-w.session.mailbox.inputGate
+		if ok {
+			if e := w.session.acceptEvent(event); e != nil {
+				return errors.Join(e, w.session.Close())
 			}
-		default:
-			<-w.session.mailbox.inputGate
-			return ErrTimeout
 		}
 		return nil
+	default:
+		<-w.session.mailbox.inputGate
+		return ErrTimeout
 	}
+}
+
+// awaitGated waits, holding the input gate, for the next published event or
+// any other receive step. It releases the gate.
+func (w *waiter) awaitGated(ctx context.Context, wake <-chan time.Time) error {
 	select {
 	case <-w.session.rulesChanged:
 		<-w.session.mailbox.inputGate
@@ -152,10 +176,9 @@ func (w *waiter) wait(ctx context.Context) error {
 			}
 			return nil
 		}
-		if err = w.session.acceptEvent(event); err != nil {
+		if err := w.session.acceptEvent(event); err != nil {
 			return errors.Join(err, w.session.Close())
 		}
+		return nil
 	}
-	return nil
-
 }

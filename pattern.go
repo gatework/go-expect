@@ -304,50 +304,57 @@ func (p Pattern) findLocation(data []byte, terminal bool, scanFrom int, captures
 		i += scanFrom
 		return location{start: i, end: i + len(p.text)}, true, nil
 	case regexpPattern:
-		view := data
-		if !terminal {
-			view = data[:completeUTF8(data)]
-		}
-		// Only resumeFrom supplies a nonzero regexp offset (lineLocal patterns).
-		from := min(scanFrom, len(view))
-		var idx []int
-		if captures {
-			idx = p.re.FindSubmatchIndex(view[from:])
-		} else {
-			idx = p.re.FindIndex(view[from:])
-		}
-		if idx == nil {
-			return location{}, false, nil
-		}
-		if from > 0 {
-			for k, v := range idx {
-				if v >= 0 {
-					idx[k] = v + from
-				}
-			}
-		}
-		if idx[0] == idx[1] {
-			return location{}, false, ErrEmptyMatch
-		}
-		return location{start: idx[0], end: idx[1], submatches: idx[2:], names: p.re.SubexpNames()[1:]}, true, nil
+		return p.findRegexp(data, terminal, scanFrom, captures)
 	case allPattern:
-		loc := location{start: len(data)}
-		for _, child := range p.all {
-			hit, ok, err := child.findLocation(data, terminal, 0, false)
-			if err != nil || !ok {
-				return location{}, false, err
-			}
-			if hit.start < loc.start {
-				loc.start = hit.start
-			}
-			if hit.end > loc.end {
-				loc.end = hit.end
-			}
-		}
-		return loc, true, nil
+		return p.findAll(data, terminal)
 	default: // Event patterns are selected by the waiter.
 	}
 	return location{}, false, nil
+}
+
+// findRegexp matches a regexp pattern on the complete UTF-8 prefix of data
+// (all of it once terminal), starting at scanFrom.
+func (p Pattern) findRegexp(data []byte, terminal bool, scanFrom int, captures bool) (location, bool, error) {
+	view := data
+	if !terminal {
+		view = data[:completeUTF8(data)]
+	}
+	// Only resumeFrom supplies a nonzero regexp offset (lineLocal patterns).
+	from := min(scanFrom, len(view))
+	var idx []int
+	if captures {
+		idx = p.re.FindSubmatchIndex(view[from:])
+	} else {
+		idx = p.re.FindIndex(view[from:])
+	}
+	if idx == nil {
+		return location{}, false, nil
+	}
+	if from > 0 {
+		for k, v := range idx {
+			if v >= 0 {
+				idx[k] = v + from
+			}
+		}
+	}
+	if idx[0] == idx[1] {
+		return location{}, false, ErrEmptyMatch
+	}
+	return location{start: idx[0], end: idx[1], submatches: idx[2:], names: p.re.SubexpNames()[1:]}, true, nil
+}
+
+// findAll matches when every child matches; the extent spans all children.
+func (p Pattern) findAll(data []byte, terminal bool) (location, bool, error) {
+	loc := location{start: len(data)}
+	for _, child := range p.all {
+		hit, ok, err := child.findLocation(data, terminal, 0, false)
+		if err != nil || !ok {
+			return location{}, false, err
+		}
+		loc.start = min(loc.start, hit.start)
+		loc.end = max(loc.end, hit.end)
+	}
+	return loc, true, nil
 }
 
 // capturesFromSnapshot runs once for the winner before callback dispatch or consumption.
@@ -417,37 +424,14 @@ type literalScan struct {
 	found   bool
 }
 
+// findLiterals reports the extent of all literal hits once every literal has
+// been found, resuming each scan where the previous call stopped.
 func (s *patternScan) findLiterals(data []byte) (location, bool) {
 	loc := location{start: len(data)}
 	complete := true
 	for i := range s.literals {
 		literal := &s.literals[i]
-		if !literal.found {
-			if len(literal.failure) > 0 {
-				for i := literal.scanned; i < len(data); i++ {
-					for literal.matched > 0 && data[i] != literal.text[literal.matched] {
-						literal.matched = literal.failure[literal.matched-1]
-					}
-					if data[i] == literal.text[literal.matched] {
-						literal.matched++
-					}
-					if literal.matched == len(literal.text) {
-						literal.hit = location{start: i + 1 - len(literal.text), end: i + 1}
-						literal.found = true
-						break
-					}
-				}
-			} else {
-				from := max(0, literal.scanned-len(literal.text)+1)
-				index := bytes.Index(data[from:], []byte(literal.text))
-				if index >= 0 {
-					start := from + index
-					literal.hit = location{start: start, end: start + len(literal.text)}
-					literal.found = true
-				}
-			}
-			literal.scanned = len(data)
-		}
+		literal.advance(data)
 		if !literal.found {
 			complete = false
 			continue
@@ -459,6 +443,38 @@ func (s *patternScan) findLiterals(data []byte) (location, bool) {
 		return location{}, false
 	}
 	return loc, true
+}
+
+// advance looks for the literal's first hit in the part of data not yet
+// scanned: incrementally with the failure table when one exists, otherwise
+// by searching from the last position a hit could still start.
+func (l *literalScan) advance(data []byte) {
+	if l.found {
+		return
+	}
+	if len(l.failure) > 0 {
+		for i := l.scanned; i < len(data); i++ {
+			for l.matched > 0 && data[i] != l.text[l.matched] {
+				l.matched = l.failure[l.matched-1]
+			}
+			if data[i] == l.text[l.matched] {
+				l.matched++
+			}
+			if l.matched == len(l.text) {
+				l.hit = location{start: i + 1 - len(l.text), end: i + 1}
+				l.found = true
+				break
+			}
+		}
+	} else {
+		from := max(0, l.scanned-len(l.text)+1)
+		if index := bytes.Index(data[from:], []byte(l.text)); index >= 0 {
+			start := from + index
+			l.hit = location{start: start, end: start + len(l.text)}
+			l.found = true
+		}
+	}
+	l.scanned = len(data)
 }
 
 func (s *patternScan) reset() {

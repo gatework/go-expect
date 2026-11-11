@@ -21,10 +21,9 @@ not Windows/macOS/FreeBSD runtime behavior. FreeBSD is compile-checked only and 
 not in the runtime support matrix. Real network-device interoperability remains
 outside these local fixtures.
 
-Lint includes errorlint, revive, exhaustive, contextcheck and errname alongside
-vet/staticcheck/unused/ineffassign. Complexity caps are 44 for gocyclo and 160
-lines/100 statements for production functions. Tests are exempt from size caps;
-contextcheck cannot infer testing.Context inheritance across nested test bubbles.
+Lint comes from the shared gatework standard configuration. Production functions
+are limited to 80 lines, 50 statements and cognitive complexity 30; tests are
+exempt from size caps.
 Metadata reporting for rejected nil contexts and stored per-wait handler contexts
 have narrowly documented analyzer exceptions.
 

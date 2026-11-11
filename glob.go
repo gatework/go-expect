@@ -16,79 +16,96 @@ func compileGlob(pattern string, fold bool) Pattern {
 	if !utf8.ValidString(pattern) {
 		return Pattern{kind: invalidPattern}
 	}
-	var expr strings.Builder
-	if fold {
-		expr.WriteString("(?is:")
-	} else {
-		expr.WriteString("(?s:")
+	expr, ok := globExpr([]rune(pattern), fold)
+	if !ok {
+		return Pattern{kind: invalidPattern}
 	}
-	chars := []rune(pattern)
-	for i := 0; i < len(chars); i++ {
-		switch chars[i] {
-		case '*':
-			expr.WriteString(".*")
-		case '?':
-			expr.WriteByte('.')
-		case '\\':
-			i++
-			if i == len(chars) {
-				return Pattern{kind: invalidPattern}
-			}
-			expr.WriteString(regexp.QuoteMeta(string(chars[i])))
-		case '[':
-			end := i + 1
-			for end < len(chars) && chars[end] != ']' {
-				end++
-			}
-			if end == len(chars) || end == i+1 {
-				return Pattern{kind: invalidPattern}
-			}
-			expr.WriteByte('[')
-			for j := i + 1; j < end; j++ {
-				ch := chars[j]
-				if fold {
-					ch = unicode.ToLower(ch)
-				}
-				if j+2 < end && chars[j+1] == '-' {
-					hi := chars[j+2]
-					if fold {
-						hi = unicode.ToLower(hi)
-					}
-					lo := ch
-					if lo > hi {
-						lo, hi = hi, lo
-					}
-					fmtRune := func(r rune) {
-						if r == '^' || r == '\\' || r == ']' || r == '-' {
-							expr.WriteByte('\\')
-						}
-						expr.WriteRune(r)
-					}
-					fmtRune(lo)
-					expr.WriteByte('-')
-					fmtRune(hi)
-					j += 2
-					continue
-				}
-				if ch == '^' || ch == '\\' || ch == ']' || ch == '-' {
-					expr.WriteByte('\\')
-				}
-				expr.WriteRune(ch)
-			}
-			expr.WriteByte(']')
-			i = end
-		default:
-			expr.WriteString(regexp.QuoteMeta(string(chars[i])))
-		}
-	}
-	expr.WriteByte(')')
-	p, err := Compile(expr.String())
+	p, err := Compile(expr)
 	if err != nil {
 		return Pattern{kind: invalidPattern}
 	}
 	p.glob = true
 	p.text = pattern
 	return p
+}
+
+// globExpr translates glob text to equivalent regexp source; ok is false for
+// a dangling escape or an empty or unterminated bracket class.
+func globExpr(chars []rune, fold bool) (expr string, ok bool) {
+	var b strings.Builder
+	if fold {
+		b.WriteString("(?is:")
+	} else {
+		b.WriteString("(?s:")
+	}
+	for i := 0; i < len(chars); i++ {
+		switch chars[i] {
+		case '*':
+			b.WriteString(".*")
+		case '?':
+			b.WriteByte('.')
+		case '\\':
+			i++
+			if i == len(chars) {
+				return "", false
+			}
+			b.WriteString(regexp.QuoteMeta(string(chars[i])))
+		case '[':
+			end, ok := writeGlobClass(&b, chars, i, fold)
+			if !ok {
+				return "", false
+			}
+			i = end
+		default:
+			b.WriteString(regexp.QuoteMeta(string(chars[i])))
+		}
+	}
+	b.WriteByte(')')
+	return b.String(), true
+}
+
+// writeGlobClass writes the bracket class opening at chars[open] and returns
+// the index of its closing bracket.
+func writeGlobClass(b *strings.Builder, chars []rune, open int, fold bool) (end int, ok bool) {
+	end = open + 1
+	for end < len(chars) && chars[end] != ']' {
+		end++
+	}
+	if end == len(chars) || end == open+1 {
+		return 0, false
+	}
+	lower := func(r rune) rune {
+		if fold {
+			return unicode.ToLower(r)
+		}
+		return r
+	}
+	b.WriteByte('[')
+	for j := open + 1; j < end; j++ {
+		ch := lower(chars[j])
+		if j+2 < end && chars[j+1] == '-' {
+			lo, hi := ch, lower(chars[j+2])
+			if lo > hi {
+				lo, hi = hi, lo
+			}
+			writeClassRune(b, lo)
+			b.WriteByte('-')
+			writeClassRune(b, hi)
+			j += 2
+			continue
+		}
+		writeClassRune(b, ch)
+	}
+	b.WriteByte(']')
+	return end, true
+}
+
+// writeClassRune writes r inside a bracket class, escaping class metacharacters.
+func writeClassRune(b *strings.Builder, r rune) {
+	if r == '^' || r == '\\' || r == ']' || r == '-' {
+		b.WriteByte('\\')
+	}
+	b.WriteRune(r)
 }
 
 // Fold returns an isolated case-insensitive text pattern. Unicode regexp folding

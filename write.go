@@ -28,6 +28,8 @@ const (
 	writeAllReady
 )
 
+// startWrite admits one write and runs it on an owned worker. The returned
+// channel delivers exactly one completion.
 func (s *Session) startWrite(ctx context.Context, text string, mode writeMode) (<-chan writeResult, error) {
 	s.lifeMu.Lock()
 	defer s.lifeMu.Unlock()
@@ -38,73 +40,90 @@ func (s *Session) startWrite(ctx context.Context, text string, mode writeMode) (
 		return nil, err
 	}
 	result := make(chan writeResult, 1)
-	s.workers.Go(func() {
-		if err := ctx.Err(); err != nil {
-			result <- writeResult{err: err}
-			return
-		}
-		data := []byte(text)
-		// Conversion can be expensive. Check again immediately before admission.
-		if err := ctx.Err(); err != nil {
-			result <- writeResult{err: err}
-			return
-		}
-		// The caller consumes this admission message before observing completion.
-		result <- writeResult{}
-		total := 0
-		var err error
-		completed := false
-		defer func() {
-			if !completed {
-				kind := CallbackExited
-				if recover() != nil {
-					kind = CallbackPanicked
-				}
-				result <- writeResult{total, errors.Join(err, &CallbackError{Kind: kind})}
-			}
-		}()
-		for total < len(data) {
-			if mode != writeOnce && total > 0 {
-				if err = ctx.Err(); err != nil {
-					break
-				}
-			}
-			var count int
-			if mode == writeAllReady {
-				count, err = s.osIO.writeNow(data[total:])
-			} else {
-				count, err = s.transport.Write(data[total:])
-			}
-			if count < 0 || count > len(data)-total {
-				count = 0
-				err = errors.Join(errInvalidWriteCount, err)
-			}
-			prior := total
-			total += count
-			if count > 0 {
-				err = errors.Join(err, s.emitSent(data[prior:total], false))
-			}
-			if mode == writeOnce {
-				if err == nil && total != len(data) {
-					err = io.ErrShortWrite
-				}
-				break
-			}
-			if err != nil {
-				break
-			}
-			if count == 0 {
-				err = io.ErrNoProgress
-				break
-			}
-		}
-		completed = true
-		result <- writeResult{total, err}
-	})
+	s.workers.Go(func() { s.runWrite(ctx, text, mode, result) })
 	if admission := <-result; admission.err != nil {
 		return nil, admission.err
 	}
 	return result, nil
+}
+
+// runWrite is the write worker. It sends an admission message (an error if
+// ctx ended first), then exactly one completion with the accepted progress.
+func (s *Session) runWrite(ctx context.Context, text string, mode writeMode, result chan<- writeResult) {
+	if err := ctx.Err(); err != nil {
+		result <- writeResult{err: err}
+		return
+	}
+	data := []byte(text)
+	// Conversion can be expensive. Check again immediately before admission.
+	if err := ctx.Err(); err != nil {
+		result <- writeResult{err: err}
+		return
+	}
+	// The caller consumes this admission message before observing completion.
+	result <- writeResult{}
+	var progress writeResult
+	completed := false
+	defer func() {
+		if !completed {
+			kind := CallbackExited
+			if recover() != nil {
+				kind = CallbackPanicked
+			}
+			result <- writeResult{progress.n, errors.Join(progress.err, &CallbackError{Kind: kind})}
+		}
+	}()
+	s.writeLoop(ctx, data, mode, &progress)
+	completed = true
+	result <- progress
+}
+
+// writeLoop writes data in mode. It records progress in p after every
+// transport call so that a panicking transport still reports accepted bytes.
+func (s *Session) writeLoop(ctx context.Context, data []byte, mode writeMode, p *writeResult) {
+	for p.n < len(data) {
+		if mode != writeOnce && p.n > 0 {
+			if p.err = ctx.Err(); p.err != nil {
+				return
+			}
+		}
+		count, err := s.writeChunk(data[p.n:], mode)
+		prior := p.n
+		p.n += count
+		p.err = err
+		if count > 0 {
+			p.err = errors.Join(p.err, s.emitSent(data[prior:p.n], false))
+		}
+		if mode == writeOnce {
+			if p.err == nil && p.n != len(data) {
+				p.err = io.ErrShortWrite
+			}
+			return
+		}
+		if p.err != nil {
+			return
+		}
+		if count == 0 {
+			p.err = io.ErrNoProgress
+			return
+		}
+	}
+}
+
+// writeChunk performs one transport write and rejects impossible counts.
+func (s *Session) writeChunk(data []byte, mode writeMode) (int, error) {
+	var count int
+	var err error
+	if mode == writeAllReady {
+		count, err = s.osIO.writeNow(data)
+	} else {
+		count, err = s.transport.Write(data)
+	}
+	if count < 0 || count > len(data) {
+		count = 0
+		err = errors.Join(errInvalidWriteCount, err)
+	}
+	return count, err
 }
 
 // A ready write result must not randomly defeat an already-ready cancellation.

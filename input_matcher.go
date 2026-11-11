@@ -107,49 +107,14 @@ func (m *inputMatcher) choose(data []byte, eof bool) (int, location, int, error)
 	if len(m.cases) > len(inline) {
 		partials = make([]int, len(m.cases))
 	}
-	for i := range partials {
-		partials[i] = len(data)
-	}
-	for i, c := range m.cases {
-		var loc location
-		var ok bool
-		var err error
-		l := &m.literals[i]
-		if l.text != "" {
-			if len(l.hits) > 0 {
-				loc = location{start: l.hits[0].start, end: l.hits[0].end}
-				loc.start -= m.base
-				loc.end -= m.base
-				ok = true
-			}
-			if !eof && l.matched > 0 {
-				start := m.end - l.matched - m.base
-				partials[i] = start
-			}
-		} else {
-			switch c.Pattern.kind {
-			case eofPattern, timeoutPattern, defaultPattern, fullBufferPattern:
-				continue
-			default:
-			}
-			prefix := m.prefixes[i]
-			start := 0
-			if prefix != nil {
-				start = prefix.start(data, m.base, eof)
-			}
-			if prefix == nil || prefix.hasMatch {
-				loc, ok, err = c.Pattern.find(data, eof, 0)
-				if err != nil {
-					return -1, location{}, 0, err
-				}
-			}
-			if !eof {
-				partials[i] = start
-			}
-
+	for i := range m.cases {
+		scan, err := m.scanCase(i, data, eof)
+		if err != nil {
+			return -1, location{}, 0, err
 		}
-		if ok && (chosen < 0 || loc.start < hit.start || (loc.start == hit.start && i < chosen)) {
-			chosen, hit = i, loc
+		partials[i] = scan.partial
+		if scan.matched && (chosen < 0 || scan.loc.start < hit.start || (scan.loc.start == hit.start && i < chosen)) {
+			chosen, hit = i, scan.loc
 		}
 	}
 	partialStart, partialCase := len(data), len(m.cases)
@@ -165,6 +130,52 @@ func (m *inputMatcher) choose(data []byte, eof bool) (int, location, int, error)
 		return chosen, hit, hit.start, nil
 	}
 	return -1, location{}, len(data), nil
+}
+
+// caseScan is one input case's view of pending data: its complete match, if
+// any, and the earliest offset where a match could still begin (len(data)
+// when none can).
+type caseScan struct {
+	loc     location
+	matched bool
+	partial int
+}
+
+// scanCase evaluates input case i on data. Event patterns never match bytes.
+func (m *inputMatcher) scanCase(i int, data []byte, eof bool) (caseScan, error) {
+	scan := caseScan{partial: len(data)}
+	if l := &m.literals[i]; l.text != "" {
+		if len(l.hits) > 0 {
+			scan.loc = location{start: l.hits[0].start - m.base, end: l.hits[0].end - m.base}
+			scan.matched = true
+		}
+		if !eof && l.matched > 0 {
+			scan.partial = m.end - l.matched - m.base
+		}
+		return scan, nil
+	}
+	c := m.cases[i]
+	switch c.Pattern.kind {
+	case eofPattern, timeoutPattern, defaultPattern, fullBufferPattern:
+		return scan, nil
+	default:
+	}
+	prefix := m.prefixes[i]
+	start := 0
+	if prefix != nil {
+		start = prefix.start(data, m.base, eof)
+	}
+	if prefix == nil || prefix.hasMatch {
+		loc, ok, err := c.Pattern.find(data, eof, 0)
+		if err != nil {
+			return caseScan{}, err
+		}
+		scan.loc, scan.matched = loc, ok
+	}
+	if !eof {
+		scan.partial = start
+	}
+	return scan, nil
 }
 
 type prefixProgram struct {

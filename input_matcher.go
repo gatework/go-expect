@@ -40,7 +40,7 @@ func newInputMatcher(cases []Case) (*inputMatcher, error) {
 			continue
 		}
 		var expression string
-		switch c.Pattern.kind {
+		switch c.Pattern.kind { //nolint:exhaustive // Only regexp and line patterns need a prefix program.
 		case regexpPattern:
 			expression = c.Pattern.re.String()
 		case linePattern:
@@ -155,7 +155,7 @@ func (m *inputMatcher) scanCase(i int, data []byte, eof bool) (caseScan, error) 
 		return scan, nil
 	}
 	c := m.cases[i]
-	switch c.Pattern.kind {
+	switch c.Pattern.kind { //nolint:exhaustive // Event patterns have no text match; other kinds proceed to the text matcher.
 	case eofPattern, timeoutPattern, defaultPattern, fullBufferPattern:
 		return scan, nil
 	default:
@@ -216,7 +216,7 @@ func (p *prefixProgram) start(data []byte, base int, eof bool) int {
 		next := make(map[uint32]int)
 		for pc, start := range ready {
 			inst := &p.prog.Inst[pc]
-			switch inst.Op {
+			switch inst.Op { //nolint:exhaustive // Only rune instructions consume input; expansion handles epsilon instructions.
 			case syntax.InstRune, syntax.InstRune1, syntax.InstRuneAny, syntax.InstRuneAnyNotNL:
 				if inst.MatchRune(ch) {
 					if old, ok := next[inst.Out]; !ok || start < old {
@@ -270,7 +270,7 @@ func (p *prefixProgram) expand(seed map[uint32]int, condition syntax.EmptyOp, fu
 		seen[t.pc] = t.start
 		inst := &p.prog.Inst[t.pc]
 		push := func(pc uint32) { stack = append(stack, prefixThread{pc, t.start}) }
-		switch inst.Op {
+		switch inst.Op { //nolint:exhaustive // Expand epsilon instructions; retain match and rune instructions in the frontier.
 		case syntax.InstAlt, syntax.InstAltMatch:
 			push(inst.Out)
 			push(inst.Arg)

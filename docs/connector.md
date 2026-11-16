@@ -1,7 +1,7 @@
 # Device-layer migration
 
 The duplicate `github.com/gatework/go-expect/connector` package has been removed.
-Use `github.com/gatework/go-net-connector/connector` and its `vendors` package for
+Use `github.com/gatework/net-connector/connector` and its `vendors` package for
 authentication, device commands, configuration and backups. go-expect does not
 import the device library, so the dependency graph remains one-way.
 

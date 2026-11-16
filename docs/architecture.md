@@ -39,7 +39,7 @@ coverage across rule additions. Their distinct policies use the same internal
 matching implementation.
 
 Device authentication, command acceptance, persistence confirmation, inventory and
-CLI configuration belong to callers such as go-net-connector. This package does
+CLI configuration belong to callers such as net-connector. This package does
 not import the network automation applications. Existing race, cancellation,
 partial-write, fuzz and external-consumer checks exercise these ownership rules.
 
@@ -62,3 +62,7 @@ examples, and the disposable source-consumer check. The modernization scan only
 suggested integer-range loops in unrelated examples/tests; those files were not
 rewritten by this structural change. Source-consumer evidence is distinct from a
 published-version consumer or real network device test.
+
+## Terminal read errors
+
+EOF and Default cases accept an EOF-only error tree, including a wrapped EOF. An error joining EOF with an independent failure remains a read failure: every cause and the unconsumed tail stay available to the caller. Matching a preceding text pattern does not erase a later terminal error.

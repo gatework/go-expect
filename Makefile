@@ -1,4 +1,4 @@
-STANDARDS_DIR ?= $(wildcard $(CURDIR)/../go-standards)
+# Shared gates use the published standard unless a checkout is supplied explicitly.
 include standard.mk
 
 # Repository-specific gates appended to `make check`.
@@ -40,3 +40,10 @@ example:
 # Compile a consumer against a snapshot of this module.
 consumer:
 	bash script/consumer
+
+# Keep the working tree's application-dependency guard alongside shared checks.
+CHECK_EXTRA += local-arch
+.PHONY: local-arch
+local-arch:
+	python3 script/check-architecture.py
+	python3 script/test_architecture.py

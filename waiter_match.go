@@ -55,7 +55,7 @@ func (w *waiter) scan() (selection, error) {
 		streaming = true
 	}
 	if chosen < 0 && w.session.receive.terminal != nil {
-		if errors.Is(w.session.receive.terminal, io.EOF) && !errors.Is(w.session.receive.terminal, errInvalidReadCount) {
+		if onlyErrors(w.session.receive.terminal, io.EOF) {
 			chosen = w.eventCase(eofPattern)
 
 			if chosen >= 0 {

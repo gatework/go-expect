@@ -177,7 +177,7 @@ func (s *Session) writeSync(ctx context.Context, text string, deadline time.Time
 		}
 	}()
 	if err := d.SetWriteDeadline(deadline); err != nil {
-		if onlyDeadlineErrors(err, os.ErrNoDeadline, errors.ErrUnsupported) {
+		if onlyErrors(err, os.ErrNoDeadline, errors.ErrUnsupported) {
 			completed, cleaned = true, true
 			return writeResult{}, false, nil
 		}
@@ -263,17 +263,17 @@ func (s *Session) clearWriteDeadline(d deadlineWriter) error {
 	}
 	// A peer may close immediately after accepting the write. Its final input
 	// must remain drainable; the closed transport has no deadline left to reuse.
-	if onlyDeadlineErrors(err, io.ErrClosedPipe, net.ErrClosed, os.ErrClosed) {
+	if onlyErrors(err, io.ErrClosedPipe, net.ErrClosed, os.ErrClosed) {
 		return nil
 	}
 	return errors.Join(fmt.Errorf("expect: clear write deadline: %w", err), s.interrupt())
 }
 
-// Every cause must match an allowed capability or terminal error. A sentinel in
-// one branch must not discard another branch's actual deadline failure.
+// Every cause must match an allowed error. A sentinel in one branch must not
+// discard another branch's independent failure.
 //
 //nolint:errorlint // Inspect every unwrap branch; errors.As could hide another failure.
-func onlyDeadlineErrors(err error, allowed ...error) bool {
+func onlyErrors(err error, allowed ...error) bool {
 	switch wrapped := err.(type) {
 	case interface{ Unwrap() []error }:
 		matched := false
@@ -281,14 +281,14 @@ func onlyDeadlineErrors(err error, allowed ...error) bool {
 			if cause == nil {
 				continue
 			}
-			if !onlyDeadlineErrors(cause, allowed...) {
+			if !onlyErrors(cause, allowed...) {
 				return false
 			}
 			matched = true
 		}
 		return matched
 	case interface{ Unwrap() error }:
-		return onlyDeadlineErrors(wrapped.Unwrap(), allowed...)
+		return onlyErrors(wrapped.Unwrap(), allowed...)
 	default:
 		for _, target := range allowed {
 			if errors.Is(err, target) {

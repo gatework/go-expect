@@ -117,7 +117,7 @@ func (p Pattern) Fold() Pattern {
 			return Pattern{kind: invalidPattern}
 		}
 	}
-	switch p.kind {
+	switch p.kind { //nolint:exhaustive // Fold text patterns; event and invalid patterns remain unchanged.
 	case literalPattern:
 		p = foldCompile("(?i:" + regexp.QuoteMeta(p.text) + ")")
 	case regexpPattern:

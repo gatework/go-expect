@@ -38,7 +38,7 @@ func WithInteractInputCases(cases ...Case) InteractOption {
 			return err
 		}
 		for _, c := range cases {
-			switch c.Pattern.kind {
+			switch c.Pattern.kind { //nolint:exhaustive // Event cases need no text validation; every other kind must validate as text.
 			case eofPattern, timeoutPattern, defaultPattern, fullBufferPattern:
 			default:
 				if err := c.Pattern.ValidateText(); err != nil {

@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.6.1
+
+- Preserve every cause and the unconsumed tail when a read returns EOF joined with an independent failure; only EOF-only error trees select EOF/default handlers.
+- Use published go-standards v1.1.0 for reproducible local checks; a sibling checkout is used only through an explicit STANDARDS_DIR override.
+- Update golang.org/x/sys to v0.50.0 and golang.org/x/term to v0.48.0 while retaining the Go 1.26 floor.
+
 ## v0.6.0
 
 - BREAKING: rename `ExpectOption` to `MatchOption` and

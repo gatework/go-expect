@@ -37,3 +37,7 @@ rule replacement, nonconsuming progress, local regex captures/EOF/idle/terminal
 modes and Relay backpressure/progress/redaction. Input-pattern fuzzing reconstructs
 raw bytes across arbitrary read boundaries. The partial-prefix benchmark records
 4/8/16 KiB scaling, separately from reused Expect and long-lived Send allocations.
+
+The shared gate uses published go-standards v1.1.0 by default. Standard development can opt into a checkout with `make check STANDARDS_DIR=/path/to/go-standards`; adjacent directories are not selected implicitly. The lifecycle read-error regression covers wrapped and joined EOF, independent failures, split reads, continuation handlers and retained tails.
+
+The 2026-11-16 candidate passed the complete `make check` on Go 1.27.4, including race/shuffle, eleven 100,000-execution fuzz targets, Windows compile, FreeBSD vet and the disposable source consumer. Full package tests also passed on Go 1.26.0. This candidate remains local and unpublished; these results do not establish native Windows or real-device behavior.

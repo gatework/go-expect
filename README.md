@@ -61,7 +61,7 @@ func ExampleSession_Expect() {
 
 Run the longer password, confirmation and paging example with
 `go run ./examples/dialogue`. Device authentication, vendor profiles and backup
-policy belong to [go-net-connector](https://github.com/gatework/go-net-connector),
+policy belong to [net-connector](https://github.com/gatework/net-connector),
 not to the stream engine.
 
 | Task | API and behavior |
@@ -149,7 +149,7 @@ See [module organization](docs/architecture.md), [contracts](docs/contracts.md),
 [verification](docs/verification.md) and [release operations](docs/releasing.md).
 The source retains Netflix's Apache-2.0 license and copyright notices.
 
-Run `bash script/ci` for local checks. CI runs Linux/macOS Go 1.26/1.27 and Windows
+Run `make check` for local checks. CI runs Linux/macOS Go 1.26/1.27 and Windows
 runtime tests. Default-branch pushes publish after all gates pass. Before v1,
 `BREAKING:` or `BREAKING CHANGE:` commit trailers select the next minor version;
 ordinary changes increment patch. No compatibility aliases are provided.

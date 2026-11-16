@@ -13,7 +13,7 @@ type matchCursor struct {
 
 func newMatchCursor(p Pattern) matchCursor {
 	c := matchCursor{pattern: p}
-	switch p.kind {
+	switch p.kind { //nolint:exhaustive // Only literal, line and composite patterns retain incremental cursors.
 	case literalPattern:
 		c.literal.literals = []literalScan{{text: p.text, failure: p.failure}}
 	case linePattern:

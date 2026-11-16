@@ -151,7 +151,7 @@ func lineLocal(expr string, flags ...syntax.Flags) bool {
 // rejected because it is true at a resumed slice start but false after LF.
 // Line-start, word-boundary and end assertions agree at both positions.
 func avoidsLF(re *syntax.Regexp) bool {
-	switch re.Op {
+	switch re.Op { //nolint:exhaustive // Check LF-consuming and text-start nodes; recursively inspect all children.
 	case syntax.OpAnyChar, syntax.OpBeginText:
 		return false
 	case syntax.OpLiteral:
@@ -217,6 +217,8 @@ func (p Pattern) String() string {
 func (p Pattern) GoString() string { return p.String() }
 func (p Pattern) validate(textOnly bool) error {
 	switch p.kind {
+	case invalidPattern:
+		return ErrInvalidPattern
 	case literalPattern:
 		if p.text != "" {
 			return nil
@@ -293,7 +295,7 @@ func (p Pattern) advance(data []byte, prior scanProgress) scanProgress {
 // All children only need their extent; ordinary candidates retain capture
 // offsets until Expect chooses its final winner. No candidate copies payloads.
 func (p Pattern) findLocation(data []byte, terminal bool, scanFrom int, captures bool) (location, bool, error) {
-	switch p.kind {
+	switch p.kind { //nolint:exhaustive // Text patterns locate bytes; event patterns are selected by the waiter.
 	case linePattern:
 		return p.findLine(data)
 	case literalPattern:

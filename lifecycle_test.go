@@ -3,7 +3,9 @@
 package expect
 
 import (
+	"context"
 	"errors"
+	"fmt"
 	"io"
 	"net"
 	"testing"
@@ -60,11 +62,62 @@ func TestSessionReadErrorWithDataPreservesTail(t *testing.T) {
 		t.Fatalf("%v %q", err, r.Before)
 	}
 	waitText(t, s, "tail")
+
+	for _, cause := range []struct {
+		name   string
+		err    error
+		failed bool
+	}{
+		{"wrapped EOF", fmt.Errorf("read: %w", io.EOF), false},
+		{"joined EOF", errors.Join(io.EOF, io.EOF), false},
+		{"joined failure", errors.Join(io.EOF, failure), true},
+		{"wrapped joined failure", fmt.Errorf("read: %w", errors.Join(io.EOF, failure)), true},
+	} {
+		for _, pattern := range []Pattern{EOF(), Default()} {
+			for _, split := range []bool{false, true} {
+				for _, continued := range []bool{false, true} {
+					t.Run(fmt.Sprintf("%s/%s/split=%v/continued=%v", cause.name, pattern, split, continued), func(t *testing.T) {
+						s, err := NewSession(&errorReader{err: cause.err, split: split})
+						if err != nil {
+							t.Fatal(err)
+						}
+						defer s.Close()
+						waitText(t, s, "ok")
+						selected := Case{Pattern: pattern}
+						called := false
+						if continued {
+							selected.Handler = func(context.Context, *Session, Result) (Action, error) {
+								called = true
+								return ContinueKeepTimer, nil
+							}
+						}
+						r, err := s.Expect(t.Context(), []Case{selected})
+						if r.Before != "tail" {
+							t.Fatalf("tail = %q, want tail", r.Before)
+						}
+						if cause.failed {
+							if !errors.Is(err, failure) || !errors.Is(err, io.EOF) || called {
+								t.Fatalf("lost read failure or ran EOF handler: err=%v called=%v", err, called)
+							}
+							waitText(t, s, "tail")
+						} else if continued {
+							if !errors.Is(err, io.EOF) || !called {
+								t.Fatalf("EOF continuation: err=%v called=%v", err, called)
+							}
+						} else if err != nil {
+							t.Fatalf("clean EOF: %v", err)
+						}
+					})
+				}
+			}
+		}
+	}
 }
 
 type errorReader struct {
 	err          error
 	read         bool
+	split        bool
 	invalidCount int
 }
 
@@ -76,6 +129,9 @@ func (r *errorReader) Read(p []byte) (int, error) {
 		return 0, r.err
 	}
 	r.read = true
+	if r.split {
+		return copy(p, []byte("oktail")), nil
+	}
 	return copy(p, []byte("oktail")), r.err
 }
 func (r *errorReader) Write(p []byte) (int, error) { return len(p), nil }

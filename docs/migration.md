@@ -124,5 +124,5 @@ the parent's slave. On Windows, spawn.Start owns the pseudoconsole and child job
 Neither process adapter changes the core transport ownership contract.
 
 The earlier device connector was moved to
-[go-net-connector](https://github.com/gatework/go-net-connector). Historical release
+[net-connector](https://github.com/gatework/net-connector). Historical release
 behavior and benchmark evidence remain available in Git at v0.1.4.

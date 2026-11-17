@@ -2,6 +2,8 @@
 
 ## v0.6.2
 
+- Adopt published go-standards v1.2.0 and document intentional independent context lifetimes.
+
 - Update indirect test dependencies to testify v1.12.1 and go.yaml.in/yaml/v3
   v3.0.6. All four direct dependencies are already at their latest stable versions;
   retain the Go 1.26 floor. Module tidying removes unused legacy checksums.

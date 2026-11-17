@@ -38,7 +38,7 @@ modes and Relay backpressure/progress/redaction. Input-pattern fuzzing reconstru
 raw bytes across arbitrary read boundaries. The partial-prefix benchmark records
 4/8/16 KiB scaling, separately from reused Expect and long-lived Send allocations.
 
-The shared gate uses published go-standards v1.1.0 by default. Standard development can opt into a checkout with `make check STANDARDS_DIR=/path/to/go-standards`; adjacent directories are not selected implicitly. The lifecycle read-error regression covers wrapped and joined EOF, independent failures, split reads, continuation handlers and retained tails.
+The shared gate uses published go-standards v1.2.0 by default. Standard development can opt into a checkout with `make check STANDARDS_DIR=/path/to/go-standards`; adjacent directories are not selected implicitly. The lifecycle read-error regression covers wrapped and joined EOF, independent failures, split reads, continuation handlers and retained tails.
 
 The 2026-11-16 candidate passed the complete `make check` on Go 1.27.4, including race/shuffle, eleven 100,000-execution fuzz targets, Windows compile, FreeBSD vet and the disposable source consumer. Full package tests also passed on Go 1.26.0. These local results do not establish native Windows or real-device behavior.
 
@@ -58,8 +58,10 @@ coalesced 16-chunk allocation falling from 1968 B / 5 allocations to 1920 B /
 4 allocations. Single-event time fell about 15%; coalesced time had no significant
 change. These are mailbox microbenchmarks, not end-to-end throughput claims.
 
-The v0.6.2 release candidate passed the complete `make check` using published
-standard 1.1.0, including eleven 100,000-execution fuzz targets, cross-platform
-compile/vet and the independent stream/PTY consumer. Full package tests also
-passed on Go 1.26.0. Unrelated standard-development changes are outside this
-release candidate.
+The release candidate uses published go-standards v1.2.0. Shared configuration
+is distributed with stdsync; intentional independent context lifetimes retain
+narrow analyzer exceptions. The complete local `make check` passed on this candidate with Go 1.27.4 on
+darwin/arm64, including eleven 100,000-execution fuzz targets, cross-platform
+compile/vet and the independent consumer. The 24 release automation regressions
+and actionlint passed too. Exact-commit CI and release asset checks remain
+separate publication gates.

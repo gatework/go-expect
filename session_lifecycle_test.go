@@ -128,6 +128,7 @@ func TestHandlerAbruptExitCancelsDerivedContext(t *testing.T) {
 			go func() {
 				defer close(finished)
 				defer func() { recover() }()
+				//nolint:contextcheck // The test owns this root context; the handler receives a separate derived context.
 				s.Expect(t.Context(), []Case{{Pattern: Literal("prompt"), Handler: func(ctx context.Context, _ *Session, _ Result) (Action, error) {
 					callbackCtx = ctx //nolint:fatcontext // the test captures the handler context to assert it is cancelled
 					if kind == "goexit" {

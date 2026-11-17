@@ -30,6 +30,10 @@ Within the root package, files follow the state they maintain:
 `Session` is the lifecycle owner, while the exclusive receive operation owns
 matching state. The diagnostic mutex protects borrowed sinks and their independent
 stream filters. A diagnostic filter never changes raw protocol evidence.
+The receive mailbox stores one coalesced event directly; a presence flag keeps
+terminal errors without payload distinct from an empty mailbox. Dequeue and
+retirement clear both payload and error references. The input gate serializes
+these transitions, and the existing byte limit bounds retained payload.
 Interruption retires I/O without joining the worker that requested it; close then
 joins workers and flushes diagnostics. Output writers remain borrowed.
 

@@ -283,7 +283,7 @@ func TestCloseReleasesReceiveStorage(t *testing.T) {
 	if err = s.Close(); err != nil {
 		t.Fatal(err)
 	}
-	if s.receive.pending != nil || s.receive.staged != nil || s.mailbox.queued != nil {
+	if s.receive.pending != nil || s.receive.staged != nil || s.mailbox.queued.data != nil || s.mailbox.queued.err != nil || s.mailbox.hasQueued {
 		t.Fatal("closed session retains receive storage")
 	}
 	if len(result.Before) != 1<<20 {

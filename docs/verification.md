@@ -40,4 +40,26 @@ raw bytes across arbitrary read boundaries. The partial-prefix benchmark records
 
 The shared gate uses published go-standards v1.1.0 by default. Standard development can opt into a checkout with `make check STANDARDS_DIR=/path/to/go-standards`; adjacent directories are not selected implicitly. The lifecycle read-error regression covers wrapped and joined EOF, independent failures, split reads, continuation handlers and retained tails.
 
-The 2026-11-16 candidate passed the complete `make check` on Go 1.27.4, including race/shuffle, eleven 100,000-execution fuzz targets, Windows compile, FreeBSD vet and the disposable source consumer. Full package tests also passed on Go 1.26.0. This candidate remains local and unpublished; these results do not establish native Windows or real-device behavior.
+The 2026-11-16 candidate passed the complete `make check` on Go 1.27.4, including race/shuffle, eleven 100,000-execution fuzz targets, Windows compile, FreeBSD vet and the disposable source consumer. Full package tests also passed on Go 1.26.0. These local results do not establish native Windows or real-device behavior.
+
+## Dependency and mailbox follow-up (2026-11-16)
+
+All four direct requirements were checked against `@latest` and remain current.
+The retained indirect test requirements are testify v1.12.1 and
+`go.yaml.in/yaml/v3` v3.0.6; `go test go.uber.org/goleak` also passed with this
+selection. Unused upstream module-graph entries (kr/pretty, objx and check.v1)
+are not pinned merely to override upstream metadata: `go mod tidy` removes those
+unnecessary requirements. The Go floor remains 1.26.0.
+
+The mailbox stores one coalesced event rather than a one-element slice. Eight
+200 ms samples per case on Go 1.27.4, darwin/arm64, compared with benchstat,
+showed single-event allocation falling from 48 B / 1 allocation to zero and
+coalesced 16-chunk allocation falling from 1968 B / 5 allocations to 1920 B /
+4 allocations. Single-event time fell about 15%; coalesced time had no significant
+change. These are mailbox microbenchmarks, not end-to-end throughput claims.
+
+The v0.6.2 release candidate passed the complete `make check` using published
+standard 1.1.0, including eleven 100,000-execution fuzz targets, cross-platform
+compile/vet and the independent stream/PTY consumer. Full package tests also
+passed on Go 1.26.0. Unrelated standard-development changes are outside this
+release candidate.

@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.6.2
+
+- Retry interrupted immediate-write system calls only when no bytes were accepted, preserving partial progress and backpressure timeouts.
+
+- Adopt published go-standards v1.2.0 and document intentional independent context lifetimes.
+
+- Update indirect test dependencies to testify v1.12.1 and go.yaml.in/yaml/v3
+  v3.0.6. All four direct dependencies are already at their latest stable versions;
+  retain the Go 1.26 floor. Module tidying removes unused legacy checksums.
+- Store the mailbox's single coalesced read event directly instead of allocating
+  a one-element slice on every enqueue/dequeue cycle. Preserve terminal-only
+  events, payload bounds and close-time reference release.
+
 ## v0.6.1
 
 - Preserve every cause and the unconsumed tail when a read returns EOF joined with an independent failure; only EOF-only error trees select EOF/default handlers.

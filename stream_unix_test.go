@@ -94,7 +94,7 @@ func TestSendAllPollImmediateAndBlockedProgress(t *testing.T) {
 	n, e = s.SendAllPoll(t.Context(), payload)
 	var w *WriteError
 	if n <= 0 || n >= len(payload) || !errors.Is(e, ErrTimeout) || !errors.As(e, &w) || w.Written != n || !s.isClosed() {
-		t.Fatalf("n=%d err=%v", n, e)
+		t.Fatalf("n=%d err=%v cause=%v", n, e, errors.Unwrap(e))
 	}
 }
 func TestPollEOFAndPriority(t *testing.T) {

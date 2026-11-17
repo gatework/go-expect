@@ -11,8 +11,9 @@ type inputMailbox struct {
 	events      chan readEvent
 	inputGate   chan struct{}
 	inputReady  chan struct{}
-	queued      []readEvent
+	queued      readEvent
 	queuedBytes int
+	hasQueued   bool
 	retired     bool
 }
 
@@ -20,20 +21,21 @@ func (m *inputMailbox) retire() {
 	m.inputGate <- struct{}{}
 	defer func() { <-m.inputGate }()
 	m.retired = true
-	m.queued = nil
+	m.queued = readEvent{}
 	m.queuedBytes = 0
+	m.hasQueued = false
 	// The owner joins the pump before retirement.
 	for range m.events {
 	}
 }
 func (m *inputMailbox) takeQueued() (readEvent, bool) {
-	if len(m.queued) == 0 {
+	if !m.hasQueued {
 		return readEvent{}, false
 	}
-	event := m.queued[0]
-	m.queued[0] = readEvent{}
-	m.queued = nil
+	event := m.queued
+	m.queued = readEvent{}
 	m.queuedBytes = 0
+	m.hasQueued = false
 	return event, true
 }
 
@@ -47,17 +49,18 @@ func (m *inputMailbox) enqueue(event readEvent, limit int) error {
 	if m.queuedBytes+len(event.data) > limit {
 		return ErrBufferLimit
 	}
-	if len(m.queued) == 0 {
+	if !m.hasQueued {
 		data := event.data
 		if cap(data) > limit {
 			data = make([]byte, len(event.data))
 			copy(data, event.data)
 		}
-		m.queued = []readEvent{{data: data, err: event.err}}
+		m.queued = readEvent{data: data, err: event.err}
 		m.queuedBytes = len(data)
+		m.hasQueued = true
 		return nil
 	}
-	queued := &m.queued[0]
+	queued := &m.queued
 	size := len(queued.data) + len(event.data)
 	if size > cap(queued.data) {
 		capacity := min(limit, max(size, 2*cap(queued.data)))

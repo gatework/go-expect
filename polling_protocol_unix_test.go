@@ -55,11 +55,8 @@ func TestSendAllTinyReadQueueRetainedMemoryAndPoll(t *testing.T) {
 		waitQueuedBytes(t, s, n)
 	}
 	s.mailbox.inputGate <- struct{}{}
-	payload := 0
-	for _, event := range s.mailbox.queued {
-		payload += cap(event.data)
-	}
-	metadata := cap(s.mailbox.queued) * int(unsafe.Sizeof(readEvent{}))
+	payload := cap(s.mailbox.queued.data)
+	metadata := int(unsafe.Sizeof(s.mailbox.queued))
 	logical := s.mailbox.queuedBytes
 	<-s.mailbox.inputGate
 	if logical != 256 || payload+metadata > limit+int(unsafe.Sizeof(readEvent{})) {

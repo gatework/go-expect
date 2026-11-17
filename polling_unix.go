@@ -157,7 +157,14 @@ func (a *osAccess) writeNow(data []byte) (int, error) {
 	var err error
 	control := a.raw.Control(func(fd uintptr) {
 		fds := []unix.PollFd{{Fd: int32(fd), Events: unix.POLLOUT}}
-		count, e := unix.Poll(fds, 0)
+		var count int
+		var e error
+		for {
+			count, e = unix.Poll(fds, 0)
+			if !errors.Is(e, unix.EINTR) {
+				break
+			}
+		}
 		if e != nil {
 			err = e
 			return
@@ -166,7 +173,14 @@ func (a *osAccess) writeNow(data []byte) (int, error) {
 			err = ErrTimeout
 			return
 		}
-		n, err = unix.Write(int(fd), data)
+		for {
+			n, err = unix.Write(int(fd), data)
+			// EINTR without progress accepted no bytes. Never replay a write
+			// that reports positive progress, even alongside an error.
+			if !errors.Is(err, unix.EINTR) || n > 0 {
+				break
+			}
+		}
 		if n < 0 {
 			n = 0
 		}

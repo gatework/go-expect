@@ -2,6 +2,8 @@
 
 ## v0.6.2
 
+- Retry interrupted immediate-write system calls only when no bytes were accepted, preserving partial progress and backpressure timeouts.
+
 - Adopt published go-standards v1.2.0 and document intentional independent context lifetimes.
 
 - Update indirect test dependencies to testify v1.12.1 and go.yaml.in/yaml/v3

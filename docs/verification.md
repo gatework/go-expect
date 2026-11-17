@@ -65,3 +65,10 @@ darwin/arm64, including eleven 100,000-execution fuzz targets, cross-platform
 compile/vet and the independent consumer. The 24 release automation regressions
 and actionlint passed too. Exact-commit CI and release asset checks remain
 separate publication gates.
+
+Release validation exposed a Unix immediate-write EINTR failure in the existing
+SendAllPoll partial-progress test. The Go 1.26.0 race stress loop reproduced
+`interrupted system call` after 8192 accepted bytes. Immediate polling and writes
+now retry EINTR only without accepted progress; the same test passed 10,000
+iterations after the fix. The complete local `make check` passed again. The
+existing assertion also reports its synthetic underlying error on failure.

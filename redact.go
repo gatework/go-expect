@@ -36,7 +36,7 @@ func NewRedactor(secrets []string, replacement string) (*Redactor, error) {
 	r.set(secrets)
 	return r, nil
 }
-func (*Redactor) String() string { return "expect.Redactor" }
+func (r *Redactor) String() string { return "expect.Redactor" }
 
 // GoString formats metadata without exposing payloads.
 func (r *Redactor) GoString() string { return r.String() }

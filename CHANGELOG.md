@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.6.3
+
+- Match `errors.ErrUnsupported` for unavailable polling, line-break and process capabilities while retaining the package-specific errors and messages.
+- Reuse the timer between `SendSlow` chunks and consolidate diagnostic writes while retaining partial progress, redaction and short-write handling.
+- Group interactive options and clarify the internal ownership of transport capabilities and call-scoped contexts.
+
 ## v0.6.2
 
 - Retry interrupted immediate-write system calls only when no bytes were accepted, preserving partial progress and backpressure timeouts.

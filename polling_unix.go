@@ -26,6 +26,14 @@ type osAccess struct {
 	deadline  func(time.Time) error
 }
 
+type readDeadlineSetter interface {
+	SetReadDeadline(deadline time.Time) error
+}
+
+type readErrorNormalizer interface {
+	NormalizeReadError(err error) error
+}
+
 func newOSAccess(transport io.ReadWriteCloser) (*osAccess, error) {
 	conn, ok := transport.(syscall.Conn)
 	if !ok {
@@ -41,12 +49,12 @@ func newOSAccess(transport io.ReadWriteCloser) (*osAccess, error) {
 		return nil, errors.Join(ErrPollUnsupported, e, inner)
 	}
 	a := &osAccess{raw: raw}
-	if p, ok := transport.(interface{ NormalizeReadError(err error) error }); ok {
+	if p, ok := transport.(readErrorNormalizer); ok {
 		a.normalize = p.NormalizeReadError
 	}
 	// Choose once, before ownership transfer. A transport that cannot wake the
 	// runtime reader with a deadline retains the bounded native-poll backend.
-	if p, ok := transport.(interface{ SetReadDeadline(t time.Time) error }); ok {
+	if p, ok := transport.(readDeadlineSetter); ok {
 		if err := p.SetReadDeadline(time.Time{}); err == nil {
 			a.deadline = p.SetReadDeadline
 		}

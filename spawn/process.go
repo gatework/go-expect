@@ -75,7 +75,12 @@ func WithDir(dir string) Option {
 func WithRaw() Option { return func(o *options) error { o.raw = true; return nil } }
 
 // ErrUnsupported identifies a process or terminal capability unavailable here.
-var ErrUnsupported = errors.New("spawn: capability unsupported")
+var ErrUnsupported error = unsupportedError("spawn: capability unsupported")
+
+type unsupportedError string
+
+func (e unsupportedError) Error() string { return string(e) }
+func (unsupportedError) Unwrap() error   { return errors.ErrUnsupported }
 
 // ExitStatus is a detached, payload-free child status. Signal is empty for a
 // normal exit; a signaled Unix exit has Code -1. PID identifies the started child.
@@ -159,7 +164,7 @@ func (p *Process) SetSize(rows, cols int) error { return p.state.terminal().SetS
 func (p *Process) Terminal() Terminal { return p.state.terminal() }
 
 // String omits child program and environment data.
-func (*Process) String() string { return "spawn.Process" }
+func (p *Process) String() string { return "spawn.Process" }
 
 // GoString omits child program and environment data.
 func (p *Process) GoString() string { return p.String() }

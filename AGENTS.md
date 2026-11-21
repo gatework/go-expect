@@ -1,6 +1,6 @@
 # go-expect development
 
-Follow [the gatework Go engineering standard](https://github.com/gatework/go-standards/blob/v1.1.0/STANDARD.md) (go-standards/STANDARD.md); this file adds only what is specific to go-expect.
+Follow [the gatework Go engineering standard](https://github.com/gatework/go-standards/blob/v1.2.0/STANDARD.md) (go-standards/STANDARD.md); this file adds only what is specific to go-expect.
 
 Use `golang-how-to` for Go implementation, review and debugging.
 

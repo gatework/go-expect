@@ -11,8 +11,8 @@ import (
 
 // diagnosticState serializes borrowed sinks and their independent stream filters.
 type diagnosticState struct {
-	interactDeferred                            bool
 	mu                                          sync.Mutex
+	interactDeferred                            bool
 	redactor                                    diagnosticRedactor
 	sentRedactor, interactRedactor              *diagnosticRedactor
 	interactSink                                io.Writer
@@ -69,18 +69,9 @@ func (s *Session) emit(data []byte, finish bool) error {
 		return nil
 	}
 	filtered := s.diagnostics.redactor.append(data, finish)
-	if len(filtered) == 0 {
-		return nil
-	}
-	for _, out := range s.opts.outputs {
-		n, err := out.Write(filtered)
-		if err == nil && n != len(filtered) {
-			err = io.ErrShortWrite
-		}
-		if err != nil {
-			s.diagnostics.outputErr = err
-			return err
-		}
+	if err := writeToSinks(s.opts.outputs, filtered); err != nil {
+		s.diagnostics.outputErr = err
+		return err
 	}
 	return nil
 }
@@ -105,22 +96,28 @@ func (s *Session) emitSent(data []byte, finish bool) error {
 		}
 	}()
 	filtered := s.diagnostics.sentRedactor.append(data, finish)
-	if len(filtered) == 0 {
+	if err := writeToSinks(s.opts.sendOutputs, filtered); err != nil {
+		s.diagnostics.sendOutputErr = err
 		completed = true
+		return err
+	}
+	completed = true
+	return nil
+}
+
+func writeToSinks(sinks []io.Writer, data []byte) error {
+	if len(data) == 0 {
 		return nil
 	}
-	for _, out := range s.opts.sendOutputs {
-		n, err := out.Write(filtered)
-		if err == nil && n != len(filtered) {
+	for _, out := range sinks {
+		n, err := out.Write(data)
+		if err == nil && n != len(data) {
 			err = io.ErrShortWrite
 		}
 		if err != nil {
-			s.diagnostics.sendOutputErr = err
-			completed = true
 			return err
 		}
 	}
-	completed = true
 	return nil
 }
 

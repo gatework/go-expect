@@ -25,26 +25,30 @@ func (s *Session) SendSlow(ctx context.Context, text string, chunk int, interval
 		return 0, err
 	}
 	defer s.writeGate.release()
+	var timer *time.Timer
+	defer func() {
+		if timer != nil {
+			timer.Stop()
+		}
+	}()
 	deadline, _ := ctx.Deadline()
 	for n < len(text) {
 		count, e := s.writeOnce(ctx, text[n:min(len(text), n+chunk)], deadline)
 		n += count
 		if e != nil {
-			if n == 0 {
-				return 0, e
-			}
-			return n, &WriteError{Written: n, Cause: errors.Join(e, s.Close())}
+			return n, s.sendProgressError(n, e)
 		}
-
 		if n < len(text) && interval > 0 {
-			timer := time.NewTimer(interval)
+			if timer == nil {
+				timer = time.NewTimer(interval)
+			} else {
+				timer.Reset(interval)
+			}
 			select {
 			case <-timer.C:
 			case <-ctx.Done():
-				timer.Stop()
 				return n, &WriteError{Written: n, Cause: errors.Join(ctx.Err(), s.Close())}
 			case <-s.done:
-				timer.Stop()
 				return n, &WriteError{Written: n, Cause: errors.Join(ErrClosed, s.Close())}
 			}
 		}
@@ -149,7 +153,11 @@ func (s *Session) sendProgressError(written int, err error) error {
 }
 
 // ErrBreakUnsupported indicates that the transport cannot assert a line break.
-var ErrBreakUnsupported = errors.New("expect: transport break unsupported")
+var ErrBreakUnsupported error = unsupportedError("expect: transport break unsupported")
+
+type lineBreaker interface {
+	SendBreak(ctx context.Context, d time.Duration) error
+}
 
 // SendBreak serializes a transport-specific line break with other writes.
 func (s *Session) SendBreak(ctx context.Context, duration time.Duration) error {
@@ -159,9 +167,7 @@ func (s *Session) SendBreak(ctx context.Context, duration time.Duration) error {
 	if duration < 0 {
 		return &ConfigError{Option: "break", Reason: "negative duration"}
 	}
-	breaker, ok := s.transport.(interface {
-		SendBreak(ctx context.Context, d time.Duration) error
-	})
+	breaker, ok := s.transport.(lineBreaker)
 	if !ok {
 		return ErrBreakUnsupported
 	}

@@ -121,7 +121,7 @@ func (s *Session) Close() error {
 }
 
 // String formats the handle without exposing owned stream or command state.
-func (*Session) String() string { return "expect.Session" }
+func (s *Session) String() string { return "expect.Session" }
 
 // GoString formats the handle without exposing owned stream or command state.
 func (s *Session) GoString() string { return s.String() }

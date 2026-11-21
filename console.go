@@ -19,7 +19,6 @@
 package expect
 
 import (
-	"context"
 	"errors"
 	"io"
 	"os"
@@ -145,13 +144,11 @@ type ptyTransport struct {
 // Session probes these optional capabilities at runtime; renaming a method
 // would silently select a fallback path, so the compiler checks them here.
 var (
-	_ deadlineWriter                                   = (*ptyTransport)(nil)
-	_ syscall.Conn                                     = (*ptyTransport)(nil)
-	_ interface{ SetReadDeadline(t time.Time) error }  = (*ptyTransport)(nil)
-	_ interface{ NormalizeReadError(err error) error } = (*ptyTransport)(nil)
-	_ interface {
-		SendBreak(ctx context.Context, d time.Duration) error
-	} = (*ptyTransport)(nil)
+	_ deadlineWriter      = (*ptyTransport)(nil)
+	_ syscall.Conn        = (*ptyTransport)(nil)
+	_ readDeadlineSetter  = (*ptyTransport)(nil)
+	_ readErrorNormalizer = (*ptyTransport)(nil)
+	_ lineBreaker         = (*ptyTransport)(nil)
 )
 
 func (p *ptyTransport) Read(b []byte) (int, error) {
@@ -273,7 +270,7 @@ func (c *Console) Start(cmd *exec.Cmd) error {
 }
 
 // String formats the handle without exposing owned stream or command state.
-func (*Console) String() string { return "expect.Console" }
+func (c *Console) String() string { return "expect.Console" }
 
 // GoString formats the handle without exposing owned stream or command state.
 func (c *Console) GoString() string { return c.String() }

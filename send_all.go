@@ -49,8 +49,8 @@ func (s *Session) sendAll(ctx context.Context, text string, poll bool) (n int, e
 	}
 	// Drain without competing with an active Expect receive. The input gate also
 	// preserves order when a later Expect claims queued input.
-	wait := sendAllWait{session: s, ctx: ctx, results: results, events: s.mailbox.events}
-	return wait.run()
+	wait := sendAllWait{session: s, results: results, events: s.mailbox.events}
+	return wait.run(ctx)
 }
 
 // sendAllWait waits for one admitted SendAll write while moving published
@@ -58,24 +58,23 @@ func (s *Session) sendAll(ctx context.Context, text string, poll bool) (n int, e
 // cannot deadlock the write.
 type sendAllWait struct {
 	session *Session
-	ctx     context.Context //nolint:containedctx // scoped to one sendAll call
 	results <-chan writeResult
 	events  <-chan readEvent
 }
 
-func (w *sendAllWait) run() (int, error) {
+func (w *sendAllWait) run(ctx context.Context) (int, error) {
 	s := w.session
 	s.mailbox.signalInput() // Inspect already published input before relying on future notifications.
 	for {
 		select {
 		case r := <-w.results:
-			return s.finishWrite(w.ctx, r)
-		case <-w.ctx.Done():
-			return s.abortWrite(w.results, w.ctx.Err())
+			return s.finishWrite(ctx, r)
+		case <-ctx.Done():
+			return s.abortWrite(w.results, ctx.Err())
 		case <-s.done:
 			return s.abortWrite(w.results, ErrClosed)
 		case <-s.mailbox.inputReady:
-			if n, done, err := w.onInputReady(); done {
+			if n, done, err := w.onInputReady(ctx); done {
 				return n, err
 			}
 		}
@@ -86,7 +85,7 @@ func (w *sendAllWait) run() (int, error) {
 // queues at most one published event and releases the gate; it never holds
 // the gate while waiting for future input. done reports that the write
 // finished or was aborted instead.
-func (w *sendAllWait) onInputReady() (n int, done bool, err error) {
+func (w *sendAllWait) onInputReady(ctx context.Context) (n int, done bool, err error) {
 	s := w.session
 	select {
 	case s.mailbox.inputGate <- struct{}{}:
@@ -98,9 +97,9 @@ func (w *sendAllWait) onInputReady() (n int, done bool, err error) {
 		}
 		return 0, false, nil
 	case r := <-w.results:
-		n, err = s.finishWrite(w.ctx, r)
-	case <-w.ctx.Done():
-		n, err = s.abortWrite(w.results, w.ctx.Err())
+		n, err = s.finishWrite(ctx, r)
+	case <-ctx.Done():
+		n, err = s.abortWrite(w.results, ctx.Err())
 	case <-s.done:
 		n, err = s.abortWrite(w.results, ErrClosed)
 	}

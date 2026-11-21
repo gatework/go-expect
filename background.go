@@ -56,50 +56,53 @@ type backgroundState struct {
 	pausedAt     time.Time
 }
 
-func (r *backgroundState) run(ctx context.Context) {
-	b, w := r.b, r.w
+func (bs *backgroundState) run(ctx context.Context) {
 	returned := false
-	defer close(b.done)
+	defer close(bs.b.done)
 	defer func() {
 		if !returned {
 			kind := CallbackExited
 			if recover() != nil {
 				kind = CallbackPanicked
 			}
-			b.result = w.result
-			b.err = &CallbackError{Kind: kind}
+			bs.b.result = bs.w.result
+			bs.b.err = &CallbackError{Kind: kind}
 		}
-		w.close()
-		if r.owns {
-			r.owns = false
-			w.session.releaseWait()
+		bs.w.close()
+		if bs.owns {
+			bs.owns = false
+			bs.w.session.releaseWait()
 		}
-		b.cancel()
-		notified := false
-		defer func() {
-			if !notified {
-				kind := CallbackExited
-				if recover() != nil {
-					kind = CallbackPanicked
-				}
-				b.err = &CallbackError{Kind: kind}
-			}
-		}()
-		w.session.notifyExpect(ctx, b.result, b.err)
-		notified = true
+		bs.b.cancel()
+		bs.notifyCompletion(ctx)
 	}()
-	b.result, b.err = w.run(ctx)
+	bs.b.result, bs.b.err = bs.w.run(ctx)
 	returned = true
 }
 
-func (r *backgroundState) park(ctx context.Context) error {
-	for r.paused {
+func (bs *backgroundState) notifyCompletion(ctx context.Context) {
+	notified := false
+	defer func() {
+		if !notified {
+			kind := CallbackExited
+			if recover() != nil {
+				kind = CallbackPanicked
+			}
+			bs.b.err = &CallbackError{Kind: kind}
+		}
+	}()
+	bs.w.session.notifyExpect(ctx, bs.b.result, bs.b.err)
+	notified = true
+}
+
+func (bs *backgroundState) park(ctx context.Context) error {
+	for bs.paused {
 		select {
-		case f := <-r.b.controls:
+		case f := <-bs.b.controls:
 			f()
 		case <-ctx.Done():
 			return ctx.Err()
-		case <-r.w.session.done:
+		case <-bs.w.session.done:
 			return ErrClosed
 		}
 	}

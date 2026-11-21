@@ -10,15 +10,20 @@ import (
 
 // Sentinel errors describe protocol and lifecycle failures.
 var (
-	ErrInvalidPattern  = errors.New("expect: invalid pattern")
-	ErrClosed          = errors.New("expect: session closed")
-	ErrBusy            = errors.New("expect: another expect operation is active")
-	ErrTimeout         = errors.New("expect: timeout")
-	ErrIdleTimeout     = errors.New("expect: idle timeout")
-	ErrBufferLimit     = errors.New("expect: buffer limit reached")
-	ErrEmptyMatch      = errors.New("expect: empty match")
-	ErrPollUnsupported = errors.New("expect: OS polling unsupported")
+	ErrInvalidPattern        = errors.New("expect: invalid pattern")
+	ErrClosed                = errors.New("expect: session closed")
+	ErrBusy                  = errors.New("expect: another expect operation is active")
+	ErrTimeout               = errors.New("expect: timeout")
+	ErrIdleTimeout           = errors.New("expect: idle timeout")
+	ErrBufferLimit           = errors.New("expect: buffer limit reached")
+	ErrEmptyMatch            = errors.New("expect: empty match")
+	ErrPollUnsupported error = unsupportedError("expect: OS polling unsupported")
 )
+
+type unsupportedError string
+
+func (e unsupportedError) Error() string { return string(e) }
+func (unsupportedError) Unwrap() error   { return errors.ErrUnsupported }
 
 // WriteError reports a failed, non-retryable write. Error never prints payloads
 // or the underlying error message; Unwrap exposes the original cause explicitly.

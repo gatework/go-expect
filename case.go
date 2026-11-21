@@ -29,7 +29,7 @@ type Case struct {
 	Limit    int
 }
 
-func (Case) String() string { return "expect.Case" }
+func (c Case) String() string { return "expect.Case" }
 
 // GoString formats metadata without exposing payloads.
 func (c Case) GoString() string { return c.String() }
